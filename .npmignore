@@ -1,0 +1,18 @@
+# Ignore examples and tests
+examples/
+test/
+*.test.*
+*.spec.*
+
+# Ignore build and config files
+vite.config.*
+.eslintrc.*
+*.zip
+*.log
+
+# Ignore local tooling or editor cruft
+node_modules/
+*.swp
+*.DS_Store
+.env*
+*.md~

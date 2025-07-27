@@ -1,0 +1,38 @@
+{
+  "name": "@pfern/elements",
+  "version": "0.1.0",
+  "description": "A minimalist, pure functional declarative UI toolkit.",
+  "main": "elements.js",
+  "type": "module",
+  "exports": {
+    ".": "./elements.js"
+  },
+  "keywords": [
+    "ui",
+    "functional",
+    "declarative",
+    "frontend",
+    "vdom",
+    "jsx-free",
+    "stateless",
+    "recursive",
+    "html"
+  ],
+  "scripts": {
+    "dev": "vite examples/",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test test/*.test.* --test-reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paulfernandez/elements.js.git"
+  },
+  "author": "Paul Fernandez",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "vite": "^5.0.0"
+  }
+}
+

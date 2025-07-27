@@ -1,0 +1,120 @@
+
+/*******************************************************************************
+ * Reset & base theme
+ ******************************************************************************/
+
+@import 'pico.classless.sand.min.css';
+
+:root {
+  --pico-font-family-sans-serif: 'Arial', sans-serif;
+  --pico-border-radius: 0;
+}
+
+/* Light color scheme (Default) */
+/* Can be forced with data-theme="light" */
+[data-theme="light"],
+:root:not([data-theme="dark"]) {
+  --pico-primary-background: transparent;
+  --pico-primary-border: #ccc;
+  --pico-primary-hover-color: var(--pico-primary-inverse);
+  --pico-primary-hover-background: transparent;
+  --pico-primary-hover-border: var(--pico-primary-hover-color);
+  --pico-button-hover-box-shadow: var(--pico-primary-hover-background);
+}
+
+input:not([type=checkbox],[type=radio],[type=range]) {
+  height: auto;
+}
+
+
+/*******************************************************************************
+ * Responsive Layout
+ ******************************************************************************/
+
+body>main, main {
+  border-bottom: 1px solid #ddd;
+  padding-top: 0;
+}
+
+body>header, header {
+  padding-bottom: 0;
+}
+
+section {
+  border-top: 1px solid #ddd;
+  padding-top: 1em;
+  margin: 0;
+}
+
+div {
+  width: 100%;
+  display: inline-block;
+}
+
+@media (max-width: 767px) {
+  div {
+    min-width: 100%;
+    padding-bottom: 1em;
+  }
+
+  div:not(:first-child, :only-of-type) {
+    border-top: 1px solid #ddd;
+    padding-top: 1em;
+  }
+}
+
+@media (min-width: 768px) {
+  div:not(:first-child, :only-of-type) {
+    border-left: 1px solid #ddd;
+    padding-left: 1em;
+  }
+
+  div:not(:last-child, :only-of-type) {
+    padding-right: 1em;
+  }
+}
+
+/*******************************************************************************
+ * General
+ ******************************************************************************/
+
+output {
+  font-size: xx-large;
+  font-weight: bold;
+  font-family: monospace;
+  padding: 1em;
+}
+
+li > span:hover {
+  opacity: 0.8;
+}
+
+form > * {
+  display: inline-block;
+}
+
+li > button {
+  padding: 2px 8px 1px;
+  margin-left: 10px;
+}
+
+/*******************************************************************************
+ * Apps
+ ******************************************************************************/
+
+.todos form {
+  max-width: 600px;
+}
+
+.todos form input {
+  width: 75%;
+}
+
+.todos form button {
+  width: 25%;
+}
+
+.todos li {
+  cursor: pointer;
+}
+
