@@ -1,6 +1,6 @@
 {
   "name": "@pfern/elements",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A minimalist, pure functional declarative UI toolkit.",
   "main": "elements.js",
   "type": "module",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/paulfernandez/elements.js.git"
+    "url": "https://github.com/pfernandez/elements.git"
   },
   "author": "Paul Fernandez",
   "license": "MIT",
