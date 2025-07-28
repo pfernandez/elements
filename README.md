@@ -221,7 +221,7 @@ Each tag function (e.g. `div`, `button`, `svg`) includes a `@typedef` and MDN-so
 ## Installation
 
 ```bash
-npm install elements-js
+npm install @pfern/elements
 ```
 
 Or clone the repo and use as an ES module:
