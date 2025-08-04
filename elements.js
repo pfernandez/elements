@@ -61,14 +61,14 @@ const diffTree = (a, b) => {
   }
 }
 
-
 /**
  * Compares the children of two vnodes and returns patch list.
  *
  * @param {Array} aChildren - Previous vnode children
  * @param {Array} bChildren - New vnode children
  * @returns {Array} patches - One per child node
- */const diffChildren = (aChildren, bChildren) => {
+ */
+const diffChildren = (aChildren, bChildren) => {
   const patches = []
   const len = Math.max(aChildren.length, bChildren.length)
   for (let i = 0; i < len; i++) {
@@ -85,6 +85,8 @@ const diffTree = (a, b) => {
  *   *if* the listener returns a vnode (to support declarative form updates).
  * - Handlers for these event types receive `(elements, event)` as arguments,
  *   where `elements` is `event.target.elements` if available.
+ * - Async handlers are supported: if the listener returns a Promise,
+ *   it will be awaited and the resulting vnode (if any) will be rendered.
  *
  * @param {HTMLElement} el - The DOM element to receive props
  * @param {Object} props - Attributes and event listeners to assign
@@ -92,7 +94,7 @@ const diffTree = (a, b) => {
 const assignProperties = (el, props) =>
   Object.entries(props).forEach(([key, value]) => {
     if (key.startsWith('on') && typeof value === 'function') {
-      el[key] = (...args) => {
+      el[key] = async (...args) => {
         let target = el
         while (target && !target.__root) target = target.parentNode
         if (!target) return
@@ -102,9 +104,9 @@ const assignProperties = (el, props) =>
           const isFormEvent = /^(oninput|onsubmit|onchange)$/.test(key)
           const elements = isFormEvent && event?.target?.elements || null
 
-          const result = isFormEvent
+          const result = await (isFormEvent
             ? value.call(el, elements, event)
-            : value.call(el, event)
+            : value.call(el, event))
 
           if (isFormEvent && result !== undefined) {
             event.preventDefault()
@@ -119,11 +121,12 @@ const assignProperties = (el, props) =>
 
           if (DEBUG && result !== undefined && !Array.isArray(result)) {
             isFormEvent && event.preventDefault()
-            DEBUG && console.warn(
-              `Listener '${key}' on <${el.tagName.toLowerCase()}> returned "${result}".\n`
-                + 'If you intended a UI update, return a vnode array like: div({}, ...).\n'
-                + 'Otherwise, return undefined (or nothing) for native event listener behavior.'
-            )
+            DEBUG
+              && console.warn(
+                `Listener '${key}' on <${el.tagName.toLowerCase()}> returned "${result}".\n`
+                  + 'If you intended a UI update, return a vnode array like: div({}, ...).\n'
+                  + 'Otherwise, return undefined (or nothing) for native event listener behavior.'
+              )
           }
 
           if (Array.isArray(result)) {
@@ -153,8 +156,10 @@ const assignProperties = (el, props) =>
           el.setAttribute(key, value)
         }
       } catch {
-        DEBUG && console.warn(
-          `Illegal DOM property assignment for ${el.tagName}: ${key}: ${value}`)
+        DEBUG
+          && console.warn(
+            `Illegal DOM property assignment for ${el.tagName}: ${key}: ${value}`
+          )
       }
     }
   })
@@ -194,9 +199,12 @@ const renderTree = (node, isRoot = true) => {
   }
 
   let el =
-    tag === 'html' ? document.documentElement
-      : tag === 'head' ? document.head
-        : tag === 'body' ? document.body
+    tag === 'html'
+      ? document.documentElement
+      : tag === 'head'
+        ? document.head
+        : tag === 'body'
+          ? document.body
           : svgTagNames.includes(tag)
             ? document.createElementNS(svgNS, tag)
             : document.createElement(tag)
@@ -311,88 +319,232 @@ export const component = fn => {
 
 const htmlTagNames = [
   // Document metadata
-  'html', 'head', 'base', 'link', 'meta', 'title',
+  'html',
+  'head',
+  'base',
+  'link',
+  'meta',
+  'title',
 
   // Sections
-  'body', 'header', 'hgroup', 'nav', 'main', 'section', 'article',
-  'aside', 'footer', 'address',
+  'body',
+  'header',
+  'hgroup',
+  'nav',
+  'main',
+  'section',
+  'article',
+  'aside',
+  'footer',
+  'address',
 
   // Text content
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'hr', 'menu', 'pre', 'blockquote',
-  'ol', 'ul', 'li', 'dl', 'dt', 'dd', 'figure', 'figcaption',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'p',
+  'hr',
+  'menu',
+  'pre',
+  'blockquote',
+  'ol',
+  'ul',
+  'li',
+  'dl',
+  'dt',
+  'dd',
+  'figure',
+  'figcaption',
   'div',
 
   // Inline text semantics
-  'a', 'abbr', 'b', 'bdi', 'bdo', 'br', 'cite', 'code',
-  'data', 'dfn', 'em', 'i', 'kbd', 'mark', 'q', 'rb', 'rp',
-  'rt', 'rtc', 'ruby', 's', 'samp', 'small', 'span', 'strong',
-  'sub', 'sup', 'time', 'u', 'var', 'wbr',
+  'a',
+  'abbr',
+  'b',
+  'bdi',
+  'bdo',
+  'br',
+  'cite',
+  'code',
+  'data',
+  'dfn',
+  'em',
+  'i',
+  'kbd',
+  'mark',
+  'q',
+  'rb',
+  'rp',
+  'rt',
+  'rtc',
+  'ruby',
+  's',
+  'samp',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'sup',
+  'time',
+  'u',
+  'var',
+  'wbr',
 
   // Edits
-  'ins', 'del',
+  'ins',
+  'del',
 
   // Embedded content
-  'img', 'iframe', 'embed', 'object', 'param', 'video', 'audio',
-  'source', 'track', 'picture',
+  'img',
+  'iframe',
+  'embed',
+  'object',
+  'param',
+  'video',
+  'audio',
+  'source',
+  'track',
+  'picture',
 
   // Table content
-  'table', 'caption', 'thead', 'tbody', 'tfoot', 'tr',
-  'th', 'td', 'colgroup', 'col',
+  'table',
+  'caption',
+  'thead',
+  'tbody',
+  'tfoot',
+  'tr',
+  'th',
+  'td',
+  'colgroup',
+  'col',
 
   // Forms
-  'form', 'fieldset', 'legend', 'label', 'input', 'button',
-  'select', 'datalist', 'optgroup', 'option', 'textarea',
-  'output', 'progress', 'meter',
+  'form',
+  'fieldset',
+  'legend',
+  'label',
+  'input',
+  'button',
+  'select',
+  'datalist',
+  'optgroup',
+  'option',
+  'textarea',
+  'output',
+  'progress',
+  'meter',
 
   // Interactive elements
-  'details', 'search', 'summary', 'dialog', 'slot', 'template',
+  'details',
+  'search',
+  'summary',
+  'dialog',
+  'slot',
+  'template',
 
   // Scripting and style
-  'script', 'noscript', 'style',
+  'script',
+  'noscript',
+  'style',
 
   // Web components and others
-  'canvas', 'picture', 'map', 'area', 'slot'
+  'canvas',
+  'picture',
+  'map',
+  'area',
+  'slot'
 ]
 
 const svgTagNames = [
   // Animation elements
-  'a', 'animate', 'animateMotion', 'animateTransform', 'mpath', 'set',
+  'a',
+  'animate',
+  'animateMotion',
+  'animateTransform',
+  'mpath',
+  'set',
 
   // Basic shapes
-  'circle', 'ellipse', 'line', 'path', 'polygon', 'polyline', 'rect',
+  'circle',
+  'ellipse',
+  'line',
+  'path',
+  'polygon',
+  'polyline',
+  'rect',
 
   // Container / structural
-  'defs', 'g', 'marker', 'mask', 'pattern', 'svg', 'switch', 'symbol', 'use',
+  'defs',
+  'g',
+  'marker',
+  'mask',
+  'pattern',
+  'svg',
+  'switch',
+  'symbol',
+  'use',
 
   // Descriptive
-  'desc', 'metadata', 'title',
+  'desc',
+  'metadata',
+  'title',
 
   // Filter primitives
-  'filter', 'feBlend', 'feColorMatrix', 'feComponentTransfer', 'feComposite',
-  'feConvolveMatrix', 'feDiffuseLighting', 'feDisplacementMap',
-  'feDistantLight', 'feDropShadow', 'feFlood', 'feFuncA', 'feFuncB',
-  'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge',
-  'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight',
-  'feSpecularLighting', 'feSpotLight', 'feTile', 'feTurbulence',
+  'filter',
+  'feBlend',
+  'feColorMatrix',
+  'feComponentTransfer',
+  'feComposite',
+  'feConvolveMatrix',
+  'feDiffuseLighting',
+  'feDisplacementMap',
+  'feDistantLight',
+  'feDropShadow',
+  'feFlood',
+  'feFuncA',
+  'feFuncB',
+  'feFuncG',
+  'feFuncR',
+  'feGaussianBlur',
+  'feImage',
+  'feMerge',
+  'feMergeNode',
+  'feMorphology',
+  'feOffset',
+  'fePointLight',
+  'feSpecularLighting',
+  'feSpotLight',
+  'feTile',
+  'feTurbulence',
 
   // Gradient / paint servers
-  'linearGradient', 'radialGradient', 'stop',
+  'linearGradient',
+  'radialGradient',
+  'stop',
 
   // Graphics elements
-  'image', 'foreignObject', // included in graphics section as non‑standard children
+  'image',
+  'foreignObject', // included in graphics section as non‑standard children
 
   // Text and text-path
-  'text', 'textPath', 'tspan',
+  'text',
+  'textPath',
+  'tspan',
 
   // Scripting/style
-  'script', 'style',
+  'script',
+  'style',
 
   // View
   'view'
 ]
 
 const tagNames = [...htmlTagNames, ...svgTagNames]
-const isPropsObject = x => typeof x === 'object'
+const isPropsObject = x =>
+  typeof x === 'object'
   && x !== null
   && !Array.isArray(x)
   && !(typeof Node !== 'undefined' && x instanceof Node)
@@ -422,18 +574,20 @@ const isPropsObject = x => typeof x === 'object'
  *
  * @type {Record<string, ElementHelper>}
  */
-export const elements = tagNames.reduce((acc, tag) => ({
-  ...acc,
-  [tag]: (propsOrChild, ...children) => {
-    const props = isPropsObject(propsOrChild) ? propsOrChild : {}
-    const actualChildren = props === propsOrChild
-      ? children
-      : [propsOrChild, ...children]
-    return [tag, props, ...actualChildren]
+export const elements = tagNames.reduce(
+  (acc, tag) => ({
+    ...acc,
+    [tag]: (propsOrChild, ...children) => {
+      const props = isPropsObject(propsOrChild) ? propsOrChild : {}
+      const actualChildren =
+        props === propsOrChild ? children : [propsOrChild, ...children]
+      return [tag, props, ...actualChildren]
+    }
+  }),
+  {
+    fragment: (...children) => ['fragment', {}, ...children]
   }
-}), {
-  fragment: (...children) => ['fragment', {}, ...children]
-})
+)
 
 /**
  * <html>
@@ -1928,4 +2082,3 @@ export const view = elements.view
 
 // TODO: MathML
 // https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Element
-
