@@ -89,17 +89,16 @@ export const todos = component((items = []) => {
   const toggle = item =>
     todos(items.map(i => i === item ? { ...i, done: !item.done } : i))
 
-  return div({ class: 'todos' },
-    form({ onsubmit: add },
-      input({ name: 'todo', placeholder: 'What needs doing?' }),
-      button({ type: 'submit' }, 'Add')),
-    ul(...items.map(item =>
-      li({ style: { 'text-decoration': item.done ? 'line-through' : 'none' } },
-        span({ onclick: () => toggle(item) }, item.value),
-        button({ onclick: () => remove(item) }, '✕')
-      ))
+  return (
+    div({ class: 'todos' },
+      form({ onsubmit: add },
+        input({ name: 'todo', placeholder: 'What needs doing?' }),
+        button({ type: 'submit' }, 'Add')),
+      ul(...items.map(item =>
+          li({ style: { 'text-decoration': item.done ? 'line-through' : 'none' } },
+            span({ onclick: () => toggle(item) }, item.value),
+            button({ onclick: () => remove(item) }, '✕')))))
     )
-  )
 })
 ```
 
@@ -108,6 +107,8 @@ This is a complete MVC-style app:
 * Stateless
 * Immutable
 * Pure
+
+You can view these examples live on [Github Pages](https://pfernandez.github.io/elements/) or by running them locally with `npm run dev`.
 
 ---
 
@@ -206,6 +207,11 @@ Each tag function (e.g. `div`, `button`, `svg`) includes a `@typedef` and MDN-so
 * Provide editor hints
 * Encourage accessibility and semantic markup
 * Enable intelligent autocomplete
+
+### Testing Philosophy
+
+Elements are data-in, data-out only, so mocking and headless browsers like `jsdom` are unnecessary out of the box.
+See the tests [in this repository](test/README.md) for some examples.
 
 ---
 

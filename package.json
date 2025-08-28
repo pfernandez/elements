@@ -19,7 +19,7 @@
     "html"
   ],
   "scripts": {
-    "dev": "vite examples/",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test test/*.test.* --test-reporter spec"
