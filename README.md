@@ -1,6 +1,7 @@
 # Elements.js
 
-A minimalist declarative UI toolkit designed around purity, immutability, and HTML semantics.
+Elements.js is a minimalist declarative UI toolkit designed around purity,
+immutability, and HTML semantics.
 
 ## Features
 
@@ -14,7 +15,8 @@ A minimalist declarative UI toolkit designed around purity, immutability, and HT
 
 ## Why Elements.js?
 
-Modern frameworks introduced declarative UI—but buried it beneath lifecycle hooks, mutable state, and complex diffing algorithms.
+Modern frameworks introduced declarative UI—but buried it beneath lifecycle
+hooks, mutable state, and complex diffing algorithms.
 
 **Elements.js goes further:**
 
@@ -36,7 +38,8 @@ Yes. Elements.js proves it.
 * No lifecycle methods or effects
 * Every component is a function
 
-To update a view: just **call the function again** with new arguments. The DOM subtree is replaced in place.
+To update a view: just **call the function again** with new arguments. The DOM
+subtree is replaced in place.
 
 ### State lives in the DOM
 
@@ -49,23 +52,22 @@ The DOM node *is the history*. Input state is passed as an argument.
 * No transpilation step
 * No reactive graph to debug
 
-Elements.js embraces the full truth of each function call as the only valid state.
+Elements.js embraces the full truth of each function call as the only valid
+state.
 
 ---
 
 ## Example: Counter
 
 ```js
-import { div, pre, button, component, render } from './elements.js';
+import { button, component, div, output } from '@pfern/elements'
 
-const counter = component((count = 0) =>
+export const counter = component((count = 0) =>
   div(
-    pre(count),
-    button({ onclick: () => counter(count + 1) }, 'Increment')
-  )
-)
-
-render(counter(), document.body);
+    output(count),
+    button(
+      { onclick: () => counter(count + 1) },
+      'Increment')))
 ```
 
 * Each click returns a new call to `counter(count + 1)`
@@ -77,29 +79,36 @@ render(counter(), document.body);
 ## Form Example: Todos App
 
 ```js
-import { button, div, component, form, input, li, span, ul } from './elements.js';
 
-export const todos = component((items = []) => {
-  const add = ({ todo: { value } }) =>
-    value && todos([...items, { value, done: false }])
+import { button, component, div,
+         form, input, li, span, ul } from '@pfern/elements'
 
-  const remove = item =>
-    todos(items.filter(i => i !== item))
+export const todos = component(
+  (items = [{ value: 'Add my first todo', done: true }]) => {
 
-  const toggle = item =>
-    todos(items.map(i => i === item ? { ...i, done: !item.done } : i))
+    const add = ({ todo: { value } }) =>
+      value && todos([...items, { value, done: false }])
 
-  return (
-    div({ class: 'todos' },
-      form({ onsubmit: add },
-        input({ name: 'todo', placeholder: 'What needs doing?' }),
-        button({ type: 'submit' }, 'Add')),
-      ul(...items.map(item =>
-          li({ style: { 'text-decoration': item.done ? 'line-through' : 'none' } },
+    const remove = item =>
+      todos(items.filter(i => i !== item))
+
+    const toggle = item =>
+      todos(items.map(i => i === item ? { ...i, done: !item.done } : i))
+
+    return (
+      div({ class: 'todos' },
+
+        form({ onsubmit: add },
+          input({ name: 'todo', placeholder: 'What needs doing?' }),
+          button({ type: 'submit' }, 'Add')),
+
+        ul(...items.map(item =>
+          li(
+            { style:
+              { 'text-decoration': item.done ? 'line-through' : 'none' } },
             span({ onclick: () => toggle(item) }, item.value),
-            button({ onclick: () => remove(item) }, '✕')))))
-    )
-})
+            button({ onclick: () => remove(item) }, '✕'))))))})
+
 ```
 
 This is a complete MVC-style app:
@@ -108,13 +117,17 @@ This is a complete MVC-style app:
 * Immutable
 * Pure
 
-You can view these examples live on [Github Pages](https://pfernandez.github.io/elements/) or by running them locally with `npm run dev`.
+You can view these examples live on [Github
+Pages](https://pfernandez.github.io/elements/) or by running them locally with
+`npm run dev`.
 
 ---
 
 ## Root Rendering Shortcut
 
-If you use `html`, `head`, or `body` as the top-level tag, `render()` will automatically mount into the corresponding document element—no need to pass a container.
+If you use `html`, `head`, or `body` as the top-level tag, `render()` will
+automatically mount into the corresponding document element—no need to pass a
+container.
 
 ```js
 import {
@@ -127,7 +140,8 @@ render(
   html(
     head(
       title('Elements.js'),
-      meta({ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }),
+      meta({ name: 'viewport',
+             content: 'width=device-width, initial-scale=1.0' }),
       link({ rel: 'stylesheet', href: 'css/style.css' })
     ),
     body(
@@ -135,29 +149,29 @@ render(
       main(
         section(
           h2('Todos'),
-          todos()
-        )
-      )
-    )
-  )
-)
+          todos())))))
 ```
 
 ---
 
 ## Declarative Events
 
-All event listeners in Elements.js are pure functions. You can return a vnode from a listener to declaratively update the component tree—no mutation or imperative logic required.
+All event listeners in Elements.js are pure functions. You can return a vnode
+from a listener to declaratively update the component tree—- no mutation or
+imperative logic required.
 
 ### General Behavior
 
-* Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a new vnode to trigger a subtree replacement.
-* If the handler returns `undefined`, the event is treated as passive (no update occurs).
+* Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a new
+  vnode to trigger a subtree replacement.
+* If the handler returns `undefined`, the event is treated as passive (no update
+  occurs).
 * Returned vnodes are passed to `component()` to re-render declaratively.
 
 ### Form Events
 
-For `onsubmit`, `oninput`, and `onchange`, Elements.js provides a special signature:
+For `onsubmit`, `oninput`, and `onchange`, Elements.js provides a special
+signature:
 
 ```js
 (event.target.elements, event)
@@ -168,7 +182,8 @@ That is, your handler receives:
 1. `elements`: the HTML form’s named inputs
 2. `event`: the original DOM event object
 
-Elements.js will automatically call `event.preventDefault()` *only if* your handler returns a vnode.
+Elements.js will automatically call `event.preventDefault()` *only if* your
+handler returns a vnode.
 
 ```js
 form({
@@ -177,7 +192,8 @@ form({
 })
 ```
 
-If the handler returns nothing, `preventDefault()` is skipped and the form submits natively.
+If the handler returns nothing, `preventDefault()` is skipped and the form
+submits natively.
 
 ---
 
@@ -189,7 +205,8 @@ Wrap a recursive pure function that returns a vnode.
 
 ### `render(vnode[, container])`
 
-Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no `container` is required.
+Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
+`container` is required.
 
 ### DOM Elements
 
@@ -202,7 +219,8 @@ svg({ width: 100 }, circle({ r: 10 }))
 
 ### TypeScript & JSDoc
 
-Each tag function (e.g. `div`, `button`, `svg`) includes a `@typedef` and MDN-sourced description to:
+Each tag function (e.g. `div`, `button`, `svg`) includes a `@typedef` and
+MDN-sourced description to:
 
 * Provide editor hints
 * Encourage accessibility and semantic markup
@@ -210,14 +228,14 @@ Each tag function (e.g. `div`, `button`, `svg`) includes a `@typedef` and MDN-so
 
 ### Testing Philosophy
 
-Elements are data-in, data-out only, so mocking and headless browsers like `jsdom` are unnecessary out of the box.
-See the tests [in this repository](test/README.md) for some examples.
+Elements are data-in, data-out only, so mocking and headless browsers like
+`jsdom` are unnecessary out of the box. See the tests [in this
+repository](test/README.md) for some examples.
 
 ---
 
 ## Status
 
-* ✅ Production-ready core
 * 🧪 Fully tested (data-in/data-out behavior)
 * ⚡ Under 2kB min+gzip
 * ✅ Node and browser compatible
