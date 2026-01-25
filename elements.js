@@ -460,7 +460,6 @@ const htmlTagNames = [
 
 const svgTagNames = [
   // Animation elements
-  'a',
   'animate',
   'animateMotion',
   'animateTransform',
