@@ -1,6 +1,6 @@
 {
   "name": "@pfern/elements",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A minimalist, pure functional declarative UI toolkit.",
   "type": "module",
   "main": "elements.js",
