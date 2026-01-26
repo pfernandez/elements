@@ -12,6 +12,15 @@
 export const DEBUG: boolean;
 export function render(vtree: any, container?: any): void;
 export function component(fn: (...args: any[]) => any): (...args: any[]) => any;
+export function navigate(
+  to: string,
+  options?: {
+    replace?: boolean;
+    force?: boolean;
+    state?: any;
+    title?: string;
+  }
+): void;
 /**
  * @typedef {Record<string, any>} Props
  * @typedef {any[] | string | number | boolean | null | undefined | Node} Child

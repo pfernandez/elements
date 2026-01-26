@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
 test('all exported element functions return valid vnodes', () => {
-  const skip = new Set(['render', 'component', 'elements', 'DEBUG'])
+  const skip = new Set(['render', 'component', 'navigate', 'elements', 'DEBUG'])
   for (let [tag, fn] of Object.entries(elements)) {
     if (skip.has(tag)) continue
 
@@ -18,4 +18,3 @@ test('all exported element functions return valid vnodes', () => {
     assert.deepEqual(vnode[1], { id: 'x' }, `${tag} props should match input`)
   }
 })
-
