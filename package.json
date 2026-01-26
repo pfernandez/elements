@@ -1,13 +1,14 @@
 {
   "name": "@pfern/elements",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A minimalist, pure functional declarative UI toolkit.",
   "type": "module",
   "main": "elements.js",
-  "types": "./types/index.d.ts",
+  "types": "./types/elements.d.ts",
   "exports": {
     ".": {
-      "types": "./types/index.d.ts",
+      "types": "./types/elements.d.ts",
+      "import": "./elements.js",
       "default": "./elements.js"
     }
   },
@@ -29,7 +30,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:types": "tsc",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.* --test-reporter spec"
   },
   "repository": {
