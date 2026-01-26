@@ -26,6 +26,8 @@ const rootMap = new WeakMap()
 
 const isNodeEnv = typeof document === 'undefined'
 
+let componentUpdateDepth = 0
+
 /**
  * Determines whether two nodes have changed enough to require replacement.
  * Compares type, string value, or element tag.
@@ -185,8 +187,12 @@ const renderTree = (node, isRoot = true) => {
   }
 
   if (Array.isArray(node) && node[0] === 'wrap') {
-    const [_tag, _props, child] = node
-    return renderTree(child, true)
+    const [_tag, props = {}, child] = node
+    const el = renderTree(child, true)
+    if (props && typeof props === 'object' && props.__instance) {
+      rootMap.set(props.__instance, el)
+    }
+    return el
   }
 
   const [tag, props = {}, ...children] = node
@@ -298,17 +304,25 @@ export const render = (vtree, container = null) => {
  * @returns {(...args: any[]) => any} - A callable component that can manage its own subtree.
  */
 export const component = fn => {
+  const instance = {}
   return (...args) => {
     try {
+      const prevEl = rootMap.get(instance)
+      const canUpdateInPlace = !!prevEl?.parentNode && componentUpdateDepth === 0
+
+      componentUpdateDepth++
       const vnode = fn(...args)
-      const prevEl = rootMap.get(vnode)
-      if (prevEl?.parentNode) {
-        const replacement = renderTree(['wrap', {}, vnode], true)
+      componentUpdateDepth--
+
+      if (canUpdateInPlace) {
+        const replacement = renderTree(['wrap', { __instance: instance }, vnode], true)
         prevEl.parentNode.replaceChild(replacement, prevEl)
         return replacement.__vnode
       }
-      return ['wrap', {}, vnode]
+
+      return ['wrap', { __instance: instance }, vnode]
     } catch (err) {
+      componentUpdateDepth = Math.max(0, componentUpdateDepth - 1)
       console.error('Component error:', err)
       return ['div', {}, `Error: ${err.message}`]
     }
