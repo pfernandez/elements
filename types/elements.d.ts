@@ -10,7 +10,7 @@
  *
  */
 export const DEBUG: boolean;
-export function render(vtree: any, container?: HTMLElement | null): void;
+export function render(vtree: any, container?: any): void;
 export function component(fn: (...args: any[]) => any): (...args: any[]) => any;
 /**
  * @typedef {Record<string, any>} Props
@@ -1364,17 +1364,8 @@ export const tspan: ElementHelper;
  * @type {ElementHelper}
  */
 export const view: ElementHelper;
-/**
- * Maps vnode instances to their current root DOM element,
- * allowing accurate replacement when the same vnode is re-invoked.
- */
-export type ElementsInternalNode = {
-    [k: string]: any;
-    __root?: boolean;
-    __vnode?: any[];
-};
 export type Props = Record<string, any>;
-export type Child = any[] | string | number | boolean | null | undefined | Node;
+export type Child = VNode | string | number | boolean | null | undefined;
 /**
  * A map of supported HTML and SVG element helpers.
  *
@@ -1396,5 +1387,8 @@ export type Child = any[] | string | number | boolean | null | undefined | Node;
  * The following helpers are included:
  * `div`, `span`, `button`, `svg`, `circle`, etc.
  */
-export type VNode = any[];
-export type ElementHelper = (propsOrChild?: Props | Child, ...children: Child[]) => VNode;
+export type VNode = [tag: string, props: Props, ...children: Child[]];
+export type ElementHelper = {
+    (props: Props, ...children: Child[]): VNode;
+    (...children: Child[]): VNode;
+};
