@@ -3,33 +3,15 @@
  * Reset & base theme
  ******************************************************************************/
 
-@import 'pico.classless.sand.min.css';
-
-:root {
-  --pico-font-family-sans-serif: 'Arial', sans-serif;
-  --pico-border-radius: 0;
-}
-
-/* Light color scheme (Default) */
-/* Can be forced with data-theme="light" */
-[data-theme="light"],
-:root:not([data-theme="dark"]) {
-  --pico-primary-background: transparent;
-  --pico-primary-border: #ccc;
-  --pico-primary-hover-color: var(--pico-primary-inverse);
-  --pico-primary-hover-background: transparent;
-  --pico-primary-hover-border: var(--pico-primary-hover-color);
-  --pico-button-hover-box-shadow: var(--pico-primary-hover-background);
-}
-
-input:not([type=checkbox],[type=radio],[type=range]) {
-  height: auto;
-}
-
+@import './pico.grey.min.css';
 
 /*******************************************************************************
- * Responsive Layout
+ * Layout
  ******************************************************************************/
+
+body {
+  padding: 20px;
+}
 
 body>main, main {
   border-bottom: 1px solid #ddd;
@@ -40,39 +22,35 @@ body>header, header {
   padding-bottom: 0;
 }
 
+nav {
+  display: inline-flex;
+  gap: 1em;
+  padding-bottom: 1em;
+}
+
+nav a.active {
+  text-decoration: underline;
+}
+
 section {
   border-top: 1px solid #ddd;
   padding-top: 1em;
   margin: 0;
 }
 
-div {
-  width: 100%;
-  display: inline-block;
-}
-
-@media (max-width: 767px) {
-  div {
-    min-width: 100%;
+@media (max-width: 768px) {
+  section.grid > :not(:last-child) {
+    border-bottom: 1px solid #ddd;
     padding-bottom: 1em;
   }
+}
 
-  div:not(:first-child, :only-of-type) {
-    border-top: 1px solid #ddd;
-    padding-top: 1em;
+@media (min-width: 769px) {
+  section.grid > :not(:last-child) {
+    border-right: 1px solid #ddd;
   }
 }
 
-@media (min-width: 768px) {
-  div:not(:first-child, :only-of-type) {
-    border-left: 1px solid #ddd;
-    padding-left: 1em;
-  }
-
-  div:not(:last-child, :only-of-type) {
-    padding-right: 1em;
-  }
-}
 
 /*******************************************************************************
  * General
@@ -103,15 +81,16 @@ li > button {
  ******************************************************************************/
 
 .todos form {
-  max-width: 600px;
+  max-width: 512px;
 }
 
 .todos form input {
-  width: 75%;
+  width: 78%;
 }
 
 .todos form button {
-  width: 25%;
+  width: 20%;
+  margin-left: 2%;
 }
 
 .todos li {

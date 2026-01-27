@@ -17,11 +17,11 @@ render(
         section(
           h2('Todos'),
           todos()),
-        section(
-          div({ style: { width: '50%' } },
+        section({ class: 'grid' },
+          div(
             h2('Counter 1'),
             counter()),
-          div({ style: { width: '50%' } },
+          div(
             h2('Counter 2'),
             counter()))))))
 

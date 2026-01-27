@@ -162,23 +162,7 @@ repository](test/README.md) for some examples.
 ## Notes
 
 - Elements.js is intended to be small and easy to reason about.
-- If you want examples, see the `examples/` folder or the `elements-app/` repo.
-
-Elements.js is a thought experiment turned practical:
-
-> Can UI be nothing but functions?
-
-Turns out, yes.
-
-* No diffing
-* No state hooks
-* No lifecycle
-* No reconciliation heuristics
-
-Just pure declarative HTML—rewritten in JavaScript.
-
----
-
-**Lightweight. Immutable. Composable.**
-
-Give it a try. You might never go back.
+- For a starter app template, use `@pfern/create-elements`:
+  - https://github.com/pfernandez/create-elements
+  - `npx @pfern/create-elements my-app`
+- More examples live in `examples/`.
