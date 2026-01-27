@@ -1,5 +1,4 @@
 import { button, component, div, form, input, output, pre, render, svg } from '../elements.js'
-import { navigate } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
@@ -155,58 +154,6 @@ describe('Elements.js - Pure Data Contracts', () => {
     const props = { id: 'x' }
     div(props)
     assert.deepEqual(props, { id: 'x' })
-  })
-
-  test('navigate() uses History API when available', () => {
-    const prevWindow = globalThis.window
-
-    const calls = []
-    const setLocation = url => {
-      const hashIndex = url.indexOf('#')
-      const searchIndex = url.indexOf('?')
-      const pathnameEnd =
-        Math.min(
-          searchIndex === -1 ? url.length : searchIndex,
-          hashIndex === -1 ? url.length : hashIndex
-        )
-
-      globalThis.window.location.pathname = url.slice(0, pathnameEnd) || '/'
-      globalThis.window.location.search =
-        searchIndex === -1 ? '' : url.slice(searchIndex, hashIndex === -1 ? url.length : hashIndex)
-      globalThis.window.location.hash =
-        hashIndex === -1 ? '' : url.slice(hashIndex)
-    }
-
-    globalThis.window = {
-      location: { pathname: '/', search: '', hash: '' },
-      history: {
-        pushState: (...args) => {
-          calls.push(['pushState', ...args])
-          setLocation(args[2])
-        },
-        replaceState: (...args) => {
-          calls.push(['replaceState', ...args])
-          setLocation(args[2])
-        }
-      }
-    }
-
-    navigate('/md/home')
-    assert.equal(calls.length, 1)
-    assert.equal(calls[0][0], 'pushState')
-    assert.equal(calls[0][3], '/md/home')
-
-    navigate('/md/home')
-    assert.equal(calls.length, 1)
-
-    navigate('/md/home', { force: true })
-    assert.equal(calls.length, 2)
-
-    navigate('/md/home', { replace: true, force: true })
-    assert.equal(calls.length, 3)
-    assert.equal(calls[2][0], 'replaceState')
-
-    globalThis.window = prevWindow
   })
 
   test('multiple component mounts update independently from events', async () => {

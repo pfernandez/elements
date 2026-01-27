@@ -310,34 +310,6 @@ export const render = (vtree, container = null) => {
 }
 
 /**
- * Updates the browser URL via the History API (no full page load).
- * No-ops outside the browser.
- *
- * @param {string} to - The target URL (path/search/hash).
- * @param {Object} [options]
- * @param {boolean} [options.replace=false] - Use replaceState instead of pushState.
- * @param {boolean} [options.force=false] - Update even if URL is already `to`.
- * @param {any} [options.state={}] - History state.
- * @param {string} [options.title=''] - History title (mostly ignored by browsers).
- */
-export const navigate = (to, {
-  replace = false,
-  force = false,
-  state = {},
-  title = ''
-} = {}) => {
-  if (typeof window === 'undefined') return
-  if (typeof to !== 'string' || !to.length) return
-
-  const { pathname, search, hash } = window.location
-  const current = `${pathname}${search}${hash}`
-  if (!force && current === to) return
-
-  const method = replace ? 'replaceState' : 'pushState'
-  window.history[method](state, title, to)
-}
-
-/**
  * Wraps a function component so that it participates in reconciliation.
  *
  * @param {(...args: any[]) => any} fn - A pure function that returns a declarative tree (array format).

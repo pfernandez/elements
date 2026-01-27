@@ -135,17 +135,6 @@ Wrap a recursive pure function that returns a vnode.
 Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
 `container` is required.
 
-### `navigate(path[, options])`
-
-Small wrapper around `history.pushState` / `replaceState`.
-
-```js
-import { navigate } from '@pfern/elements'
-
-navigate('/todos')
-navigate('/md/home', { replace: true })
-```
-
 ### DOM Elements
 
 Every HTML and SVG tag is available as a function:
