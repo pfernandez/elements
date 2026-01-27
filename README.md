@@ -1,63 +1,16 @@
 # Elements.js
 
-Elements.js is a minimalist declarative UI toolkit designed around purity,
-immutability, and HTML semantics.
+Elements.js is a tiny, functional UI toolkit for building DOM trees with plain
+functions. Components are just functions; updates are just calling the function
+again with new arguments.
 
-## Features
+## Install
 
-* Zero-dependency functional UI engine
-* Stateless components defined as pure functions
-* Fully declarative, deeply composable view trees
-* HTML element functions with JSDoc and TypeScript-friendly signatures
-* No hooks, no classes, no virtual DOM heuristics
+```bash
+npm install @pfern/elements
+```
 
----
-
-## Why Elements.js?
-
-Modern frameworks introduced declarative UI—but buried it beneath lifecycle
-hooks, mutable state, and complex diffing algorithms.
-
-**Elements.js goes further:**
-
-* Pure functions represent both logic and view
-* The DOM *is* your state model
-* Re-rendering is *recursion*, not reconciliation
-
-> Can UI be defined as a tree of pure function calls—nothing more?
-
-Yes. Elements.js proves it.
-
----
-
-## Philosophy
-
-### Declarative from top to bottom
-
-* No internal component state
-* No lifecycle methods or effects
-* Every component is a function
-
-To update a view: just **call the function again** with new arguments. The DOM
-subtree is replaced in place.
-
-### State lives in the DOM
-
-There is no observer graph, no `useState`, and no memory of previous renders.
-The DOM node *is the history*. Input state is passed as an argument.
-
-### Minimal abstraction
-
-* No keys, refs, proxies, or context systems
-* No transpilation step
-* No reactive graph to debug
-
-Elements.js embraces the full truth of each function call as the only valid
-state.
-
----
-
-## Example: Counter
+## Quick Example: Counter
 
 ```js
 import { button, component, div, output } from '@pfern/elements'
@@ -70,13 +23,7 @@ export const counter = component((count = 0) =>
       'Increment')))
 ```
 
-* Each click returns a new call to `counter(count + 1)`
-* The old DOM node is replaced with the new one
-* No virtual DOM, no diffing
-
----
-
-## Form Example: Todos App
+## Example: Todos App
 
 ```js
 
@@ -111,18 +58,6 @@ export const todos = component(
 
 ```
 
-This is a complete MVC-style app:
-
-* Stateless
-* Immutable
-* Pure
-
-You can view these examples live on [Github
-Pages](https://pfernandez.github.io/elements/) or by running them locally with
-`npm run dev`.
-
----
-
 ## Root Rendering Shortcut
 
 If you use `html`, `head`, or `body` as the top-level tag, `render()` will
@@ -152,13 +87,7 @@ render(
           todos())))))
 ```
 
----
-
 ## Declarative Events
-
-All event listeners in Elements.js are pure functions. You can return a vnode
-from a listener to declaratively update the component tree—- no mutation or
-imperative logic required.
 
 ### General Behavior
 
@@ -166,7 +95,7 @@ imperative logic required.
   vnode to trigger a subtree replacement.
 * If the handler returns `undefined`, the event is treated as passive (no update
   occurs).
-* Returned vnodes are passed to `component()` to re-render declaratively.
+* Returned vnodes are applied at the closest component boundary.
 
 ### Form Events
 
@@ -195,8 +124,6 @@ form({
 If the handler returns nothing, `preventDefault()` is skipped and the form
 submits natively.
 
----
-
 ## API
 
 ### `component(fn)`
@@ -207,6 +134,17 @@ Wrap a recursive pure function that returns a vnode.
 
 Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
 `container` is required.
+
+### `navigate(path[, options])`
+
+Small wrapper around `history.pushState` / `replaceState`.
+
+```js
+import { navigate } from '@pfern/elements'
+
+navigate('/todos')
+navigate('/md/home', { replace: true })
+```
 
 ### DOM Elements
 
@@ -232,31 +170,10 @@ Elements are data-in, data-out only, so mocking and headless browsers like
 `jsdom` are unnecessary out of the box. See the tests [in this
 repository](test/README.md) for some examples.
 
----
+## Notes
 
-## Status
-
-* 🧪 Fully tested (data-in/data-out behavior)
-* ⚡ Under 2kB min+gzip
-* ✅ Node and browser compatible
-
----
-
-## Installation
-
-```bash
-npm install @pfern/elements
-```
-
-Or clone the repo and use as an ES module:
-
-```js
-import { render, div, component, ... } from './elements.js';
-```
-
----
-
-## Summary
+- Elements.js is intended to be small and easy to reason about.
+- If you want examples, see the `examples/` folder or the `elements-app/` repo.
 
 Elements.js is a thought experiment turned practical:
 
@@ -276,4 +193,3 @@ Just pure declarative HTML—rewritten in JavaScript.
 **Lightweight. Immutable. Composable.**
 
 Give it a try. You might never go back.
-
