@@ -24,9 +24,10 @@ const svgNS = 'http://www.w3.org/2000/svg'
  */
 const rootMap = new WeakMap()
 
-const isNodeEnv = typeof document === 'undefined'
+const isNodeEnv = () => typeof document === 'undefined'
 
 let componentUpdateDepth = 0
+let currentEventRoot = null
 
 /**
  * Determines whether two nodes have changed enough to require replacement.
@@ -99,6 +100,8 @@ const assignProperties = (el, props) =>
         while (target && !target.__root) target = target.parentNode
         if (!target) return
 
+        const prevEventRoot = currentEventRoot
+        currentEventRoot = target
         try {
           const event = args[0]
           const isFormEvent = /^(oninput|onsubmit|onchange)$/.test(key)
@@ -142,6 +145,8 @@ const assignProperties = (el, props) =>
           }
         } catch (error) {
           console.error(error)
+        } finally {
+          currentEventRoot = prevEventRoot
         }
       }
     } else if (key === 'style' && typeof value === 'object') {
@@ -174,7 +179,7 @@ const assignProperties = (el, props) =>
  */
 const renderTree = (node, isRoot = true) => {
   if (typeof node === 'string' || typeof node === 'number') {
-    return isNodeEnv ? node : document.createTextNode(node)
+    return isNodeEnv() ? node : document.createTextNode(node)
   }
 
   if (!node || node.length === 0) {
@@ -336,7 +341,10 @@ export const component = fn => {
   return (...args) => {
     try {
       const prevEl = rootMap.get(instance)
-      const canUpdateInPlace = !!prevEl?.parentNode && componentUpdateDepth === 0
+      const canUpdateInPlace =
+        !!prevEl?.parentNode
+        && componentUpdateDepth === 0
+        && !currentEventRoot
 
       componentUpdateDepth++
       let vnode

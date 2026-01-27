@@ -1,7 +1,8 @@
-import { button, component, div, form, input, pre, svg } from '../elements.js'
+import { button, component, div, form, input, output, pre, render, svg } from '../elements.js'
 import { navigate } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
+import { createFakeDom } from './fake-dom.js'
 
 describe('Elements.js - Pure Data Contracts', () => {
   test('div() returns a vnode with tag "div"', () => {
@@ -205,6 +206,46 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.equal(calls.length, 3)
     assert.equal(calls[2][0], 'replaceState')
 
+    globalThis.window = prevWindow
+  })
+
+  test('multiple component mounts update independently from events', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const Counter = component((n = 0) =>
+      div({},
+        output(n),
+        button({ onclick: () => Counter(n + 1) }, 'inc')
+      )
+    )
+
+    const container = document.createElement('div')
+    render(div({}, Counter(0), Counter(0)), container)
+
+    const getCounterRoot = index => container.childNodes[0].childNodes[index]
+    const getCountText = root => root.childNodes[0].childNodes[0].nodeValue
+    const click = root => root.childNodes[1].onclick({})
+
+    const first = getCounterRoot(0)
+    const second = getCounterRoot(1)
+
+    assert.equal(getCountText(first), '0')
+    assert.equal(getCountText(second), '0')
+
+    await click(first)
+    assert.equal(getCountText(getCounterRoot(0)), '1')
+    assert.equal(getCountText(getCounterRoot(1)), '0')
+
+    await click(getCounterRoot(1))
+    assert.equal(getCountText(getCounterRoot(0)), '1')
+    assert.equal(getCountText(getCounterRoot(1)), '1')
+
+    globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
 })
