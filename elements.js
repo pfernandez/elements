@@ -339,8 +339,12 @@ export const component = fn => {
       const canUpdateInPlace = !!prevEl?.parentNode && componentUpdateDepth === 0
 
       componentUpdateDepth++
-      const vnode = fn(...args)
-      componentUpdateDepth--
+      let vnode
+      try {
+        vnode = fn(...args)
+      } finally {
+        componentUpdateDepth--
+      }
 
       if (canUpdateInPlace) {
         const replacement = renderTree(['wrap', { __instance: instance }, vnode], true)
@@ -350,7 +354,6 @@ export const component = fn => {
 
       return ['wrap', { __instance: instance }, vnode]
     } catch (err) {
-      componentUpdateDepth = Math.max(0, componentUpdateDepth - 1)
       console.error('Component error:', err)
       return ['div', {}, `Error: ${err.message}`]
     }
