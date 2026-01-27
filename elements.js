@@ -218,6 +218,11 @@ const renderTree = (node, isRoot = true) => {
             ? document.createElementNS(svgNS, tag)
             : document.createElement(tag)
 
+  if (!el && (tag === 'head' || tag === 'body')) {
+    el = document.createElement(tag)
+    document.documentElement.appendChild(el)
+  }
+
   el.__vnode = node
 
   if (isRoot && tag !== 'html' && tag !== 'head' && tag !== 'body') {
@@ -289,7 +294,9 @@ export const render = (vtree, container = null) => {
   if (!prevVNode) {
     const dom = renderTree(vtree)
     if (target === document.documentElement) {
-      document.replaceChild(dom, document.documentElement)
+      if (dom !== document.documentElement) {
+        document.replaceChild(dom, document.documentElement)
+      }
     } else {
       target.appendChild(dom)
     }
