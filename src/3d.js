@@ -210,12 +210,12 @@ export const arc2d = withX3DOM('arc2d', createTagHelper('arc2d'))
 /**
  * @see https://doc.x3dom.org/author/Geometry2D/ArcClose2D.html
  */
-export const arcClose2d = withX3DOM('arcClose2d', createTagHelper('arcClose2d'))
+export const arcclose2d = withX3DOM('arcclose2d', createTagHelper('arcclose2d'))
 
 /**
  * @see https://doc.x3dom.org/author/Sound/AudioClip.html
  */
-export const audioClip = withX3DOM('audioClip', createTagHelper('audioClip'))
+export const audioclip = withX3DOM('audioclip', createTagHelper('audioclip'))
 
 /**
  * @see https://doc.x3dom.org/author/EnvironmentalEffects/Background.html
@@ -230,17 +230,17 @@ export const billboard = withX3DOM('billboard', createTagHelper('billboard'))
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/BinaryGeometry.html
  */
-export const binaryGeometry = withX3DOM('binaryGeometry', createTagHelper('binaryGeometry'))
+export const binarygeometry = withX3DOM('binarygeometry', createTagHelper('binarygeometry'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/BlendedVolumeStyle.html
  */
-export const blendedVolumeStyle = withX3DOM('blendedVolumeStyle', createTagHelper('blendedVolumeStyle'))
+export const blendedvolumestyle = withX3DOM('blendedvolumestyle', createTagHelper('blendedvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/BlendMode.html
  */
-export const blendMode = withX3DOM('blendMode', createTagHelper('blendMode'))
+export const blendmode = withX3DOM('blendmode', createTagHelper('blendmode'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/Block.html
@@ -250,27 +250,27 @@ export const block = withX3DOM('block', createTagHelper('block'))
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/BooleanFilter.html
  */
-export const booleanFilter = withX3DOM('booleanFilter', createTagHelper('booleanFilter'))
+export const booleanfilter = withX3DOM('booleanfilter', createTagHelper('booleanfilter'))
 
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/BooleanSequencer.html
  */
-export const booleanSequencer = withX3DOM('booleanSequencer', createTagHelper('booleanSequencer'))
+export const booleansequencer = withX3DOM('booleansequencer', createTagHelper('booleansequencer'))
 
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/BooleanToggle.html
  */
-export const booleanToggle = withX3DOM('booleanToggle', createTagHelper('booleanToggle'))
+export const booleantoggle = withX3DOM('booleantoggle', createTagHelper('booleantoggle'))
 
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/BooleanTrigger.html
  */
-export const booleanTrigger = withX3DOM('booleanTrigger', createTagHelper('booleanTrigger'))
+export const booleantrigger = withX3DOM('booleantrigger', createTagHelper('booleantrigger'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/BoundaryEnhancementVolumeStyle.html
  */
-export const boundaryEnhancementVolumeStyle = withX3DOM('boundaryEnhancementVolumeStyle', createTagHelper('boundaryEnhancementVolumeStyle'))
+export const boundaryenhancementvolumestyle = withX3DOM('boundaryenhancementvolumestyle', createTagHelper('boundaryenhancementvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/Box.html
@@ -280,47 +280,47 @@ export const box = withX3DOM('box', createTagHelper('box'))
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/BufferAccessor.html
  */
-export const bufferAccessor = withX3DOM('bufferAccessor', createTagHelper('bufferAccessor'))
+export const bufferaccessor = withX3DOM('bufferaccessor', createTagHelper('bufferaccessor'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/BufferGeometry.html
  */
-export const bufferGeometry = withX3DOM('bufferGeometry', createTagHelper('bufferGeometry'))
+export const buffergeometry = withX3DOM('buffergeometry', createTagHelper('buffergeometry'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/BufferView.html
  */
-export const bufferView = withX3DOM('bufferView', createTagHelper('bufferView'))
+export const bufferview = withX3DOM('bufferview', createTagHelper('bufferview'))
 
 /**
  * @see https://doc.x3dom.org/author/BVHRefiner/BVHRefiner.html
  */
-export const bVHRefiner = withX3DOM('bVHRefiner', createTagHelper('bVHRefiner'))
+export const bvhrefiner = withX3DOM('bvhrefiner', createTagHelper('bvhrefiner'))
 
 /**
  * @see https://doc.x3dom.org/author/CADGeometry/CADAssembly.html
  */
-export const cADAssembly = withX3DOM('cADAssembly', createTagHelper('cADAssembly'))
+export const cadassembly = withX3DOM('cadassembly', createTagHelper('cadassembly'))
 
 /**
  * @see https://doc.x3dom.org/author/CADGeometry/CADFace.html
  */
-export const cADFace = withX3DOM('cADFace', createTagHelper('cADFace'))
+export const cadface = withX3DOM('cadface', createTagHelper('cadface'))
 
 /**
  * @see https://doc.x3dom.org/author/CADGeometry/CADLayer.html
  */
-export const cADLayer = withX3DOM('cADLayer', createTagHelper('cADLayer'))
+export const cadlayer = withX3DOM('cadlayer', createTagHelper('cadlayer'))
 
 /**
  * @see https://doc.x3dom.org/author/CADGeometry/CADPart.html
  */
-export const cADPart = withX3DOM('cADPart', createTagHelper('cADPart'))
+export const cadpart = withX3DOM('cadpart', createTagHelper('cadpart'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/CartoonVolumeStyle.html
  */
-export const cartoonVolumeStyle = withX3DOM('cartoonVolumeStyle', createTagHelper('cartoonVolumeStyle'))
+export const cartoonvolumestyle = withX3DOM('cartoonvolumestyle', createTagHelper('cartoonvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry2D/Circle2D.html
@@ -330,7 +330,7 @@ export const circle2d = withX3DOM('circle2d', createTagHelper('circle2d'))
 /**
  * @see https://doc.x3dom.org/author/Rendering/ClipPlane.html
  */
-export const clipPlane = withX3DOM('clipPlane', createTagHelper('clipPlane'))
+export const clipplane = withX3DOM('clipplane', createTagHelper('clipplane'))
 
 /**
  * @see https://doc.x3dom.org/author/Navigation/Collision.html
@@ -345,52 +345,52 @@ export const color = withX3DOM('color', createTagHelper('color'))
 /**
  * @see https://doc.x3dom.org/author/Followers/ColorChaser.html
  */
-export const colorChaser = withX3DOM('colorChaser', createTagHelper('colorChaser'))
+export const colorchaser = withX3DOM('colorchaser', createTagHelper('colorchaser'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/ColorDamper.html
  */
-export const colorDamper = withX3DOM('colorDamper', createTagHelper('colorDamper'))
+export const colordamper = withX3DOM('colordamper', createTagHelper('colordamper'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/ColorInterpolator.html
  */
-export const colorInterpolator = withX3DOM('colorInterpolator', createTagHelper('colorInterpolator'))
+export const colorinterpolator = withX3DOM('colorinterpolator', createTagHelper('colorinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/ColorMaskMode.html
  */
-export const colorMaskMode = withX3DOM('colorMaskMode', createTagHelper('colorMaskMode'))
+export const colormaskmode = withX3DOM('colormaskmode', createTagHelper('colormaskmode'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/ColorRGBA.html
  */
-export const colorRGBA = withX3DOM('colorRGBA', createTagHelper('colorRGBA'))
+export const colorrgba = withX3DOM('colorrgba', createTagHelper('colorrgba'))
 
 /**
  * @see https://doc.x3dom.org/author/Shaders/CommonSurfaceShader.html
  */
-export const commonSurfaceShader = withX3DOM('commonSurfaceShader', createTagHelper('commonSurfaceShader'))
+export const commonsurfaceshader = withX3DOM('commonsurfaceshader', createTagHelper('commonsurfaceshader'))
 
 /**
  * @see https://doc.x3dom.org/author/CubeMapTexturing/ComposedCubeMapTexture.html
  */
-export const composedCubeMapTexture = withX3DOM('composedCubeMapTexture', createTagHelper('composedCubeMapTexture'))
+export const composedcubemaptexture = withX3DOM('composedcubemaptexture', createTagHelper('composedcubemaptexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Shaders/ComposedShader.html
  */
-export const composedShader = withX3DOM('composedShader', createTagHelper('composedShader'))
+export const composedshader = withX3DOM('composedshader', createTagHelper('composedshader'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing3D/ComposedTexture3D.html
  */
-export const composedTexture3d = withX3DOM('composedTexture3d', createTagHelper('composedTexture3d'))
+export const composedtexture3d = withX3DOM('composedtexture3d', createTagHelper('composedtexture3d'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/ComposedVolumeStyle.html
  */
-export const composedVolumeStyle = withX3DOM('composedVolumeStyle', createTagHelper('composedVolumeStyle'))
+export const composedvolumestyle = withX3DOM('composedvolumestyle', createTagHelper('composedvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/Cone.html
@@ -405,7 +405,7 @@ export const contour2d = withX3DOM('contour2d', createTagHelper('contour2d'))
 /**
  * @see https://doc.x3dom.org/author/NURBS/ContourPolyline2D.html
  */
-export const contourPolyline2d = withX3DOM('contourPolyline2d', createTagHelper('contourPolyline2d'))
+export const contourpolyline2d = withX3DOM('contourpolyline2d', createTagHelper('contourpolyline2d'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/Coordinate.html
@@ -415,17 +415,17 @@ export const coordinate = withX3DOM('coordinate', createTagHelper('coordinate'))
 /**
  * @see https://doc.x3dom.org/author/Followers/CoordinateDamper.html
  */
-export const coordinateDamper = withX3DOM('coordinateDamper', createTagHelper('coordinateDamper'))
+export const coordinatedamper = withX3DOM('coordinatedamper', createTagHelper('coordinatedamper'))
 
 /**
  * @see https://doc.x3dom.org/author/Nurbs/CoordinateDouble.html
  */
-export const coordinateDouble = withX3DOM('coordinateDouble', createTagHelper('coordinateDouble'))
+export const coordinatedouble = withX3DOM('coordinatedouble', createTagHelper('coordinatedouble'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/CoordinateInterpolator.html
  */
-export const coordinateInterpolator = withX3DOM('coordinateInterpolator', createTagHelper('coordinateInterpolator'))
+export const coordinateinterpolator = withX3DOM('coordinateinterpolator', createTagHelper('coordinateinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/Cylinder.html
@@ -435,17 +435,17 @@ export const cylinder = withX3DOM('cylinder', createTagHelper('cylinder'))
 /**
  * @see https://doc.x3dom.org/author/PointingDeviceSensor/CylinderSensor.html
  */
-export const cylinderSensor = withX3DOM('cylinderSensor', createTagHelper('cylinderSensor'))
+export const cylindersensor = withX3DOM('cylindersensor', createTagHelper('cylindersensor'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/DepthMode.html
  */
-export const depthMode = withX3DOM('depthMode', createTagHelper('depthMode'))
+export const depthmode = withX3DOM('depthmode', createTagHelper('depthmode'))
 
 /**
  * @see https://doc.x3dom.org/author/Lighting/DirectionalLight.html
  */
-export const directionalLight = withX3DOM('directionalLight', createTagHelper('directionalLight'))
+export const directionallight = withX3DOM('directionallight', createTagHelper('directionallight'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/Dish.html
@@ -460,17 +460,17 @@ export const disk2d = withX3DOM('disk2d', createTagHelper('disk2d'))
 /**
  * @see https://doc.x3dom.org/author/Navigation/DynamicLOD.html
  */
-export const dynamicLOD = withX3DOM('dynamicLOD', createTagHelper('dynamicLOD'))
+export const dynamiclod = withX3DOM('dynamiclod', createTagHelper('dynamiclod'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/EdgeEnhancementVolumeStyle.html
  */
-export const edgeEnhancementVolumeStyle = withX3DOM('edgeEnhancementVolumeStyle', createTagHelper('edgeEnhancementVolumeStyle'))
+export const edgeenhancementvolumestyle = withX3DOM('edgeenhancementvolumestyle', createTagHelper('edgeenhancementvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/ElevationGrid.html
  */
-export const elevationGrid = withX3DOM('elevationGrid', createTagHelper('elevationGrid'))
+export const elevationgrid = withX3DOM('elevationgrid', createTagHelper('elevationgrid'))
 
 /**
  * @see https://doc.x3dom.org/author/EnvironmentalEffects/Environment.html
@@ -490,7 +490,7 @@ export const field = withX3DOM('field', createTagHelper('field'))
 /**
  * @see https://doc.x3dom.org/author/Shaders/FloatVertexAttribute.html
  */
-export const floatVertexAttribute = withX3DOM('floatVertexAttribute', createTagHelper('floatVertexAttribute'))
+export const floatvertexattribute = withX3DOM('floatvertexattribute', createTagHelper('floatvertexattribute'))
 
 /**
  * @see https://doc.x3dom.org/author/EnvironmentalEffects/Fog.html
@@ -500,57 +500,57 @@ export const fog = withX3DOM('fog', createTagHelper('fog'))
 /**
  * @see https://doc.x3dom.org/author/Text/FontStyle.html
  */
-export const fontStyle = withX3DOM('fontStyle', createTagHelper('fontStyle'))
+export const fontstyle = withX3DOM('fontstyle', createTagHelper('fontstyle'))
 
 /**
  * @see https://doc.x3dom.org/author/CubeMapTexturing/GeneratedCubeMapTexture.html
  */
-export const generatedCubeMapTexture = withX3DOM('generatedCubeMapTexture', createTagHelper('generatedCubeMapTexture'))
+export const generatedcubemaptexture = withX3DOM('generatedcubemaptexture', createTagHelper('generatedcubemaptexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoCoordinate.html
  */
-export const geoCoordinate = withX3DOM('geoCoordinate', createTagHelper('geoCoordinate'))
+export const geocoordinate = withX3DOM('geocoordinate', createTagHelper('geocoordinate'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoElevationGrid.html
  */
-export const geoElevationGrid = withX3DOM('geoElevationGrid', createTagHelper('geoElevationGrid'))
+export const geoelevationgrid = withX3DOM('geoelevationgrid', createTagHelper('geoelevationgrid'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoLocation.html
  */
-export const geoLocation = withX3DOM('geoLocation', createTagHelper('geoLocation'))
+export const geolocation = withX3DOM('geolocation', createTagHelper('geolocation'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoLOD.html
  */
-export const geoLOD = withX3DOM('geoLOD', createTagHelper('geoLOD'))
+export const geolod = withX3DOM('geolod', createTagHelper('geolod'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoMetadata.html
  */
-export const geoMetadata = withX3DOM('geoMetadata', createTagHelper('geoMetadata'))
+export const geometadata = withX3DOM('geometadata', createTagHelper('geometadata'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoOrigin.html
  */
-export const geoOrigin = withX3DOM('geoOrigin', createTagHelper('geoOrigin'))
+export const geoorigin = withX3DOM('geoorigin', createTagHelper('geoorigin'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoPositionInterpolator.html
  */
-export const geoPositionInterpolator = withX3DOM('geoPositionInterpolator', createTagHelper('geoPositionInterpolator'))
+export const geopositioninterpolator = withX3DOM('geopositioninterpolator', createTagHelper('geopositioninterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoTransform.html
  */
-export const geoTransform = withX3DOM('geoTransform', createTagHelper('geoTransform'))
+export const geotransform = withX3DOM('geotransform', createTagHelper('geotransform'))
 
 /**
  * @see https://doc.x3dom.org/author/Geospatial/GeoViewpoint.html
  */
-export const geoViewpoint = withX3DOM('geoViewpoint', createTagHelper('geoViewpoint'))
+export const geoviewpoint = withX3DOM('geoviewpoint', createTagHelper('geoviewpoint'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/Group.html
@@ -560,67 +560,67 @@ export const group = withX3DOM('group', createTagHelper('group'))
 /**
  * @see https://doc.x3dom.org/author/H-Anim/HAnimDisplacer.html
  */
-export const hAnimDisplacer = withX3DOM('hAnimDisplacer', createTagHelper('hAnimDisplacer'))
+export const hanimdisplacer = withX3DOM('hanimdisplacer', createTagHelper('hanimdisplacer'))
 
 /**
  * @see https://doc.x3dom.org/author/H-Anim/HAnimHumanoid.html
  */
-export const hAnimHumanoid = withX3DOM('hAnimHumanoid', createTagHelper('hAnimHumanoid'))
+export const hanimhumanoid = withX3DOM('hanimhumanoid', createTagHelper('hanimhumanoid'))
 
 /**
  * @see https://doc.x3dom.org/author/H-Anim/HAnimJoint.html
  */
-export const hAnimJoint = withX3DOM('hAnimJoint', createTagHelper('hAnimJoint'))
+export const hanimjoint = withX3DOM('hanimjoint', createTagHelper('hanimjoint'))
 
 /**
  * @see https://doc.x3dom.org/author/H-Anim/HAnimSegment.html
  */
-export const hAnimSegment = withX3DOM('hAnimSegment', createTagHelper('hAnimSegment'))
+export const hanimsegment = withX3DOM('hanimsegment', createTagHelper('hanimsegment'))
 
 /**
  * @see https://doc.x3dom.org/author/H-Anim/HAnimSite.html
  */
-export const hAnimSite = withX3DOM('hAnimSite', createTagHelper('hAnimSite'))
+export const hanimsite = withX3DOM('hanimsite', createTagHelper('hanimsite'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/ImageTexture.html
  */
-export const imageTexture = withX3DOM('imageTexture', createTagHelper('imageTexture'))
+export const imagetexture = withX3DOM('imagetexture', createTagHelper('imagetexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing3D/ImageTexture3D.html
  */
-export const imageTexture3d = withX3DOM('imageTexture3d', createTagHelper('imageTexture3d'))
+export const imagetexture3d = withX3DOM('imagetexture3d', createTagHelper('imagetexture3d'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/ImageTextureAtlas.html
  */
-export const imageTextureAtlas = withX3DOM('imageTextureAtlas', createTagHelper('imageTextureAtlas'))
+export const imagetextureatlas = withX3DOM('imagetextureatlas', createTagHelper('imagetextureatlas'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/IndexedFaceSet.html
  */
-export const indexedFaceSet = withX3DOM('indexedFaceSet', createTagHelper('indexedFaceSet'))
+export const indexedfaceset = withX3DOM('indexedfaceset', createTagHelper('indexedfaceset'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/IndexedLineSet.html
  */
-export const indexedLineSet = withX3DOM('indexedLineSet', createTagHelper('indexedLineSet'))
+export const indexedlineset = withX3DOM('indexedlineset', createTagHelper('indexedlineset'))
 
 /**
  * @see https://doc.x3dom.org/author/CADGeometry/IndexedQuadSet.html
  */
-export const indexedQuadSet = withX3DOM('indexedQuadSet', createTagHelper('indexedQuadSet'))
+export const indexedquadset = withX3DOM('indexedquadset', createTagHelper('indexedquadset'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/IndexedTriangleSet.html
  */
-export const indexedTriangleSet = withX3DOM('indexedTriangleSet', createTagHelper('indexedTriangleSet'))
+export const indexedtriangleset = withX3DOM('indexedtriangleset', createTagHelper('indexedtriangleset'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/IndexedTriangleStripSet.html
  */
-export const indexedTriangleStripSet = withX3DOM('indexedTriangleStripSet', createTagHelper('indexedTriangleStripSet'))
+export const indexedtrianglestripset = withX3DOM('indexedtrianglestripset', createTagHelper('indexedtrianglestripset'))
 
 /**
  * @see https://doc.x3dom.org/author/Networking/Inline.html
@@ -630,27 +630,27 @@ export const inline = withX3DOM('inline', createTagHelper('inline'))
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/IntegerSequencer.html
  */
-export const integerSequencer = withX3DOM('integerSequencer', createTagHelper('integerSequencer'))
+export const integersequencer = withX3DOM('integersequencer', createTagHelper('integersequencer'))
 
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/IntegerTrigger.html
  */
-export const integerTrigger = withX3DOM('integerTrigger', createTagHelper('integerTrigger'))
+export const integertrigger = withX3DOM('integertrigger', createTagHelper('integertrigger'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/IsoSurfaceVolumeData.html
  */
-export const isoSurfaceVolumeData = withX3DOM('isoSurfaceVolumeData', createTagHelper('isoSurfaceVolumeData'))
+export const isosurfacevolumedata = withX3DOM('isosurfacevolumedata', createTagHelper('isosurfacevolumedata'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/LineProperties.html
  */
-export const lineProperties = withX3DOM('lineProperties', createTagHelper('lineProperties'))
+export const lineproperties = withX3DOM('lineproperties', createTagHelper('lineproperties'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/LineSet.html
  */
-export const lineSet = withX3DOM('lineSet', createTagHelper('lineSet'))
+export const lineset = withX3DOM('lineset', createTagHelper('lineset'))
 
 /**
  * @see https://doc.x3dom.org/author/Navigation/LOD.html
@@ -665,12 +665,12 @@ export const material = withX3DOM('material', createTagHelper('material'))
 /**
  * @see https://doc.x3dom.org/author/Texturing/MatrixTextureTransform.html
  */
-export const matrixTextureTransform = withX3DOM('matrixTextureTransform', createTagHelper('matrixTextureTransform'))
+export const matrixtexturetransform = withX3DOM('matrixtexturetransform', createTagHelper('matrixtexturetransform'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/MatrixTransform.html
  */
-export const matrixTransform = withX3DOM('matrixTransform', createTagHelper('matrixTransform'))
+export const matrixtransform = withX3DOM('matrixtransform', createTagHelper('matrixtransform'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/Mesh.html
@@ -680,62 +680,62 @@ export const mesh = withX3DOM('mesh', createTagHelper('mesh'))
 /**
  * @see https://doc.x3dom.org/author/Core/MetadataBoolean.html
  */
-export const metadataBoolean = withX3DOM('metadataBoolean', createTagHelper('metadataBoolean'))
+export const metadataboolean = withX3DOM('metadataboolean', createTagHelper('metadataboolean'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/MetadataDouble.html
  */
-export const metadataDouble = withX3DOM('metadataDouble', createTagHelper('metadataDouble'))
+export const metadatadouble = withX3DOM('metadatadouble', createTagHelper('metadatadouble'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/MetadataFloat.html
  */
-export const metadataFloat = withX3DOM('metadataFloat', createTagHelper('metadataFloat'))
+export const metadatafloat = withX3DOM('metadatafloat', createTagHelper('metadatafloat'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/MetadataInteger.html
  */
-export const metadataInteger = withX3DOM('metadataInteger', createTagHelper('metadataInteger'))
+export const metadatainteger = withX3DOM('metadatainteger', createTagHelper('metadatainteger'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/MetadataSet.html
  */
-export const metadataSet = withX3DOM('metadataSet', createTagHelper('metadataSet'))
+export const metadataset = withX3DOM('metadataset', createTagHelper('metadataset'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/MetadataString.html
  */
-export const metadataString = withX3DOM('metadataString', createTagHelper('metadataString'))
+export const metadatastring = withX3DOM('metadatastring', createTagHelper('metadatastring'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/MovieTexture.html
  */
-export const movieTexture = withX3DOM('movieTexture', createTagHelper('movieTexture'))
+export const movietexture = withX3DOM('movietexture', createTagHelper('movietexture'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/MPRPlane.html
  */
-export const mPRPlane = withX3DOM('mPRPlane', createTagHelper('mPRPlane'))
+export const mprplane = withX3DOM('mprplane', createTagHelper('mprplane'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/MPRVolumeStyle.html
  */
-export const mPRVolumeStyle = withX3DOM('mPRVolumeStyle', createTagHelper('mPRVolumeStyle'))
+export const mprvolumestyle = withX3DOM('mprvolumestyle', createTagHelper('mprvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/MultiTexture.html
  */
-export const multiTexture = withX3DOM('multiTexture', createTagHelper('multiTexture'))
+export const multitexture = withX3DOM('multitexture', createTagHelper('multitexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/MultiTextureCoordinate.html
  */
-export const multiTextureCoordinate = withX3DOM('multiTextureCoordinate', createTagHelper('multiTextureCoordinate'))
+export const multitexturecoordinate = withX3DOM('multitexturecoordinate', createTagHelper('multitexturecoordinate'))
 
 /**
  * @see https://doc.x3dom.org/author/Navigation/NavigationInfo.html
  */
-export const navigationInfo = withX3DOM('navigationInfo', createTagHelper('navigationInfo'))
+export const navigationinfo = withX3DOM('navigationinfo', createTagHelper('navigationinfo'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/Normal.html
@@ -745,7 +745,7 @@ export const normal = withX3DOM('normal', createTagHelper('normal'))
 /**
  * @see https://doc.x3dom.org/author/Interpolation/NormalInterpolator.html
  */
-export const normalInterpolator = withX3DOM('normalInterpolator', createTagHelper('normalInterpolator'))
+export const normalinterpolator = withX3DOM('normalinterpolator', createTagHelper('normalinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/Nozzle.html
@@ -755,67 +755,67 @@ export const nozzle = withX3DOM('nozzle', createTagHelper('nozzle'))
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsCurve.html
  */
-export const nurbsCurve = withX3DOM('nurbsCurve', createTagHelper('nurbsCurve'))
+export const nurbscurve = withX3DOM('nurbscurve', createTagHelper('nurbscurve'))
 
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsCurve2D.html
  */
-export const nurbsCurve2d = withX3DOM('nurbsCurve2d', createTagHelper('nurbsCurve2d'))
+export const nurbscurve2d = withX3DOM('nurbscurve2d', createTagHelper('nurbscurve2d'))
 
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsOrientationInterpolator.html
  */
-export const nurbsOrientationInterpolator = withX3DOM('nurbsOrientationInterpolator', createTagHelper('nurbsOrientationInterpolator'))
+export const nurbsorientationinterpolator = withX3DOM('nurbsorientationinterpolator', createTagHelper('nurbsorientationinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsPatchSurface.html
  */
-export const nurbsPatchSurface = withX3DOM('nurbsPatchSurface', createTagHelper('nurbsPatchSurface'))
+export const nurbspatchsurface = withX3DOM('nurbspatchsurface', createTagHelper('nurbspatchsurface'))
 
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsPositionInterpolator.html
  */
-export const nurbsPositionInterpolator = withX3DOM('nurbsPositionInterpolator', createTagHelper('nurbsPositionInterpolator'))
+export const nurbspositioninterpolator = withX3DOM('nurbspositioninterpolator', createTagHelper('nurbspositioninterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsSurfaceInterpolator.html
  */
-export const nurbsSurfaceInterpolator = withX3DOM('nurbsSurfaceInterpolator', createTagHelper('nurbsSurfaceInterpolator'))
+export const nurbssurfaceinterpolator = withX3DOM('nurbssurfaceinterpolator', createTagHelper('nurbssurfaceinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/NURBS/NurbsTrimmedSurface.html
  */
-export const nurbsTrimmedSurface = withX3DOM('nurbsTrimmedSurface', createTagHelper('nurbsTrimmedSurface'))
+export const nurbstrimmedsurface = withX3DOM('nurbstrimmedsurface', createTagHelper('nurbstrimmedsurface'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/OpacityMapVolumeStyle.html
  */
-export const opacityMapVolumeStyle = withX3DOM('opacityMapVolumeStyle', createTagHelper('opacityMapVolumeStyle'))
+export const opacitymapvolumestyle = withX3DOM('opacitymapvolumestyle', createTagHelper('opacitymapvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/OrientationChaser.html
  */
-export const orientationChaser = withX3DOM('orientationChaser', createTagHelper('orientationChaser'))
+export const orientationchaser = withX3DOM('orientationchaser', createTagHelper('orientationchaser'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/OrientationDamper.html
  */
-export const orientationDamper = withX3DOM('orientationDamper', createTagHelper('orientationDamper'))
+export const orientationdamper = withX3DOM('orientationdamper', createTagHelper('orientationdamper'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/OrientationInterpolator.html
  */
-export const orientationInterpolator = withX3DOM('orientationInterpolator', createTagHelper('orientationInterpolator'))
+export const orientationinterpolator = withX3DOM('orientationinterpolator', createTagHelper('orientationinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Navigation/OrthoViewpoint.html
  */
-export const orthoViewpoint = withX3DOM('orthoViewpoint', createTagHelper('orthoViewpoint'))
+export const orthoviewpoint = withX3DOM('orthoviewpoint', createTagHelper('orthoviewpoint'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/ParticleSet.html
  */
-export const particleSet = withX3DOM('particleSet', createTagHelper('particleSet'))
+export const particleset = withX3DOM('particleset', createTagHelper('particleset'))
 
 /**
  * @see https://doc.x3dom.org/author/BVHRefiner/Patch.html
@@ -825,22 +825,22 @@ export const patch = withX3DOM('patch', createTagHelper('patch'))
 /**
  * @see https://doc.x3dom.org/author/Lighting/PhysicalEnvironmentLight.html
  */
-export const physicalEnvironmentLight = withX3DOM('physicalEnvironmentLight', createTagHelper('physicalEnvironmentLight'))
+export const physicalenvironmentlight = withX3DOM('physicalenvironmentlight', createTagHelper('physicalenvironmentlight'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/PhysicalMaterial.html
  */
-export const physicalMaterial = withX3DOM('physicalMaterial', createTagHelper('physicalMaterial'))
+export const physicalmaterial = withX3DOM('physicalmaterial', createTagHelper('physicalmaterial'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/PixelTexture.html
  */
-export const pixelTexture = withX3DOM('pixelTexture', createTagHelper('pixelTexture'))
+export const pixeltexture = withX3DOM('pixeltexture', createTagHelper('pixeltexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing3D/PixelTexture3D.html
  */
-export const pixelTexture3d = withX3DOM('pixelTexture3d', createTagHelper('pixelTexture3d'))
+export const pixeltexture3d = withX3DOM('pixeltexture3d', createTagHelper('pixeltexture3d'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/Plane.html
@@ -850,22 +850,22 @@ export const plane = withX3DOM('plane', createTagHelper('plane'))
 /**
  * @see https://doc.x3dom.org/author/PointingDeviceSensor/PlaneSensor.html
  */
-export const planeSensor = withX3DOM('planeSensor', createTagHelper('planeSensor'))
+export const planesensor = withX3DOM('planesensor', createTagHelper('planesensor'))
 
 /**
  * @see https://doc.x3dom.org/author/Lighting/PointLight.html
  */
-export const pointLight = withX3DOM('pointLight', createTagHelper('pointLight'))
+export const pointlight = withX3DOM('pointlight', createTagHelper('pointlight'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/PointProperties.html
  */
-export const pointProperties = withX3DOM('pointProperties', createTagHelper('pointProperties'))
+export const pointproperties = withX3DOM('pointproperties', createTagHelper('pointproperties'))
 
 /**
  * @see https://doc.x3dom.org/author/Rendering/PointSet.html
  */
-export const pointSet = withX3DOM('pointSet', createTagHelper('pointSet'))
+export const pointset = withX3DOM('pointset', createTagHelper('pointset'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry2D/Polyline2D.html
@@ -880,47 +880,47 @@ export const polypoint2d = withX3DOM('polypoint2d', createTagHelper('polypoint2d
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/PopGeometry.html
  */
-export const popGeometry = withX3DOM('popGeometry', createTagHelper('popGeometry'))
+export const popgeometry = withX3DOM('popgeometry', createTagHelper('popgeometry'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/PopGeometryLevel.html
  */
-export const popGeometryLevel = withX3DOM('popGeometryLevel', createTagHelper('popGeometryLevel'))
+export const popgeometrylevel = withX3DOM('popgeometrylevel', createTagHelper('popgeometrylevel'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/PositionChaser.html
  */
-export const positionChaser = withX3DOM('positionChaser', createTagHelper('positionChaser'))
+export const positionchaser = withX3DOM('positionchaser', createTagHelper('positionchaser'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/PositionChaser2D.html
  */
-export const positionChaser2d = withX3DOM('positionChaser2d', createTagHelper('positionChaser2d'))
+export const positionchaser2d = withX3DOM('positionchaser2d', createTagHelper('positionchaser2d'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/PositionDamper.html
  */
-export const positionDamper = withX3DOM('positionDamper', createTagHelper('positionDamper'))
+export const positiondamper = withX3DOM('positiondamper', createTagHelper('positiondamper'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/PositionDamper2D.html
  */
-export const positionDamper2d = withX3DOM('positionDamper2d', createTagHelper('positionDamper2d'))
+export const positiondamper2d = withX3DOM('positiondamper2d', createTagHelper('positiondamper2d'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/PositionInterpolator.html
  */
-export const positionInterpolator = withX3DOM('positionInterpolator', createTagHelper('positionInterpolator'))
+export const positioninterpolator = withX3DOM('positioninterpolator', createTagHelper('positioninterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/PositionInterpolator2D.html
  */
-export const positionInterpolator2d = withX3DOM('positionInterpolator2d', createTagHelper('positionInterpolator2d'))
+export const positioninterpolator2d = withX3DOM('positioninterpolator2d', createTagHelper('positioninterpolator2d'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/ProjectionVolumeStyle.html
  */
-export const projectionVolumeStyle = withX3DOM('projectionVolumeStyle', createTagHelper('projectionVolumeStyle'))
+export const projectionvolumestyle = withX3DOM('projectionvolumestyle', createTagHelper('projectionvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/Pyramid.html
@@ -930,12 +930,12 @@ export const pyramid = withX3DOM('pyramid', createTagHelper('pyramid'))
 /**
  * @see https://doc.x3dom.org/author/CADGeometry/QuadSet.html
  */
-export const quadSet = withX3DOM('quadSet', createTagHelper('quadSet'))
+export const quadset = withX3DOM('quadset', createTagHelper('quadset'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/RadarVolumeStyle.html
  */
-export const radarVolumeStyle = withX3DOM('radarVolumeStyle', createTagHelper('radarVolumeStyle'))
+export const radarvolumestyle = withX3DOM('radarvolumestyle', createTagHelper('radarvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry2D/Rectangle2D.html
@@ -945,37 +945,37 @@ export const rectangle2d = withX3DOM('rectangle2d', createTagHelper('rectangle2d
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/RectangularTorus.html
  */
-export const rectangularTorus = withX3DOM('rectangularTorus', createTagHelper('rectangularTorus'))
+export const rectangulartorus = withX3DOM('rectangulartorus', createTagHelper('rectangulartorus'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/RefinementTexture.html
  */
-export const refinementTexture = withX3DOM('refinementTexture', createTagHelper('refinementTexture'))
+export const refinementtexture = withX3DOM('refinementtexture', createTagHelper('refinementtexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/RemoteSelectionGroup.html
  */
-export const remoteSelectionGroup = withX3DOM('remoteSelectionGroup', createTagHelper('remoteSelectionGroup'))
+export const remoteselectiongroup = withX3DOM('remoteselectiongroup', createTagHelper('remoteselectiongroup'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/RenderedTexture.html
  */
-export const renderedTexture = withX3DOM('renderedTexture', createTagHelper('renderedTexture'))
+export const renderedtexture = withX3DOM('renderedtexture', createTagHelper('renderedtexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/ScalarChaser.html
  */
-export const scalarChaser = withX3DOM('scalarChaser', createTagHelper('scalarChaser'))
+export const scalarchaser = withX3DOM('scalarchaser', createTagHelper('scalarchaser'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/ScalarDamper.html
  */
-export const scalarDamper = withX3DOM('scalarDamper', createTagHelper('scalarDamper'))
+export const scalardamper = withX3DOM('scalardamper', createTagHelper('scalardamper'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/ScalarInterpolator.html
  */
-export const scalarInterpolator = withX3DOM('scalarInterpolator', createTagHelper('scalarInterpolator'))
+export const scalarinterpolator = withX3DOM('scalarinterpolator', createTagHelper('scalarinterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/Scene.html
@@ -985,22 +985,22 @@ export const scene = withX3DOM('scene', createTagHelper('scene'))
 /**
  * @see https://doc.x3dom.org/author/Layout/ScreenGroup.html
  */
-export const screenGroup = withX3DOM('screenGroup', createTagHelper('screenGroup'))
+export const screengroup = withX3DOM('screengroup', createTagHelper('screengroup'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/SegmentedVolumeData.html
  */
-export const segmentedVolumeData = withX3DOM('segmentedVolumeData', createTagHelper('segmentedVolumeData'))
+export const segmentedvolumedata = withX3DOM('segmentedvolumedata', createTagHelper('segmentedvolumedata'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/ShadedVolumeStyle.html
  */
-export const shadedVolumeStyle = withX3DOM('shadedVolumeStyle', createTagHelper('shadedVolumeStyle'))
+export const shadedvolumestyle = withX3DOM('shadedvolumestyle', createTagHelper('shadedvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Shaders/ShaderPart.html
  */
-export const shaderPart = withX3DOM('shaderPart', createTagHelper('shaderPart'))
+export const shaderpart = withX3DOM('shaderpart', createTagHelper('shaderpart'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/Shape.html
@@ -1010,12 +1010,12 @@ export const shape = withX3DOM('shape', createTagHelper('shape'))
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/SilhouetteEnhancementVolumeStyle.html
  */
-export const silhouetteEnhancementVolumeStyle = withX3DOM('silhouetteEnhancementVolumeStyle', createTagHelper('silhouetteEnhancementVolumeStyle'))
+export const silhouetteenhancementvolumestyle = withX3DOM('silhouetteenhancementvolumestyle', createTagHelper('silhouetteenhancementvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/SlopedCylinder.html
  */
-export const slopedCylinder = withX3DOM('slopedCylinder', createTagHelper('slopedCylinder'))
+export const slopedcylinder = withX3DOM('slopedcylinder', createTagHelper('slopedcylinder'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/Snout.html
@@ -1025,7 +1025,7 @@ export const snout = withX3DOM('snout', createTagHelper('snout'))
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/SolidOfRevolution.html
  */
-export const solidOfRevolution = withX3DOM('solidOfRevolution', createTagHelper('solidOfRevolution'))
+export const solidofrevolution = withX3DOM('solidofrevolution', createTagHelper('solidofrevolution'))
 
 /**
  * @see https://doc.x3dom.org/author/Sound/Sound.html
@@ -1040,42 +1040,42 @@ export const sphere = withX3DOM('sphere', createTagHelper('sphere'))
 /**
  * @see https://doc.x3dom.org/author/Geometry3DExt/SphereSegment.html
  */
-export const sphereSegment = withX3DOM('sphereSegment', createTagHelper('sphereSegment'))
+export const spheresegment = withX3DOM('spheresegment', createTagHelper('spheresegment'))
 
 /**
  * @see https://doc.x3dom.org/author/PointingDeviceSensor/SphereSensor.html
  */
-export const sphereSensor = withX3DOM('sphereSensor', createTagHelper('sphereSensor'))
+export const spheresensor = withX3DOM('spheresensor', createTagHelper('spheresensor'))
 
 /**
  * @see https://doc.x3dom.org/author/Interpolation/SplinePositionInterpolator.html
  */
-export const splinePositionInterpolator = withX3DOM('splinePositionInterpolator', createTagHelper('splinePositionInterpolator'))
+export const splinepositioninterpolator = withX3DOM('splinepositioninterpolator', createTagHelper('splinepositioninterpolator'))
 
 /**
  * @see https://doc.x3dom.org/author/Lighting/SpotLight.html
  */
-export const spotLight = withX3DOM('spotLight', createTagHelper('spotLight'))
+export const spotlight = withX3DOM('spotlight', createTagHelper('spotlight'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/StaticGroup.html
  */
-export const staticGroup = withX3DOM('staticGroup', createTagHelper('staticGroup'))
+export const staticgroup = withX3DOM('staticgroup', createTagHelper('staticgroup'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/StippleVolumeStyle.html
  */
-export const stippleVolumeStyle = withX3DOM('stippleVolumeStyle', createTagHelper('stippleVolumeStyle'))
+export const stipplevolumestyle = withX3DOM('stipplevolumestyle', createTagHelper('stipplevolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Shaders/SurfaceShaderTexture.html
  */
-export const surfaceShaderTexture = withX3DOM('surfaceShaderTexture', createTagHelper('surfaceShaderTexture'))
+export const surfaceshadertexture = withX3DOM('surfaceshadertexture', createTagHelper('surfaceshadertexture'))
 
 /**
  * @see https://doc.x3dom.org/author/Followers/TexCoordDamper2D.html
  */
-export const texCoordDamper2d = withX3DOM('texCoordDamper2d', createTagHelper('texCoordDamper2d'))
+export const texcoorddamper2d = withX3DOM('texcoorddamper2d', createTagHelper('texcoorddamper2d'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/Texture.html
@@ -1085,52 +1085,52 @@ export const texture = withX3DOM('texture', createTagHelper('texture'))
 /**
  * @see https://doc.x3dom.org/author/Texturing/TextureCoordinate.html
  */
-export const textureCoordinate = withX3DOM('textureCoordinate', createTagHelper('textureCoordinate'))
+export const texturecoordinate = withX3DOM('texturecoordinate', createTagHelper('texturecoordinate'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing3D/TextureCoordinate3D.html
  */
-export const textureCoordinate3d = withX3DOM('textureCoordinate3d', createTagHelper('textureCoordinate3d'))
+export const texturecoordinate3d = withX3DOM('texturecoordinate3d', createTagHelper('texturecoordinate3d'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/TextureCoordinateGenerator.html
  */
-export const textureCoordinateGenerator = withX3DOM('textureCoordinateGenerator', createTagHelper('textureCoordinateGenerator'))
+export const texturecoordinategenerator = withX3DOM('texturecoordinategenerator', createTagHelper('texturecoordinategenerator'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/TextureProperties.html
  */
-export const textureProperties = withX3DOM('textureProperties', createTagHelper('textureProperties'))
+export const textureproperties = withX3DOM('textureproperties', createTagHelper('textureproperties'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing/TextureTransform.html
  */
-export const textureTransform = withX3DOM('textureTransform', createTagHelper('textureTransform'))
+export const texturetransform = withX3DOM('texturetransform', createTagHelper('texturetransform'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing3D/TextureTransform3D.html
  */
-export const textureTransform3d = withX3DOM('textureTransform3d', createTagHelper('textureTransform3d'))
+export const texturetransform3d = withX3DOM('texturetransform3d', createTagHelper('texturetransform3d'))
 
 /**
  * @see https://doc.x3dom.org/author/Texturing3D/TextureTransformMatrix3D.html
  */
-export const textureTransformMatrix3d = withX3DOM('textureTransformMatrix3d', createTagHelper('textureTransformMatrix3d'))
+export const texturetransformmatrix3d = withX3DOM('texturetransformmatrix3d', createTagHelper('texturetransformmatrix3d'))
 
 /**
  * @see https://doc.x3dom.org/author/Time/TimeSensor.html
  */
-export const timeSensor = withX3DOM('timeSensor', createTagHelper('timeSensor'))
+export const timesensor = withX3DOM('timesensor', createTagHelper('timesensor'))
 
 /**
  * @see https://doc.x3dom.org/author/EventUtilities/TimeTrigger.html
  */
-export const timeTrigger = withX3DOM('timeTrigger', createTagHelper('timeTrigger'))
+export const timetrigger = withX3DOM('timetrigger', createTagHelper('timetrigger'))
 
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/ToneMappedVolumeStyle.html
  */
-export const toneMappedVolumeStyle = withX3DOM('toneMappedVolumeStyle', createTagHelper('toneMappedVolumeStyle'))
+export const tonemappedvolumestyle = withX3DOM('tonemappedvolumestyle', createTagHelper('tonemappedvolumestyle'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry3D/Torus.html
@@ -1140,7 +1140,7 @@ export const torus = withX3DOM('torus', createTagHelper('torus'))
 /**
  * @see https://doc.x3dom.org/author/PointingDeviceSensor/TouchSensor.html
  */
-export const touchSensor = withX3DOM('touchSensor', createTagHelper('touchSensor'))
+export const touchsensor = withX3DOM('touchsensor', createTagHelper('touchsensor'))
 
 /**
  * @see https://doc.x3dom.org/author/Grouping/Transform.html
@@ -1150,17 +1150,17 @@ export const transform = withX3DOM('transform', createTagHelper('transform'))
 /**
  * @see https://doc.x3dom.org/author/Rendering/TriangleSet.html
  */
-export const triangleSet = withX3DOM('triangleSet', createTagHelper('triangleSet'))
+export const triangleset = withX3DOM('triangleset', createTagHelper('triangleset'))
 
 /**
  * @see https://doc.x3dom.org/author/Geometry2D/TriangleSet2D.html
  */
-export const triangleSet2d = withX3DOM('triangleSet2d', createTagHelper('triangleSet2d'))
+export const triangleset2d = withX3DOM('triangleset2d', createTagHelper('triangleset2d'))
 
 /**
  * @see https://doc.x3dom.org/author/Shape/TwoSidedMaterial.html
  */
-export const twoSidedMaterial = withX3DOM('twoSidedMaterial', createTagHelper('twoSidedMaterial'))
+export const twosidedmaterial = withX3DOM('twosidedmaterial', createTagHelper('twosidedmaterial'))
 
 /**
  * @see https://doc.x3dom.org/author/Shaders/Uniform.html
@@ -1180,12 +1180,12 @@ export const viewpoint = withX3DOM('viewpoint', createTagHelper('viewpoint'))
 /**
  * @see https://doc.x3dom.org/author/VolumeRendering/VolumeData.html
  */
-export const volumeData = withX3DOM('volumeData', createTagHelper('volumeData'))
+export const volumedata = withX3DOM('volumedata', createTagHelper('volumedata'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/WorldInfo.html
  */
-export const worldInfo = withX3DOM('worldInfo', createTagHelper('worldInfo'))
+export const worldinfo = withX3DOM('worldinfo', createTagHelper('worldinfo'))
 
 /**
  * @see https://doc.x3dom.org/author/Core/X3D.html

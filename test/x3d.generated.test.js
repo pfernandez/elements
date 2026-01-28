@@ -18,8 +18,7 @@ const parseRegistry = source => {
 
 const toHelperName = pascal => {
   if (pascal === 'LOD') return 'lod'
-  const lowerFirst = pascal[0].toLowerCase() + pascal.slice(1)
-  return lowerFirst.replace(/2D/g, '2d').replace(/3D/g, '3d')
+  return pascal.toLowerCase()
 }
 
 const toExportName = tag => {

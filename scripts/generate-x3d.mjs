@@ -22,10 +22,9 @@ const loadVendoredX3domVersion = () => {
 
 const toHelperName = pascal => {
   if (pascal === 'LOD') return 'lod'
-  const lowerFirst = pascal[0].toLowerCase() + pascal.slice(1)
-  // X3DOM uses PascalCase names like Arc2D; in HTML these become lowercase tag names.
-  // Normalize 2D/3D tokens for nicer JS helper names and stable vnode tags.
-  return lowerFirst.replace(/2D/g, '2d').replace(/3D/g, '3d')
+  // X3DOM nodes are authored in PascalCase (e.g. ArcClose2D) but in HTML the tag name
+  // is effectively lowercase. We keep helper names aligned with the lowercase tag.
+  return pascal.toLowerCase()
 }
 
 const toExportName = tag => {
@@ -88,6 +87,21 @@ const extractClassDescFromFile = fileText => {
   return null
 }
 
+const extractFieldsFromFile = fileText => {
+  // Extract addField_* calls.
+  // Typical: this.addField_SFString( ctx, "title", "" );
+  // Some nodes use addField_... (ctx, "name", ...) with whitespace/newlines.
+  const re = /this\.addField_([A-Za-z0-9]+)\(\s*ctx\s*,\s*\"([^\"]+)\"/g
+  const fields = []
+  let match
+  while ((match = re.exec(fileText))) {
+    const fieldType = match[1]
+    const name = match[2]
+    fields.push({ name, fieldType })
+  }
+  return fields
+}
+
 const loadX3domSourceDocs = version => {
   if (!version) return new Map()
   const srcRoot = path.join(repoRoot, '.cache', `x3dom-src-${version}`, 'src', 'nodes')
@@ -114,6 +128,70 @@ const loadX3domSourceDocs = version => {
 
   return docsByPascal
 }
+
+const loadX3domSourceFields = version => {
+  if (!version) return new Map()
+  const srcRoot = path.join(repoRoot, '.cache', `x3dom-src-${version}`, 'src', 'nodes')
+  if (!fs.existsSync(srcRoot)) return new Map()
+
+  const fieldsByPascal = new Map()
+  const stack = [srcRoot]
+
+  while (stack.length) {
+    const dir = stack.pop()
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name)
+      if (entry.isDirectory()) stack.push(fullPath)
+      else if (entry.isFile() && entry.name.endsWith('.js')) {
+        const txt = fs.readFileSync(fullPath, 'utf8')
+        const m = txt.match(/registerNodeType\(\s*\"([^\"]+)\"/)
+        if (!m) continue
+        const pascal = m[1]
+        const fields = extractFieldsFromFile(txt)
+        if (fields.length) fieldsByPascal.set(pascal, fields)
+      }
+    }
+  }
+
+  return fieldsByPascal
+}
+
+const fieldTypeToTs = fieldType => {
+  // Keep values permissive: X3DOM accepts HTML attribute strings; users may also pass numbers/arrays.
+  switch (fieldType) {
+  case 'SFBool': return 'X3DBool'
+  case 'SFInt32':
+  case 'SFFloat':
+  case 'SFDouble':
+  case 'SFTime': return 'X3DNumber'
+  case 'SFString': return 'string'
+  case 'MFString': return 'string | string[]'
+  case 'MFInt32':
+  case 'MFFloat':
+  case 'MFDouble': return 'string | X3DNumber[]'
+  case 'SFVec2f': return 'X3DVec2'
+  case 'SFVec3f': return 'X3DVec3'
+  case 'SFVec4f': return 'X3DVec4'
+  case 'MFVec2f': return 'string | X3DVec2[]'
+  case 'MFVec3f': return 'string | X3DVec3[]'
+  case 'MFVec4f': return 'string | X3DVec4[]'
+  case 'SFColor': return 'X3DColor'
+  case 'SFColorRGBA': return 'X3DColorRGBA'
+  case 'MFColor': return 'string | X3DColor[]'
+  case 'MFColorRGBA': return 'string | X3DColorRGBA[]'
+  case 'SFRotation': return 'X3DRotation'
+  case 'MFRotation': return 'string | X3DRotation[]'
+  case 'SFMatrix4f': return 'X3DMatrix4'
+  case 'MFMatrix4f': return 'string | X3DMatrix4[]'
+  case 'SFImage': return 'string | X3DNumber[]'
+  case 'MFNode':
+  case 'SFNode': return 'any'
+  default: return 'any'
+  }
+}
+
+const safePropKey = name =>
+  /^[A-Za-z_\$][A-Za-z0-9_\$]*$/.test(name) ? name : JSON.stringify(name)
 
 const writeX3DTagsRuntime = byName => {
   const concreteTags = [...byName.keys()]
@@ -373,6 +451,7 @@ const writeX3DHelpersRuntime = byName => {
 const writeX3DTypes = byName => {
   const version = loadVendoredX3domVersion()
   const docsByPascal = loadX3domSourceDocs(version)
+  const fieldsByPascal = loadX3domSourceFields(version)
 
   const concrete = [...byName.entries()]
     .filter(([name]) => !name.startsWith('X3D'))
@@ -393,9 +472,21 @@ const writeX3DTypes = byName => {
   lines.push(' * augmented with @see links to the official X3DOM docs pages.')
   lines.push(' */')
   lines.push('')
-  lines.push('type ElementHelper = {')
-  lines.push('  (props: Record<string, any>, ...children: any[]): [tag: string, props: Record<string, any>, ...children: any[]];')
-  lines.push('  (...children: any[]): [tag: string, props: Record<string, any>, ...children: any[]];')
+  lines.push('export type X3DNumber = number | string;')
+  lines.push('export type X3DBool = boolean | string;')
+  lines.push('export type X3DVec2 = string | [X3DNumber, X3DNumber] | X3DNumber[];')
+  lines.push('export type X3DVec3 = string | [X3DNumber, X3DNumber, X3DNumber] | X3DNumber[];')
+  lines.push('export type X3DVec4 = string | [X3DNumber, X3DNumber, X3DNumber, X3DNumber] | X3DNumber[];')
+  lines.push('export type X3DColor = string | [X3DNumber, X3DNumber, X3DNumber] | X3DNumber[];')
+  lines.push('export type X3DColorRGBA = string | [X3DNumber, X3DNumber, X3DNumber, X3DNumber] | X3DNumber[];')
+  lines.push('export type X3DRotation = string | [X3DNumber, X3DNumber, X3DNumber, X3DNumber] | X3DNumber[];')
+  lines.push('export type X3DMatrix4 = string | X3DNumber[];')
+  lines.push('')
+  lines.push('export type X3DProps = Record<string, any>;')
+  lines.push('export type X3DVNode<P extends X3DProps = X3DProps> = [tag: string, props: P, ...children: any[]];')
+  lines.push('export type ElementHelper<P extends X3DProps = X3DProps> = {')
+  lines.push('  (props: P, ...children: any[]): X3DVNode<P>;')
+  lines.push('  (...children: any[]): X3DVNode<P>;')
   lines.push('};')
   lines.push('')
   lines.push('/**')
@@ -411,6 +502,16 @@ const writeX3DTypes = byName => {
     const url = makeDocUrl(component, pascal)
     const tagLabel = tag === 'lod' ? '<lod> (LOD)' : `<${tag}>`
     const desc = docsByPascal.get(pascal) || `${tagLabel} node (X3DOM ${component} component).`
+    const fields = fieldsByPascal.get(pascal) || []
+    const propsName = `${pascal}Props`
+
+    lines.push(`export interface ${propsName} extends X3DProps {`)
+    for (const f of fields) {
+      lines.push(`  ${safePropKey(f.name)}?: ${fieldTypeToTs(f.fieldType)};`)
+    }
+    lines.push('}')
+    lines.push('')
+
     lines.push('/**')
     lines.push(...wrapDoc(desc))
     if (exp !== tag) {
@@ -419,7 +520,7 @@ const writeX3DTypes = byName => {
     }
     lines.push(` * @see ${url}`)
     lines.push(' */')
-    lines.push(`export const ${exp}: ElementHelper;`)
+    lines.push(`export const ${exp}: ElementHelper<${propsName}>;`)
     lines.push('')
   }
 

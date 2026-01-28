@@ -124,6 +124,12 @@ form({
 
 This package includes helpers for X3DOM’s supported X3D node set.
 
+You can import the 3D-only surface via:
+
+```js
+import { x3d, scene, shape, box } from '@pfern/elements/3d'
+```
+
 ### Loading strategy
 
 - X3DOM is lazy-loaded the first time you call any 3D helper.

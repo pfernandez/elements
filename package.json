@@ -10,10 +10,16 @@
       "types": "./types/elements.d.ts",
       "import": "./elements.js",
       "default": "./elements.js"
+    },
+    "./3d": {
+      "types": "./types/3d.d.ts",
+      "import": "./3d.js",
+      "default": "./3d.js"
     }
   },
   "files": [
     "./elements.js",
+    "./3d.js",
     "./src",
     "./vendor",
     "./types"
