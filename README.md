@@ -118,6 +118,29 @@ handler returns a vnode.
 form({
   onsubmit: ({ todo: { value } }, e) =>
     value && todos([...items, { value, done: false }])
+```
+
+## X3D / X3DOM
+
+This package includes helpers for X3DOM’s supported X3D node set.
+
+### Loading strategy
+
+- X3DOM is lazy-loaded the first time you call any 3D helper.
+- It loads a small “core” bundle first, and only loads the larger “full” bundle if you call a helper for a node that core doesn’t register.
+- The implementation is documented in `src/3d.js`.
+
+Type declarations for these nodes are generated in `types/x3d.d.ts` and `types/x3d-base.d.ts`. To regenerate them:
+
+```bash
+node scripts/generate-x3d.mjs
+```
+
+If you have a matching checkout of the X3DOM source repo at `./.cache/x3dom-src-<version>`, the generator will also pull the node `@classdesc` JSDoc into the `.d.ts` docblocks.
+
+### Vendored bundles
+
+`vendor/x3dom.js`, `vendor/x3dom.css`, and `vendor/x3dom-full.js` are vendored build artifacts produced from the X3DOM source repo at the pinned version. They are loaded via DOM injection to preserve X3DOM’s “classic script” global behavior across bundlers.
 })
 ```
 

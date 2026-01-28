@@ -9,7 +9,10 @@ test('all exported element functions return valid vnodes', () => {
 
     // Avoid reserved keywords
     if (tag === 'svgswitch') tag = 'switch'
+    if (tag === 'x3dswitch') tag = 'switch'
     if (tag === 'htmlvar') tag = 'var'
+    if (tag === 'x3dtext') tag = 'text'
+    if (tag === 'x3dparam') tag = 'param'
 
     assert.equal(typeof fn, 'function', `export ${tag} should be a function`)
     const vnode = fn({ id: 'x' }, 'content')

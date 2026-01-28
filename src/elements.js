@@ -177,7 +177,7 @@ const assignProperties = (el, props) =>
  * @param {boolean} isRoot - Whether this is a root component
  * @returns {Node} - Real DOM node
  */
-const renderTree = (node, isRoot = true) => {
+const renderTree = (node, isRoot = true, namespaceURI = null) => {
   if (typeof node === 'string' || typeof node === 'number') {
     return isNodeEnv() ? node : document.createTextNode(node)
   }
@@ -193,7 +193,7 @@ const renderTree = (node, isRoot = true) => {
 
   if (Array.isArray(node) && node[0] === 'wrap') {
     const [_tag, props = {}, child] = node
-    const el = renderTree(child, true)
+    const el = renderTree(child, true, namespaceURI)
     if (props && typeof props === 'object' && props.__instance) {
       rootMap.set(props.__instance, el)
     }
@@ -207,6 +207,14 @@ const renderTree = (node, isRoot = true) => {
     return document.createComment('Invalid vnode')
   }
 
+  const elNamespaceURI = tag === 'svg' || namespaceURI === svgNS ? svgNS : null
+  const childNamespaceURI =
+    tag === 'foreignObject'
+      ? null
+      : tag === 'svg'
+        ? svgNS
+        : namespaceURI
+
   let el =
     tag === 'html'
       ? document.documentElement
@@ -214,7 +222,7 @@ const renderTree = (node, isRoot = true) => {
         ? document.head
         : tag === 'body'
           ? document.body
-          : svgTagNames.includes(tag)
+          : elNamespaceURI
             ? document.createElementNS(svgNS, tag)
             : document.createElement(tag)
 
@@ -233,7 +241,7 @@ const renderTree = (node, isRoot = true) => {
   assignProperties(el, props)
 
   children.forEach(child => {
-    const childEl = renderTree(child, false)
+    const childEl = renderTree(child, false, childNamespaceURI)
     el.appendChild(childEl)
   })
 
@@ -571,65 +579,7 @@ const svgTagNames = [
   'view'
 ]
 
-const x3dTagNames = [
-  'x3d',
-  'scene',
-  'anchor',
-  'background',
-  'fog',
-  'navigationInfo',
-  'viewpoint',
-  'orthoViewpoint',
-  'worldInfo',
-  'group',
-  'transform',
-  'switch',
-  'inline',
-  'lod',
-  'billboard',
-  'collision',
-  'shape',
-  'appearance',
-  'material',
-  'box',
-  'sphere',
-  'cone',
-  'cylinder',
-  'imageTexture',
-  'textureCoordinate',
-  'textureCoordinateGenerator',
-  'multiTextureCoordinate',
-  'textureCoordinate3D',
-  'coordinate',
-  'normal',
-  'color',
-  'colorRGBA',
-  'pointSet',
-  'lineSet',
-  'indexedLineSet',
-  'indexedFaceSet',
-  'triangleSet',
-  'triangleStripSet',
-  'triangleFanSet',
-  'indexedTriangleSet',
-  'indexedTriangleStripSet',
-  'indexedTriangleFanSet',
-  'directionalLight',
-  'pointLight',
-  'spotLight',
-  'elevationGrid',
-  'extrusion',
-  'arc2d',
-  'arcclose2d',
-  'circle2d',
-  'disk2d',
-  'polyline2d',
-  'polypoint2d',
-  'rectangle2d',
-  'triangleset2d'
-]
-
-const tagNames = [...htmlTagNames, ...svgTagNames, ...x3dTagNames]
+const tagNames = [...htmlTagNames, ...svgTagNames]
 const isPropsObject = x =>
   typeof x === 'object'
   && x !== null

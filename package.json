@@ -14,6 +14,8 @@
   },
   "files": [
     "./elements.js",
+    "./src",
+    "./vendor",
     "./types"
   ],
   "keywords": [
@@ -46,8 +48,5 @@
     "eslint": "^7.32.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
-  },
-  "dependencies": {
-    "x3dom": "^1.8.3"
   }
 }
