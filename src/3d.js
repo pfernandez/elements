@@ -28,6 +28,7 @@
 
 let x3domCorePromise = null
 let x3domFullPromise = null
+let x3domLoadedFull = false
 let x3domLoadFailed = false
 
 const injectStyleTextOnce = (id, cssText) => {
@@ -102,14 +103,12 @@ const ensureX3DOMCore = () => {
       ])
       injectStyleTextOnce('css', cssText)
       injectScriptTextOnce('core', jsText)
-      reloadX3DOM()
       return getX3DOM()
     } catch (err) {
       // Fallback path: load via URL <link>/<script>.
       const cssUrl = new URL('../vendor/x3dom.css', import.meta.url).toString()
       const coreUrl = new URL('../vendor/x3dom.js', import.meta.url).toString()
       await Promise.all([loadStyleOnce(cssUrl), loadScriptOnce(coreUrl)])
-      reloadX3DOM()
       return getX3DOM()
     }
   })()
@@ -130,17 +129,16 @@ const ensureX3DOMFull = async () => {
   if (typeof window === 'undefined' || x3domLoadFailed) return null
   await ensureX3DOMCore()
   if (x3domFullPromise) return x3domFullPromise
+  x3domLoadedFull = true
 
   const fullUrl = new URL('../vendor/x3dom-full.js', import.meta.url).toString()
   x3domFullPromise = (async () => {
     try {
       const { default: jsText } = await import('../vendor/x3dom-full.js?raw')
       injectScriptTextOnce('full', jsText)
-      reloadX3DOM()
       return getX3DOM()
     } catch (err) {
       await loadScriptOnce(fullUrl)
-      reloadX3DOM()
       return getX3DOM()
     }
   })()
@@ -163,6 +161,9 @@ const ensureX3DOMForTag = async tag => {
   const lc = String(tag).toLowerCase()
   const hasNode = !!x3dom?.nodeTypesLC?.[lc]
   if (hasNode) return x3dom
+  if (!x3domLoadedFull && (typeof process !== 'undefined') && process?.env?.NODE_ENV !== 'production') {
+    console.warn(`[elements] Loading x3dom-full.js because <${tag}> is not present in core x3dom.js`)
+  }
   return ensureX3DOMFull()
 }
 

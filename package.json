@@ -33,7 +33,9 @@
     "dev": "vite",
     "build": "vite build",
     "build:types": "tsc",
+    "gen:x3d": "node scripts/generate-x3d.mjs",
     "preview": "vite preview",
+    "prepublishOnly": "npm run -s gen:x3d && npm run -s typecheck && npm test",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.* --test-reporter spec"
   },

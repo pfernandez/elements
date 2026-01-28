@@ -141,6 +141,8 @@ If you have a matching checkout of the X3DOM source repo at `./.cache/x3dom-src-
 ### Vendored bundles
 
 `vendor/x3dom.js`, `vendor/x3dom.css`, and `vendor/x3dom-full.js` are vendored build artifacts produced from the X3DOM source repo at the pinned version. They are loaded via DOM injection to preserve X3DOM’s “classic script” global behavior across bundlers.
+
+See `vendor/README.md` for the exact build + update steps.
 })
 ```
 
