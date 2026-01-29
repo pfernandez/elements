@@ -1,6 +1,6 @@
-import { body, div, h1, h2, head, header, html,
+import { body, h1, h2, head, header, html,
          link, main, meta, render, section, title } from '../elements.js'
-import { counter } from './components/counter.js'
+import { scope } from './components/scope.js'
 import { todos } from './components/todos.js'
 import { x3dDemo } from './components/x3d-demo.js'
 
@@ -16,15 +16,11 @@ render(
         h1('Elements.js Demo')),
       main(
         section(
+          scope()),
+        section(
           h2('Todos'),
           todos()),
         section(
           h2('X3D / X3DOM'),
-          x3dDemo()),
-        section({ class: 'grid' },
-          div(
-            h2('Counter 1'),
-            counter()),
-          div(
-            h2('Counter 2'),
-            counter()))))))
+          x3dDemo())))))
+

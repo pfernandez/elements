@@ -10,10 +10,12 @@
  ******************************************************************************/
 
 body {
+  max-width: 1024px;
+  margin: 0 auto;
   padding: 20px;
 }
 
-body>main, main {
+body > main, main {
   border-bottom: 1px solid #ddd;
   padding-top: 0;
 }
@@ -34,7 +36,7 @@ nav a.active {
 
 section {
   border-top: 1px solid #ddd;
-  padding-top: 1em;
+  padding: 1em 0;
   margin: 0;
 }
 
@@ -76,6 +78,15 @@ li > button {
   margin-left: 10px;
 }
 
+button {
+  margin-bottom: 20px;
+}
+
+.reset {
+  font-size: smaller;
+  padding: 6px 16px;
+}
+
 /*******************************************************************************
  * Apps
  ******************************************************************************/
@@ -97,3 +108,6 @@ li > button {
   cursor: pointer;
 }
 
+.todos li button {
+  margin-bottom: 0;
+}
