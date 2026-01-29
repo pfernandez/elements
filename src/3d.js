@@ -161,7 +161,7 @@ const ensureX3DOMForTag = async tag => {
   const lc = String(tag).toLowerCase()
   const hasNode = !!x3dom?.nodeTypesLC?.[lc]
   if (hasNode) return x3dom
-  if (!x3domLoadedFull && (typeof process !== 'undefined') && process?.env?.NODE_ENV !== 'production') {
+  if (!x3domLoadedFull && typeof process !== 'undefined' && process?.env?.NODE_ENV !== 'production') {
     console.warn(`[elements] Loading x3dom-full.js because <${tag}> is not present in core x3dom.js`)
   }
   return ensureX3DOMFull()

@@ -1392,5 +1392,3 @@ export type ElementHelper = {
     (props: Props, ...children: Child[]): VNode;
     (...children: Child[]): VNode;
 };
-export * from './x3d-base.d.ts';
-export * from './x3d.d.ts';
