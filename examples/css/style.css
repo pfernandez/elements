@@ -6,57 +6,27 @@
 @import './pico.grey.min.css';
 
 /*******************************************************************************
- * Layout
+ * Global
  ******************************************************************************/
 
-body {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 20px;
+header {
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0 ,0.1);
 }
 
-body > main, main {
-  border-bottom: 1px solid #ddd;
+h1 {
+  font-size: 150%;
+  font-weight: normal;
+  margin: 0 1em 0 1em;
+}
+
+main {
   padding-top: 0;
 }
 
-body>header, header {
-  padding-bottom: 0;
-}
-
-nav {
-  display: inline-flex;
-  gap: 1em;
-  padding-bottom: 1em;
-}
-
-nav a.active {
-  text-decoration: underline;
-}
-
 section {
-  border-top: 1px solid #ddd;
-  padding: 1em 0;
+  padding: 1.75rem 0;
   margin: 0;
 }
-
-@media (max-width: 768px) {
-  section.grid > :not(:last-child) {
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 1em;
-  }
-}
-
-@media (min-width: 769px) {
-  section.grid > :not(:last-child) {
-    border-right: 1px solid #ddd;
-  }
-}
-
-
-/*******************************************************************************
- * General
- ******************************************************************************/
 
 output {
   font-size: xx-large;
@@ -79,12 +49,7 @@ li > button {
 }
 
 button {
-  margin-bottom: 20px;
-}
-
-.reset {
-  font-size: smaller;
-  padding: 6px 16px;
+  margin-bottom: 10px;
 }
 
 /*******************************************************************************
@@ -104,10 +69,36 @@ button {
   margin-left: 2%;
 }
 
+.todos ul {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  gap: 0.5em;
+  margin: 0;
+}
+
 .todos li {
   cursor: pointer;
+  margin-bottom: 0;
 }
 
 .todos li button {
+  float: right;
   margin-bottom: 0;
 }
+
+.todos,
+.scope,
+.scope .grid > div,
+x3d {
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  padding: 1em;
+}
+
+.scope > button {
+  grid-column: 1 / -1;
+  font-size: smaller;
+  padding: 6px 16px;
+  margin-bottom: 18px;
+}
+

@@ -1,3 +1,4 @@
+/** @internal */
 export const htmlTagNames = [
   // Document metadata
   'html',
@@ -139,6 +140,7 @@ export const htmlTagNames = [
   'slot'
 ]
 
+/** @internal */
 export const svgTagNames = [
   // Animation elements
   'animate',

@@ -1,5 +1,5 @@
-import { appearance, arc2d, box, material,
-         scene, shape, transform, viewpoint, x3d } from '../../3d.js'
+import { appearance, box, material, scene,
+         shape, transform, viewpoint, x3d } from '../../3d.js'
 
 /**
  * Minimal X3D/X3DOM demo.
@@ -10,20 +10,12 @@ import { appearance, arc2d, box, material,
  *   the full bundle.
  */
 export const x3dDemo = () =>
-  x3d({ width: '100%',
-        height: '360px',
-        showStat: 'false',
-        showLog: 'false' },
-  scene(
-    viewpoint({ position: '0 0 6' }),
-    transform(
-      { translation: '1.2 0 0' },
-      shape(
-        appearance(material({ diffuseColor: '0.2 0.6 1.0' })),
-        box())),
-    transform(
-      { translation: '-1.6 0 0' },
-      shape(
-        appearance(material({ emissiveColor: '1.0 0.5 0.0' })),
-        arc2d({ radius: 1.0, startAngle: 0, endAngle: 1.57 })))))
+  x3d(
+    scene(
+      viewpoint({ position: '0 0 6', description: 'Default View' }),
+      transform({ rotation: '0 1 0 0.5' },
+        shape(
+          appearance(
+            material({ diffuseColor: '0.2 0.6 1.0' })),
+          box()))))
 

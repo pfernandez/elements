@@ -1,9 +1,13 @@
 import { button, component, div,
          form, input, li, span, ul } from '../../elements.js'
 
-export const todos = component(
-  (items = [{ value: 'Add my first todo', done: true }]) => {
+const demoItems = [
+  { value: 'Add my first todo', done: true },
+  { value: 'Install elements.js', done: false }
+]
 
+export const todos = component(
+  (items = demoItems) => {
     const add = ({ todo: { value } }) =>
       value && todos([...items, { value, done: false }])
 
@@ -15,14 +19,14 @@ export const todos = component(
 
     return (
       div({ class: 'todos' },
+          form({ onsubmit: add },
+               input({ name: 'todo', placeholder: 'What needs doing?' }),
+               button({ type: 'submit' }, 'Add')),
 
-        form({ onsubmit: add },
-          input({ name: 'todo', placeholder: 'What needs doing?' }),
-          button({ type: 'submit' }, 'Add')),
-
-        ul(...items.map(item =>
-          li({ style: { 'text-decoration': item.done ? 'line-through' : 'none' } },
-            span({ onclick: () => toggle(item) }, item.value),
-            button({ onclick: () => remove(item) }, '✕'))))))
+          ul(...items.map(item =>
+            li({ style:
+                { 'text-decoration': item.done ? 'line-through' : 'none' } },
+               span({ onclick: () => toggle(item) }, item.value),
+               button({ onclick: () => remove(item) }, '✕'))))))
   })
 

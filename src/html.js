@@ -1,4 +1,4 @@
-import { elements } from './elements.js'
+import { elements } from './core/elements.js'
 
 export const html = elements.html
 

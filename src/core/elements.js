@@ -21,10 +21,26 @@ export const DEBUG =
 const svgNS = 'http://www.w3.org/2000/svg'
 
 /**
+ * @typedef {Record<string, any>} Props
+ * @typedef {VNode | string | number | boolean | null | undefined} Child
+ * @typedef {[tag: string, props: Props, ...children: Child[]]} VNode
+ *
+ * @callback ElementHelper
+ * @param {Props | Child} [propsOrChild]
+ * @param {...Child} children
+ * @returns {VNode}
+ */
+
+/**
  * Maps vnode instances to their current root DOM element,
  * allowing accurate replacement when the same vnode is re-invoked.
  */
 const rootMap = new WeakMap()
+
+const getVNode = el => el?.__vnode
+const setVNode = (el, vnode) => (el.__vnode = vnode)
+const isRoot = el => !!el?.__root
+const setRoot = el => (el.__root = true)
 
 const isNodeEnv = () => typeof document === 'undefined'
 
@@ -91,7 +107,7 @@ const diffChildren = (aChildren, bChildren) => {
  * - Async handlers are supported: if the listener returns a Promise,
  *   it will be awaited and the resulting vnode (if any) will be rendered.
  *
- * @param {HTMLElement} el - The DOM element to receive props
+ * @param {any} el - The DOM element to receive props
  * @param {Object} props - Attributes and event listeners to assign
  */
 const assignProperties = (el, props) =>
@@ -99,7 +115,7 @@ const assignProperties = (el, props) =>
     if (key.startsWith('on') && typeof value === 'function') {
       el[key] = async (...args) => {
         let target = el
-        while (target && !target.__root) target = target.parentNode
+        while (target && !isRoot(target)) target = target.parentNode
         if (!target) return
 
         const prevEventRoot = currentEventRoot
@@ -140,10 +156,6 @@ const assignProperties = (el, props) =>
 
             const replacement = renderTree(result, true)
             parent.replaceChild(replacement, target)
-
-            replacement.__vnode = result
-            replacement.__root = true
-            rootMap.set(result, replacement)
           }
         } catch (error) {
           console.error(error)
@@ -177,11 +189,13 @@ const assignProperties = (el, props) =>
  *
  * @param {*} node - Vnode to render
  * @param {boolean} isRoot - Whether this is a root component
- * @returns {Node} - Real DOM node
+ * @returns {any} - Real DOM node
  */
 const renderTree = (node, isRoot = true, namespaceURI = null) => {
   if (typeof node === 'string' || typeof node === 'number') {
-    return isNodeEnv() ? node : document.createTextNode(node)
+    return isNodeEnv()
+      ? node
+      : document.createTextNode(String(node))
   }
 
   if (!node || node.length === 0) {
@@ -233,10 +247,10 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
     document.documentElement.appendChild(el)
   }
 
-  el.__vnode = node
+  setVNode(el, node)
 
   if (isRoot && tag !== 'html' && tag !== 'head' && tag !== 'body') {
-    el.__root = true
+    setRoot(el)
     rootMap.set(node, el)
   }
 
@@ -254,7 +268,7 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
  * Applies a patch object to a DOM subtree.
  * Handles creation, removal, replacement, and child updates.
  *
- * @param {HTMLElement} parent - DOM node to mutate
+ * @param {any} parent - DOM node to mutate
  * @param {Object} patch - Patch object from diffTree
  * @param {number} [index=0] - Child index to apply update to
  */
@@ -277,17 +291,18 @@ const applyPatch = (parent, patch, index = 0) => {
     break
   }
   case 'UPDATE':
-    patch.children.forEach((p, i) => applyPatch(child, p, i))
+    child && patch.children.forEach((p, i) => applyPatch(child, p, i))
     break
   }
 }
 
 /**
- * Renders a new vnode into the DOM. If this vnode was rendered before,
- * reuses the previous root and applies a patch. Otherwise, performs initial mount.
+ * Render a vnode into the DOM.
  *
- * @param {any[]} vtree - The declarative vnode array to render
- * @param {HTMLElement} container - The container to render into
+ * If `vtree[0]` is `html`, `head`, or `body`, no container is required.
+ *
+ * @param {VNode} vtree
+ * @param {HTMLElement | null} [container]
  */
 export const render = (vtree, container = null) => {
   const target =
@@ -299,7 +314,7 @@ export const render = (vtree, container = null) => {
     throw new Error('render() requires a container for non-html() root')
   }
 
-  const prevVNode = target.__vnode
+  const prevVNode = getVNode(target)
 
   if (!prevVNode) {
     const dom = renderTree(vtree)
@@ -315,15 +330,16 @@ export const render = (vtree, container = null) => {
     applyPatch(target, patch)
   }
 
-  target.__vnode = vtree
+  setVNode(target, vtree)
   rootMap.set(vtree, target)
 }
 
 /**
- * Wraps a function component so that it participates in reconciliation.
+ * Wrap a pure function component so it participates in reconciliation.
  *
- * @param {(...args: any[]) => any} fn - A pure function that returns a declarative tree (array format).
- * @returns {(...args: any[]) => any} - A callable component that can manage its own subtree.
+ * @template {any[]} Args
+ * @param {(...args: Args) => VNode} fn
+ * @returns {(...args: Args) => VNode}
  */
 export const component = fn => {
   const instance = {}
@@ -344,9 +360,12 @@ export const component = fn => {
       }
 
       if (canUpdateInPlace) {
-        const replacement = renderTree(['wrap', { __instance: instance }, vnode], true)
+        const replacement = renderTree(
+          ['wrap', { __instance: instance }, vnode],
+          true,
+        )
         prevEl.parentNode.replaceChild(replacement, prevEl)
-        return replacement.__vnode
+        return getVNode(replacement)
       }
 
       return ['wrap', { __instance: instance }, vnode]
@@ -385,6 +404,7 @@ const isPropsObject = x =>
  * The following helpers are included:
  * `div`, `span`, `button`, `svg`, `circle`, etc.
  */
+/** @type {Record<string, ElementHelper> & { fragment: (...children: Child[]) => VNode }} */
 export const elements = tagNames.reduce(
   (acc, tag) => ({
     ...acc,

@@ -4,11 +4,11 @@
     "moduleResolution": "nodenext",
     "types": ["node"],
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "./types",
+    "stripInternal": true,
+    "outDir": "./types"
   },
   "include": ["./elements.js"]
 }
-

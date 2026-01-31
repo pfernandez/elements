@@ -1,9 +1,8 @@
 import { button, component, div, output } from '../../elements.js'
 
 export const counter = component((count = 0) =>
-  div(
+  div (
     output(count),
-    button(
-      { onclick: () => counter(count + 1) },
-      'Increment')))
+    button({onclick: () => counter(count + 1) },
+           'Increment')))
 

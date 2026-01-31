@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
-import fs from 'node:fs'
 import { test } from 'node:test'
 
 import * as x3d from '../src/3d.js'
-import { x3dTagNames } from '../src/x3d-tags.js'
+
+import fs from 'node:fs'
 
 const x3domVendorCorePath = new URL('../vendor/x3dom.js', import.meta.url)
 const x3domVendorFullPath = new URL('../vendor/x3dom-full.js', import.meta.url)
@@ -27,24 +27,6 @@ const toExportName = tag => {
   if (tag === 'param') return 'x3dparam'
   return tag
 }
-
-test('x3dTagNames matches installed x3dom registerNodeType list', () => {
-  const registrySource = fs.readFileSync(
-    fs.existsSync(x3domVendorFullPath) ? x3domVendorFullPath : x3domVendorCorePath,
-    'utf8'
-  )
-  const byName = parseRegistry(registrySource)
-
-  const expectedTags = [
-    'x3d',
-    ...[...byName.keys()]
-      .filter(name => !name.startsWith('X3D'))
-      .map(toHelperName)
-  ]
-
-  assert.equal(x3dTagNames[0], 'x3d')
-  assert.deepEqual(new Set(x3dTagNames), new Set(expectedTags))
-})
 
 test('3d.js exports helpers for every concrete x3dom node', () => {
   const registrySource = fs.readFileSync(

@@ -1,4 +1,4 @@
-import { elements } from './elements.js'
+import { elements } from './core/elements.js'
 
 /**
  * The <animate> SVG element provides a way to animate an attribute of an element over time.

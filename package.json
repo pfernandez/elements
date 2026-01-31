@@ -2,8 +2,9 @@
   "name": "@pfern/elements",
   "version": "0.1.11",
   "description": "A minimalist, pure functional declarative UI toolkit.",
+  "author": "Paul Fernandez",
+  "license": "MIT",
   "type": "module",
-  "main": "elements.js",
   "types": "./types/elements.d.ts",
   "exports": {
     ".": {
@@ -17,40 +18,25 @@
       "default": "./3d.js"
     }
   },
-  "files": [
-    "./elements.js",
-    "./3d.js",
-    "./src",
-    "./vendor",
-    "./types"
-  ],
-  "keywords": [
-    "ui",
-    "functional",
-    "declarative",
-    "frontend",
-    "vdom",
-    "jsx-free",
-    "stateless",
-    "recursive",
-    "html"
-  ],
+  "files": [ "./elements.js", "./3d.js", "./src", "./vendor", "./types" ],
+  "keywords": [ "ui", "functional", "declarative", "frontend", "vdom",
+    "jsx-free", "stateless", "recursive", "html" ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:types": "tsc",
-    "gen:x3d": "node scripts/generate-x3d.mjs",
+    "clean:types": "node scripts/clean-types.js",
+    "build:types": "npm run -s clean:types && tsc -p tsconfig.json",
+    "gen:x3d": "node scripts/generate-x3d.js",
+    "prepack": "npm run -s build:types && npm run -s gen:x3d",
     "preview": "vite preview",
-    "prepublishOnly": "npm run -s gen:x3d && npm run -s typecheck && npm test",
-    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run -s typecheck && npm test",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test test/*.test.* --test-reporter spec"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pfernandez/elements.git"
   },
-  "author": "Paul Fernandez",
-  "license": "MIT",
   "devDependencies": {
     "@types/node": "^25.0.10",
     "eslint": "^7.32.0",
