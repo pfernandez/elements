@@ -7,10 +7,11 @@ export { DEBUG,
  * Navigate to a URL path and update the window history object.
  * @param {string} [path] - The `pathname` to append to the destination URL.
  * @param {object} [options={}] - Configuration options (optional).
- * @param {boolean} [options.replace] - Replace rather than append to the full path.
+ * @param {boolean} [options.replace] - Replace rather than append to the full
+ *                                      path.
  */
 export const navigate = (path, { replace = false } = {}) => {
-  if (window) {
+  if (typeof window !== 'undefined') {
     const url = new URL(path, window.location.origin)
     const isSame =
       url.pathname === window.location.pathname
