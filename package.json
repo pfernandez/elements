@@ -18,9 +18,15 @@
       "default": "./3d.js"
     }
   },
-  "files": [ "./elements.js", "./3d.js", "./src", "./vendor", "./types" ],
-  "keywords": [ "ui", "functional", "declarative", "frontend", "vdom",
-    "jsx-free", "stateless", "recursive", "html" ],
+  "files": [
+    "./elements.js",
+    "./3d.js",
+    "./src",
+    "./vendor",
+    "./types"
+  ],
+  "keywords": ["ui", "functional", "declarative", "frontend",
+             "vdom", "jsx-free", "stateless", "recursive", "html"],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -39,7 +45,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.10",
-    "eslint": "^7.32.0",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   }

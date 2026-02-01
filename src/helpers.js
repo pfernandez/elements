@@ -1,10 +1,14 @@
-export {
-  DEBUG,
+export { DEBUG,
   component,
   elements,
-  render
-} from './core/elements.js'
+  render } from './core/elements.js'
 
+/**
+ * Navigate to a URL path and update the window history object.
+ * @param {string} [path] - The `pathname` to append to the destination URL.
+ * @param {object} [options={}] - Configuration options (optional).
+ * @param {boolean} [options.replace] - Replace rather than append to the full path.
+ */
 export const navigate = (path, { replace = false } = {}) => {
   if (window) {
     const url = new URL(path, window.location.origin)
