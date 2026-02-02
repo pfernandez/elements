@@ -195,4 +195,67 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('ontick runs and threads context', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+
+    let rafId = 0
+    const rafQueue = new Map()
+    globalThis.window = {
+      requestAnimationFrame: cb => {
+        const id = ++rafId
+        rafQueue.set(id, cb)
+        return id
+      },
+      cancelAnimationFrame: id => rafQueue.delete(id),
+      location: { pathname: '/', search: '', hash: '' },
+      history: { pushState: () => {} }
+    }
+
+    const dts = []
+    const counts = []
+
+    const container = document.createElement('div')
+    render(
+      div(
+        {
+          ontick: (_el, ctx = { count: 0 }, dt) => {
+            dts.push(dt)
+            counts.push(ctx.count)
+            return { count: ctx.count + 1 }
+          }
+        },
+        'x'
+      ),
+      container
+    )
+
+    // Connect the rendered root element so the tick loop runs in fake-dom.
+    const el = container.childNodes[0]
+    assert.ok(el, 'expected a rendered element')
+
+    // Frame 1
+    const [firstId] = rafQueue.keys()
+    rafQueue.get(firstId)(0)
+    rafQueue.delete(firstId)
+    await Promise.resolve()
+
+    // Frame 2
+    const [secondId] = rafQueue.keys()
+    rafQueue.get(secondId)(16)
+    rafQueue.delete(secondId)
+    await Promise.resolve()
+
+    assert.equal(counts[0], 0)
+    assert.equal(counts[1], 1)
+    assert.equal(dts[0], 0)
+    assert.equal(dts[1], 16)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })

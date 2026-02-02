@@ -16,7 +16,8 @@ export const createFakeDom = () => {
 
     replaceChild(next, prev) {
       const index = this.childNodes.indexOf(prev)
-      if (index === -1) throw new Error('replaceChild: previous child not found')
+      if (index === -1)
+        throw new Error('replaceChild: previous child not found')
       this.childNodes[index] = next
       next.parentNode = this
       prev.parentNode = null

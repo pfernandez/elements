@@ -47,6 +47,78 @@ const isNodeEnv = () => typeof document === 'undefined'
 let componentUpdateDepth = 0
 let currentEventRoot = null
 
+const tickStateMap = new WeakMap()
+
+const isConnected = el =>
+  typeof el?.isConnected === 'boolean' ? el.isConnected : !!el?.parentNode
+
+const isX3DOMReadyFor = el => {
+  const x3d = el?.closest?.('x3d')
+  // If the element is not inside an <x3d>, there's nothing to wait for.
+  if (!x3d) return true
+  return !!x3d?.runtime
+}
+
+const startTickLoop = (el, handler) => {
+  if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
+    return
+  }
+
+  const existing = tickStateMap.get(el)
+  if (existing?.handler === handler && existing?.running) return
+
+  if (existing?.rafId != null && typeof window.cancelAnimationFrame === 'function') {
+    window.cancelAnimationFrame(existing.rafId)
+  }
+
+  const state = {
+    handler,
+    ctx: undefined,
+    lastTime: null,
+    rafId: null,
+    running: true
+  }
+  tickStateMap.set(el, state)
+
+  const step = t => {
+    if (!state.running || !isConnected(el)) {
+      state.running = false
+      return
+    }
+
+    if (!isX3DOMReadyFor(el)) {
+      state.lastTime = null
+      state.rafId = window.requestAnimationFrame(step)
+      return
+    }
+
+    const dt = state.lastTime == null ? 0 : (t - state.lastTime)
+    state.lastTime = t
+
+    let result
+    try {
+      result = handler.call(el, el, state.ctx, dt)
+    } catch (err) {
+      console.error(err)
+      state.running = false
+      return
+    }
+
+    Promise.resolve(result)
+      .then(nextCtx => {
+        if (nextCtx !== undefined) state.ctx = nextCtx
+        if (!state.running) return
+        state.rafId = window.requestAnimationFrame(step)
+      })
+      .catch(err => {
+        console.error(err)
+        state.running = false
+      })
+  }
+
+  state.rafId = window.requestAnimationFrame(step)
+}
+
 /**
  * Determines whether two nodes have changed enough to require replacement.
  * Compares type, string value, or element tag.
@@ -112,7 +184,13 @@ const diffChildren = (aChildren, bChildren) => {
  */
 const assignProperties = (el, props) =>
   Object.entries(props).forEach(([key, value]) => {
-    if (key.startsWith('on') && typeof value === 'function') {
+    if (key === 'ontick' && typeof value === 'function') {
+      // A non-DOM event hook for animation loops. Signature:
+      //   ontick(el, ctx, dtMs) -> nextCtx (optional)
+      // If the element is inside an <x3d>, ticking waits for `x3d.runtime`.
+      el.ontick = value
+      startTickLoop(el, value)
+    } else if (key.startsWith('on') && typeof value === 'function') {
       el[key] = async (...args) => {
         let target = el
         while (target && !isRoot(target)) target = target.parentNode
