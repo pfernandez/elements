@@ -82,7 +82,19 @@ const ensureX3DOMCore = () => {
   if (x3domCorePromise) return x3domCorePromise
 
   x3domCorePromise = (async () => {
-    // Vite/linked-workspace friendly path: avoid requesting /@fs/ absolute paths by inlining.
+    // Loads assets via standard <link> and <script> tags.
+    const loadViaUrl = async () => {
+      const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).toString()
+      const coreUrl = new URL('../../vendor/x3dom.js', import.meta.url).toString()
+      await Promise.all([loadStyleOnce(cssUrl), loadScriptOnce(coreUrl)])
+      return getX3DOM()
+    }
+
+    // Skip optimized loading on localhost to avoid browser MIME type error.
+    if (import.meta.env.DEV) return loadViaUrl()
+
+    // Attempt to inline assets to reduce the number of network requests
+    // (Production only).
     try {
       const [{ default: cssText }, { default: jsText }] = await Promise.all([
         import('../../vendor/x3dom.css?raw'),
@@ -91,12 +103,9 @@ const ensureX3DOMCore = () => {
       injectStyleTextOnce('css', cssText)
       injectScriptTextOnce('core', jsText)
       return getX3DOM()
-    } catch (err) {
-      // Fallback path: load via URL <link>/<script>.
-      const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).toString()
-      const coreUrl = new URL('../../vendor/x3dom.js', import.meta.url).toString()
-      await Promise.all([loadStyleOnce(cssUrl), loadScriptOnce(coreUrl)])
-      return getX3DOM()
+    } catch {
+      // If inlining fails in production, fallback to the safe URL method
+      return loadViaUrl()
     }
   })()
     .then(() => {
@@ -125,7 +134,7 @@ const ensureX3DOMFull = async () => {
       const { default: jsText } = await import('../../vendor/x3dom-full.js?raw')
       injectScriptTextOnce('full', jsText)
       return getX3DOM()
-    } catch (err) {
+    } catch {
       await loadScriptOnce(fullUrl)
       return getX3DOM()
     }
@@ -145,12 +154,14 @@ const ensureX3DOMFull = async () => {
 const ensureX3DOMForTag = async tag => {
   const x3dom = await ensureX3DOMCore()
   if (x3dom) {
-    // window?.requestAnimationFrame(() => window.x3dom.reload?.())
-
     if (tag === 'x3d') return x3dom
-    const lc = String(tag).toLowerCase()
-    const hasNode = !!x3dom?.nodeTypesLC?.[lc]
+
+    // Reloads in case an element is removed and re-added to the DOM.
+    window?.requestAnimationFrame(() => window.x3dom.reload?.())
+
+    const hasNode = !!x3dom?.nodeTypesLC?.[String(tag).toLowerCase()]
     if (hasNode) return x3dom
+
     if (!x3domLoadedFull && typeof process !== 'undefined'
       && process?.env?.NODE_ENV !== 'production') {
       console.warn(`[elements] Loading x3dom-full.js because <${tag}> is not
