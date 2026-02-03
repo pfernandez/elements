@@ -62,9 +62,12 @@ export const createFakeDom = () => {
       this.indeterminate = false
       this.__setAttributeCount = 0
       this.__setAttributeNSCount = 0
+      this.__throwOnSetAttribute = new Map()
     }
 
     setAttribute(key, value) {
+      const err = this.__throwOnSetAttribute.get(String(key))
+      if (err) throw err
       this.__setAttributeCount++
       this.attributes[key] = String(value)
     }

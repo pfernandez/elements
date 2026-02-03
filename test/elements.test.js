@@ -473,4 +473,55 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('attribute assignment errors fall through', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    const create = document.createElement.bind(document)
+    document.createElement = tag => {
+      const el = create(tag)
+      tag === 'div' && el.__throwOnSetAttribute.set('id', new Error('boom'))
+      return el
+    }
+
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    assert.throws(
+      () => render(div({ id: 'x' }, 'ok'), container),
+      /boom/
+    )
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('property assignment errors fall through', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    const create = document.createElement.bind(document)
+    document.createElement = tag => {
+      const el = create(tag)
+      tag === 'div'
+        && Object.defineProperty(el, 'value', { set: () => { throw new Error('boom') } })
+      return el
+    }
+
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    assert.throws(
+      () => render(div({ value: 'x' }, 'ok'), container),
+      /boom/
+    )
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })
