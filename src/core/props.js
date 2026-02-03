@@ -9,7 +9,7 @@
  */
 
 import { createDeclarativeEventHandler, isEventProp } from './events.js'
-import { startTickLoop } from './tick.js'
+import { startTickLoop, stopTickLoop } from './tick.js'
 
 const isObject = x =>
   typeof x === 'object'
@@ -32,12 +32,26 @@ const propertyExceptions = {
   indeterminate: 'indeterminate'
 }
 
+const propertyExceptionDefaults = {
+  value: '',
+  checked: false,
+  selected: false,
+  disabled: false,
+  multiple: false,
+  muted: false,
+  volume: 1,
+  currentTime: 0,
+  playbackRate: 1,
+  open: false,
+  indeterminate: false
+}
+
 const applyTickProp = ({ el, key, value, env: _env }) =>
   key !== 'ontick' || typeof value !== 'function'
     ? false
     : (el.ontick = value,
-      startTickLoop(el, value, { ready: isX3DOMReadyFor }),
-      true)
+    startTickLoop(el, value, { ready: isX3DOMReadyFor }),
+    true)
 
 const applyPropertyExceptionProp = ({ el, key, value, env: _env }) =>
   !(key in propertyExceptions) || !(key in el)
@@ -66,10 +80,10 @@ const applyInnerHTMLProp = ({ el, key, value, env: _env }) =>
   key !== 'innerHTML' ? false : (el.innerHTML = value, true)
 
 const applyAttributeProp = ({ el, key, value, env }) => {
-  return (el.namespaceURI === env.svgNS
+  return el.namespaceURI === env.svgNS
     ? el.setAttributeNS(null, key, value)
     : el.setAttribute(key, value),
-  true)
+  true
 }
 
 const appliers = [
@@ -80,6 +94,54 @@ const appliers = [
   applyInnerHTMLProp,
   applyAttributeProp
 ]
+
+const removeAttribute = (el, key) =>
+  typeof el.removeAttribute === 'function'
+    ? el.removeAttribute(key)
+    : (el.attributes && delete el.attributes[String(key)], undefined)
+
+const clearStyle = el =>
+  (style =>
+    !style ? undefined
+      : 'cssText' in style
+        ? (style.cssText = '', undefined)
+        : (Object.keys(style).forEach(k => delete style[k]), undefined))(el?.style)
+
+const clearInnerHTML = el =>
+  el.innerHTML = ''
+
+const clearEventProp = (el, key) =>
+  el[key] = null
+
+const clearPropertyException = (el, key) =>
+  key in propertyExceptions && key in el
+    ? (el[propertyExceptions[key]] = propertyExceptionDefaults[key], undefined)
+    : undefined
+
+const clearTick = el =>
+  (el.ontick = null, stopTickLoop(el))
+
+/**
+ * Remove props that existed previously but are absent in the next vnode.
+ *
+ * This keeps updates symmetric: setting a prop then omitting it later clears it
+ * from the DOM element.
+ *
+ * @param {any} el
+ * @param {Record<string, any>} prevProps
+ * @param {Record<string, any>} nextProps
+ */
+export const removeMissingProps = (el, prevProps, nextProps) =>
+  Object.keys(prevProps)
+    .filter(k => !(k in nextProps))
+    .forEach(key =>
+      key === 'ontick' ? clearTick(el)
+        : key === 'style' ? clearStyle(el)
+          : key === 'innerHTML' ? clearInnerHTML(el)
+            : key in propertyExceptions ? clearPropertyException(el, key)
+              : key.startsWith('on') ? clearEventProp(el, key)
+                : removeAttribute(el, key)
+    )
 
 /**
  * Assign props to a DOM element.

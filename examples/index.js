@@ -12,8 +12,7 @@ render(
              content: 'width=device-width, initial-scale=1.0' }),
       link({ rel: 'stylesheet', href: 'examples/css/style.css' })),
     body(
-      header(
-        h1('Elements.js Demo')),
+      header(h1('Elements.js Demo')),
       main({ class: 'container' },
            section(
              h2('Todos App'),
@@ -30,4 +29,3 @@ render(
              p(`Create 3D scenes declaratively with simple function
                 composition.`),
              x3dDemo())))))
-

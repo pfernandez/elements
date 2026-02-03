@@ -23,6 +23,14 @@ export const createFakeDom = () => {
       prev.parentNode = null
       return prev
     }
+
+    removeChild(child) {
+      const index = this.childNodes.indexOf(child)
+      if (index === -1) throw new Error('removeChild: child not found')
+      this.childNodes.splice(index, 1)
+      child.parentNode = null
+      return child
+    }
   }
 
   class FakeText extends FakeNode {
@@ -75,6 +83,10 @@ export const createFakeDom = () => {
     setAttributeNS(_ns, key, value) {
       this.__setAttributeNSCount++
       this.setAttribute(key, value)
+    }
+
+    removeAttribute(key) {
+      delete this.attributes[String(key)]
     }
   }
 

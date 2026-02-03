@@ -18,6 +18,16 @@ export const isConnected = el =>
 const isThenable = x => !!x && (typeof x === 'object' || typeof x === 'function')
   && typeof x.then === 'function'
 
+export const stopTickLoop = el =>
+  (state =>
+    !state ? undefined
+      : (state.running = false,
+      state.rafId != null
+          && typeof window?.cancelAnimationFrame === 'function'
+          && window.cancelAnimationFrame(state.rafId),
+      tickStateMap.delete(el),
+      undefined))(tickStateMap.get(el))
+
 /**
  * Start (or restart) a tick loop for an element.
  *
@@ -52,9 +62,7 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
 
   if (same) return
 
-  existing?.rafId != null
-    && typeof window.cancelAnimationFrame === 'function'
-    && window.cancelAnimationFrame(existing.rafId)
+  existing && stopTickLoop(el)
 
   const state = {
     handler,
@@ -70,8 +78,8 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
 
   const step = t => {
     const connected = isConnected(el)
-    const done = !state.running || (!connected && state.wasConnected)
-    if (done) return (state.running = false)
+    const done = !state.running || !connected && state.wasConnected
+    if (done) return state.running = false
 
     if (!connected) {
       state.lastTime = null
@@ -87,7 +95,7 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
       return
     }
 
-    const dt = state.lastTime == null ? 0 : (t - state.lastTime)
+    const dt = state.lastTime == null ? 0 : t - state.lastTime
     state.lastTime = t
 
     let next
@@ -95,12 +103,12 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
       next = handler.call(el, el, state.ctx, dt)
     } catch (err) {
       console.error(err)
-      return (state.running = false)
+      return state.running = false
     }
 
     if (isThenable(next)) {
       console.error(new TypeError('ontick must be synchronous (no Promises).'))
-      return (state.running = false)
+      return state.running = false
     }
 
     next !== undefined && (state.ctx = next)

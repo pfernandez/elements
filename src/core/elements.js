@@ -11,7 +11,7 @@
  */
 
 import { htmlTagNames, svgTagNames } from './tags.js'
-import { assignProperties } from './props.js'
+import { assignProperties, removeMissingProps } from './props.js'
 
 export const DEBUG =
   typeof process !== 'undefined'
@@ -111,21 +111,22 @@ const svgNS = 'http://www.w3.org/2000/svg'
  * keys below.
  *
  * @typedef {{
- *   id?: string,
- *   class?: string,
+  *   id?: string,
+  *   class?: string,
   *   title?: string,
   *   role?: string,
   *   part?: string,
   *   slot?: string,
   *   exportparts?: string,
- *   nonce?: string,
+  *   nonce?: string,
   *   elementtiming?: string,
+  *   contentsecuritypolicy?: string,
   *   popovertarget?: string,
   *   popovertargetaction?: 'toggle' | 'show' | 'hide',
- *   autocapitalize?: string,
- *   enterkeyhint?: string,
- *   inputmode?: string,
- *   virtualkeyboardpolicy?: string,
+  *   autocapitalize?: string,
+  *   enterkeyhint?: string,
+  *   inputmode?: string,
+  *   virtualkeyboardpolicy?: string,
   *   draggable?: boolean,
   *   hidden?: boolean,
   *   inert?: boolean,
@@ -269,6 +270,7 @@ const diffTree = (a, b) => {
   if (Array.isArray(a) && Array.isArray(b)) {
     return {
       type: 'UPDATE',
+      prevProps: a[1],
       props: b[1],
       children: diffChildren(a.slice(2), b.slice(2))
     }
@@ -411,7 +413,9 @@ const applyPatch = (parent, patch, index = 0) => {
   }
   case 'UPDATE':
     if (child) {
-      patch.props && assignProperties(child, patch.props, propsEnv)
+      patch.props
+        && (removeMissingProps(child, patch.prevProps || {}, patch.props),
+        assignProperties(child, patch.props, propsEnv))
       patch.children.forEach((p, i) => applyPatch(child, p, i))
     }
     break

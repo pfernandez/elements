@@ -742,4 +742,173 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('render() clears removed attributes', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ id: 'a' }, 'x'), container)
+    assert.equal(container.childNodes[0].attributes.id, 'a')
+
+    render(div({}, 'x'), container)
+    assert.equal(container.childNodes[0].attributes.id, undefined)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() clears removed event handlers', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(button({ onclick: () => div('ok') }, 'go'), container)
+    assert.equal(typeof container.childNodes[0].onclick, 'function')
+
+    render(button({}, 'go'), container)
+    assert.equal(container.childNodes[0].onclick, null)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() clears removed style object', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ style: { color: 'red' } }, 'x'), container)
+    assert.equal(container.childNodes[0].style.color, 'red')
+
+    render(div({}, 'x'), container)
+    assert.equal(container.childNodes[0].style.color, undefined)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() clears removed innerHTML', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ innerHTML: '<b>ok</b>' }), container)
+    assert.equal(container.childNodes[0].innerHTML, '<b>ok</b>')
+
+    render(div({}), container)
+    assert.equal(container.childNodes[0].innerHTML, '')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() clears removed property exceptions', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ value: 'hi', checked: true }, 'x'), container)
+    assert.equal(container.childNodes[0].value, 'hi')
+    assert.equal(container.childNodes[0].checked, true)
+
+    render(div({}, 'x'), container)
+    assert.equal(container.childNodes[0].value, '')
+    assert.equal(container.childNodes[0].checked, false)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() clearing ontick stops ticking', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+
+    let rafId = 0
+    const rafQueue = new Map()
+    globalThis.window = {
+      requestAnimationFrame: cb => {
+        const id = ++rafId
+        rafQueue.set(id, cb)
+        return id
+      },
+      cancelAnimationFrame: id => rafQueue.delete(id),
+      location: { pathname: '/', search: '', hash: '' },
+      history: { pushState: () => {} }
+    }
+
+    const container = document.createElement('div')
+    render(div({ ontick: () => {} }, 'x'), container)
+
+    assert.equal(rafQueue.size, 1)
+
+    render(div({}, 'x'), container)
+    assert.equal(rafQueue.size, 0)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() removes children when omitted', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({}, div('a'), div('b')), container)
+    assert.equal(container.childNodes[0].childNodes.length, 2)
+
+    render(div({}, div('a')), container)
+    assert.equal(container.childNodes[0].childNodes.length, 1)
+    assert.equal(container.childNodes[0].childNodes[0].childNodes[0].nodeValue, 'a')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() adds children when introduced', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({}, div('a')), container)
+    assert.equal(container.childNodes[0].childNodes.length, 1)
+
+    render(div({}, div('a'), div('b')), container)
+    assert.equal(container.childNodes[0].childNodes.length, 2)
+    assert.equal(container.childNodes[0].childNodes[1].childNodes[0].nodeValue, 'b')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })
