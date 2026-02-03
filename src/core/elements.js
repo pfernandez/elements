@@ -11,6 +11,7 @@
  */
 
 import { htmlTagNames, svgTagNames } from './tags.js'
+import { assignProperties } from './props.js'
 
 export const DEBUG =
   typeof process !== 'undefined'
@@ -21,14 +22,158 @@ export const DEBUG =
 const svgNS = 'http://www.w3.org/2000/svg'
 
 /**
- * @typedef {Record<string, any>} Props
- * @typedef {VNode | string | number | boolean | null | undefined} Child
- * @typedef {[tag: string, props: Props, ...children: Child[]]} VNode
+ * Primitive values that can be serialized as HTML/SVG attribute values.
  *
- * @callback ElementHelper
- * @param {Props | Child} [propsOrChild]
- * @param {...Child} children
- * @returns {VNode}
+ * Note: the runtime assigns most props via `setAttribute`, so strings are the
+ * canonical representation. Numbers/booleans are accepted for convenience and
+ * are coerced by the DOM.
+ *
+ * @typedef {string | number | boolean | null | undefined} ElementsAttributeValue
+ */
+
+/**
+ * Inline style object applied via `Object.assign(el.style, style)`.
+ *
+ * @typedef {Partial<CSSStyleDeclaration> & Record<string, string | number>} ElementsStyleObject
+ */
+
+/**
+ * A vnode is a declarative array of the form:
+ *
+ * ```js
+ * [tag, props, ...children]
+ * ```
+ *
+ * @typedef {[tag: string, props: ElementsProps, ...children: ElementsChild[]]} ElementsVNode
+ */
+
+/**
+ * Child nodes are plain values, nested arrays, or vnodes.
+ *
+ * Note: nested arrays are treated as children values (they are not
+ * automatically flattened).
+ *
+ * @typedef {ElementsVNode | string | number | boolean | null | undefined | any[]} ElementsChild
+ */
+
+/**
+ * Props for the `ontick` animation hook.
+ *
+ * `ontick` is not a DOM event. It runs once per animation frame and can thread
+ * context across ticks:
+ *
+ * ```js
+ * ontick: (el, ctx = { t: 0 }, dt) => ({ ...ctx, t: ctx.t + dt })
+ * ```
+ *
+ * The handler must be synchronous; thrown errors stop ticking.
+ *
+ * @callback ElementsOnTick
+ * @param {Element} el
+ * @param {any} ctx
+ * @param {number} dtMs
+ * @returns {any | void}
+ */
+
+/**
+ * If an event handler returns a vnode array, the UI updates by replacing the
+ * nearest component boundary. Otherwise the event is treated as passive.
+ *
+ * @typedef {ElementsVNode | void | null | false | '' | 0} ElementsEventResult
+ * @typedef {ElementsEventResult | Promise<ElementsEventResult>} ElementsMaybeAsyncEventResult
+ */
+
+/**
+ * @template {Event} Evt
+ * @callback ElementsEventHandler
+ * @param {Evt} event
+ * @returns {ElementsMaybeAsyncEventResult}
+ */
+
+/**
+ * Form event handlers receive `(elements, event)`.
+ *
+ * @template {Event} FormEvt
+ * @callback ElementsFormEventHandler
+ * @param {any} elements
+ * @param {FormEvt} event
+ * @returns {ElementsMaybeAsyncEventResult}
+ */
+
+/**
+ * Common global HTML attributes.
+ *
+ * This is not exhaustive; `data-*` and `aria-*` are supported via template
+ * keys below.
+ *
+ * @typedef {{
+ *   id?: string,
+ *   class?: string,
+ *   title?: string,
+ *   role?: string,
+ *   tabindex?: number | string,
+ *   hidden?: boolean,
+ *   draggable?: boolean,
+ *   contenteditable?: 'true' | 'false' | 'plaintext-only' | boolean,
+ *   spellcheck?: boolean,
+ *   dir?: 'ltr' | 'rtl' | 'auto',
+ *   lang?: string,
+ *   translate?: 'yes' | 'no',
+ *   accesskey?: string,
+ *   autocapitalize?: string,
+ *   inputmode?: string,
+ *   is?: string
+ * }} ElementsGlobalAttributes
+ */
+
+/** @typedef {{ [key: `data-${string}`]: ElementsAttributeValue }} ElementsDataAttributes */
+/** @typedef {{ [key: `aria-${string}`]: ElementsAttributeValue }} ElementsAriaAttributes */
+
+/**
+ * Dash-cased attributes commonly used by custom elements and utilities.
+ *
+ * @typedef {{ [key: `${string}-${string}`]: ElementsAttributeValue }} ElementsDashedAttributes
+ */
+
+/**
+ * DOM event handler props.
+ *
+ * @typedef {Omit<{
+ *   [K in keyof GlobalEventHandlersEventMap as `on${K}`]?: ElementsEventHandler<GlobalEventHandlersEventMap[K]>
+ * }, 'oninput' | 'onsubmit' | 'onchange'> & {
+ *   oninput?: ElementsFormEventHandler<InputEvent | Event>,
+ *   onsubmit?: ElementsFormEventHandler<SubmitEvent | Event>,
+ *   onchange?: ElementsFormEventHandler<Event>
+ * }} ElementsEventProps
+ */
+
+/**
+ * Special (non-attribute) props supported by Elements.js.
+ *
+ * @typedef {{
+ *   style?: ElementsStyleObject,
+ *   innerHTML?: string,
+ *   ontick?: ElementsOnTick
+ * }} ElementsSpecialProps
+ */
+
+/**
+ * Props accepted by all Elements.js tag helpers.
+ *
+ * @typedef {ElementsGlobalAttributes
+ *   & ElementsDataAttributes
+ *   & ElementsAriaAttributes
+ *   & ElementsDashedAttributes
+ *   & ElementsEventProps
+ *   & ElementsSpecialProps
+ * } ElementsProps
+ */
+
+/**
+ * @callback ElementsElementHelper
+ * @param {ElementsProps | ElementsChild} [propsOrChild]
+ * @param {...ElementsChild} children
+ * @returns {ElementsVNode}
  */
 
 /**
@@ -47,77 +192,8 @@ const isNodeEnv = () => typeof document === 'undefined'
 let componentUpdateDepth = 0
 let currentEventRoot = null
 
-const tickStateMap = new WeakMap()
-
-const isConnected = el =>
-  typeof el?.isConnected === 'boolean' ? el.isConnected : !!el?.parentNode
-
-const isX3DOMReadyFor = el => {
-  const x3d = el?.closest?.('x3d')
-  // If the element is not inside an <x3d>, there's nothing to wait for.
-  if (!x3d) return true
-  return !!x3d?.runtime
-}
-
-const startTickLoop = (el, handler) => {
-  if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
-    return
-  }
-
-  const existing = tickStateMap.get(el)
-  if (existing?.handler === handler && existing?.running) return
-
-  if (existing?.rafId != null && typeof window.cancelAnimationFrame === 'function') {
-    window.cancelAnimationFrame(existing.rafId)
-  }
-
-  const state = {
-    handler,
-    ctx: undefined,
-    lastTime: null,
-    rafId: null,
-    running: true
-  }
-  tickStateMap.set(el, state)
-
-  const step = t => {
-    if (!state.running || !isConnected(el)) {
-      state.running = false
-      return
-    }
-
-    if (!isX3DOMReadyFor(el)) {
-      state.lastTime = null
-      state.rafId = window.requestAnimationFrame(step)
-      return
-    }
-
-    const dt = state.lastTime == null ? 0 : (t - state.lastTime)
-    state.lastTime = t
-
-    let result
-    try {
-      result = handler.call(el, el, state.ctx, dt)
-    } catch (err) {
-      console.error(err)
-      state.running = false
-      return
-    }
-
-    Promise.resolve(result)
-      .then(nextCtx => {
-        if (nextCtx !== undefined) state.ctx = nextCtx
-        if (!state.running) return
-        state.rafId = window.requestAnimationFrame(step)
-      })
-      .catch(err => {
-        console.error(err)
-        state.running = false
-      })
-  }
-
-  state.rafId = window.requestAnimationFrame(step)
-}
+const getCurrentEventRoot = () => currentEventRoot
+const setCurrentEventRoot = el => (currentEventRoot = el)
 
 /**
  * Determines whether two nodes have changed enough to require replacement.
@@ -168,98 +244,14 @@ const diffChildren = (aChildren, bChildren) => {
   return patches
 }
 
-/**
- * Assigns attributes, styles, and event handlers to a DOM element.
- *
- * - Event listeners may return a vnode array to trigger a subtree replacement.
- * - For `onsubmit`, `oninput`, and `onchange`, `preventDefault()` is called automatically
- *   *if* the listener returns a vnode (to support declarative form updates).
- * - Handlers for these event types receive `(elements, event)` as arguments,
- *   where `elements` is `event.target.elements` if available.
- * - Async handlers are supported: if the listener returns a Promise,
- *   it will be awaited and the resulting vnode (if any) will be rendered.
- *
- * @param {any} el - The DOM element to receive props
- * @param {Object} props - Attributes and event listeners to assign
- */
-const assignProperties = (el, props) =>
-  Object.entries(props).forEach(([key, value]) => {
-    if (key === 'ontick' && typeof value === 'function') {
-      // A non-DOM event hook for animation loops. Signature:
-      //   ontick(el, ctx, dtMs) -> nextCtx (optional)
-      // If the element is inside an <x3d>, ticking waits for `x3d.runtime`.
-      el.ontick = value
-      startTickLoop(el, value)
-    } else if (key.startsWith('on') && typeof value === 'function') {
-      el[key] = async (...args) => {
-        let target = el
-        while (target && !isRoot(target)) target = target.parentNode
-        if (!target) return
-
-        const prevEventRoot = currentEventRoot
-        currentEventRoot = target
-        try {
-          const event = args[0]
-          const isFormEvent = /^(oninput|onsubmit|onchange)$/.test(key)
-          const elements = isFormEvent && event?.target?.elements || null
-
-          const result = await (isFormEvent
-            ? value.call(el, elements, event)
-            : value.call(el, event))
-
-          if (isFormEvent && result !== undefined) {
-            event.preventDefault()
-          }
-
-          if (DEBUG && result === undefined) {
-            console.warn(
-              `Listener '${key}' on <${el.tagName.toLowerCase()}> returned nothing.\n`
-                + 'If you intended a UI update, return a vnode array like: div({}, ...)'
-            )
-          }
-
-          if (DEBUG && result !== undefined && !Array.isArray(result)) {
-            isFormEvent && event.preventDefault()
-            DEBUG
-              && console.warn(
-                `Listener '${key}' on <${el.tagName.toLowerCase()}> returned "${result}".\n`
-                  + 'If you intended a UI update, return a vnode array like: div({}, ...).\n'
-                  + 'Otherwise, return undefined (or nothing) for native event listener behavior.'
-              )
-          }
-
-          if (Array.isArray(result)) {
-            const parent = target.parentNode
-            if (!parent) return
-
-            const replacement = renderTree(result, true)
-            parent.replaceChild(replacement, target)
-          }
-        } catch (error) {
-          console.error(error)
-        } finally {
-          currentEventRoot = prevEventRoot
-        }
-      }
-    } else if (key === 'style' && typeof value === 'object') {
-      Object.assign(el.style, value)
-    } else if (key === 'innerHTML') {
-      el.innerHTML = value
-    } else {
-      try {
-        if (el.namespaceURI === svgNS) {
-          el.setAttributeNS(null, key, value)
-        } else {
-          el.setAttribute(key, value)
-        }
-      } catch {
-        DEBUG
-          && console.warn(
-            `Illegal DOM property assignment for ${el.tagName}: ${key}: ${value}`
-          )
-      }
-    }
-  })
+const propsEnv = {
+  svgNS,
+  debug: DEBUG,
+  isRoot,
+  renderTree: null,
+  getCurrentEventRoot,
+  setCurrentEventRoot
+}
 
 /**
  * Recursively builds a real DOM tree from a declarative vnode.
@@ -332,7 +324,7 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
     rootMap.set(node, el)
   }
 
-  assignProperties(el, props)
+  assignProperties(el, props, propsEnv)
 
   children.forEach(child => {
     const childEl = renderTree(child, false, childNamespaceURI)
@@ -341,6 +333,8 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 
   return el
 }
+
+propsEnv.renderTree = renderTree
 
 /**
  * Applies a patch object to a DOM subtree.
@@ -379,7 +373,7 @@ const applyPatch = (parent, patch, index = 0) => {
  *
  * If `vtree[0]` is `html`, `head`, or `body`, no container is required.
  *
- * @param {VNode} vtree
+ * @param {ElementsVNode} vtree
  * @param {HTMLElement | null} [container]
  */
 export const render = (vtree, container = null) => {
@@ -416,8 +410,8 @@ export const render = (vtree, container = null) => {
  * Wrap a pure function component so it participates in reconciliation.
  *
  * @template {any[]} Args
- * @param {(...args: Args) => VNode} fn
- * @returns {(...args: Args) => VNode}
+ * @param {(...args: Args) => ElementsVNode} fn
+ * @returns {(...args: Args) => ElementsVNode}
  */
 export const component = fn => {
   const instance = {}
@@ -462,6 +456,22 @@ const isPropsObject = x =>
   && !(typeof Node !== 'undefined' && x instanceof Node)
 
 /**
+ * @param {string} tag
+ * @returns {ElementsElementHelper}
+ */
+const createElementHelper = tag => (...args) => {
+  const hasFirstArg = args.length > 0
+  const [propsOrChild, ...children] = args
+  const props = hasFirstArg && isPropsObject(propsOrChild) ? propsOrChild : {}
+  const actualChildren = !hasFirstArg
+    ? []
+    : props === propsOrChild
+      ? children
+      : [propsOrChild, ...children]
+  return /** @type {ElementsVNode} */ ([tag, props, ...actualChildren])
+}
+
+/**
  * A map of supported HTML and SVG element helpers.
  *
  * Each helper is a function that accepts optional props as first argument
@@ -482,26 +492,14 @@ const isPropsObject = x =>
  * The following helpers are included:
  * `div`, `span`, `button`, `svg`, `circle`, etc.
  */
-/** @type {Record<string, ElementHelper> & { fragment: (...children: Child[]) => VNode }} */
-export const elements = tagNames.reduce(
-  (acc, tag) => ({
-    ...acc,
-    [tag]: (...args) => {
-      const hasFirstArg = args.length > 0
-      const [propsOrChild, ...children] = args
-      const props = hasFirstArg && isPropsObject(propsOrChild) ? propsOrChild : {}
-      const actualChildren = !hasFirstArg
-        ? []
-        : props === propsOrChild
-          ? children
-          : [propsOrChild, ...children]
-      return [tag, props, ...actualChildren]
-    }
-  }),
-  {
-    fragment: (...children) => ['fragment', {}, ...children]
-  }
-)
+/** @type {Record<string, ElementsElementHelper>} */
+export const elements = (() => {
+  /** @type {Record<string, ElementsElementHelper>} */
+  const acc = {}
+  acc.fragment = createElementHelper('fragment')
+  for (const tag of tagNames) acc[tag] = createElementHelper(tag)
+  return acc
+})()
 
 // TODO: MathML
 // https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Element

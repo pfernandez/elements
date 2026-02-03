@@ -1,19 +1,16 @@
 # Elements.js
 
-### A functional, stateless UI toolkit for composing reactive web pages and applications.
+### A functional, stateless UI toolkit for composing reactive web pages.
 
-Elements.js borrows the simple elegance of functional UI composition from[
-React](https://react.dev/), distilled to its purest form. No hooks, no side
-effects, no JSX. Components are pure functions; updates are just calling the
-function again with new arguments; props are the standard
-[HTML](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference) and
-[SVG](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference) element
-attributes.
+Elements.js borrows the simple elegance of functional UI composition from
+[React](https://react.dev/), distilled to its purest form. No JSX. No keys. No
+virtual DOM heuristics. Components are pure functions; updates are just calling
+the function again with new arguments.
 
 While you may choose to manage application logic with tools like
 [Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
 Elements.js keeps _UI state_ exactly where it belongs: in the
-[DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Anatomy_of_the_DOM).
+[DOM][dom] itself.
 
 ### Example: Recursive counter
 ```js
@@ -48,7 +45,7 @@ includes examples as well as simple URL router for page navigation.
 ## Example: Todos App
 ```js
 import { button, component, div,
-         form, input, li, span, ul } from '../../elements.js'
+         form, input, li, span, ul } from '@pfern/elements'
 
 const demoItems = [
   { value: 'Add my first todo', done: true },
@@ -88,7 +85,7 @@ container.
 
 ```js
 import { body, h1, h2, head, header, html,
-         link, main, meta, render, section, title } from './elements.js'
+         link, main, meta, render, section, title } from '@pfern/elements'
 import { todos } from './components/todos.js'
 
 render(
@@ -110,8 +107,8 @@ render(
 
 ### General Behavior
 
-* Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a new
-  vnode to trigger a subtree replacement.
+* Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
+  to trigger a subtree replacement.
 * If the handler returns `undefined`, the event is treated as passive (no update
   occurs).
 * Returned vnodes are applied at the closest component boundary.
@@ -137,20 +134,38 @@ handler returns a vnode.
 form({
   onsubmit: ({ todo: { value } }, e) =>
     value && todos([...items, { value, done: false }])
+})
 ```
+
+## `ontick` (animation hook)
+
+`ontick` is a hook (not a DOM event) that runs once per animation frame. It can
+thread context across frames:
+
+```js
+transform({
+  ontick: (el, ctx = { rotation: 0 }, dt) => {
+    el.setAttribute('rotation', `0 1 1 ${ctx.rotation}`)
+    return { ...ctx, rotation: ctx.rotation + 0.001 * dt }
+  }
+})
+```
+
+`ontick` must be synchronous. If it throws (or returns a Promise), ticking
+stops.
 
 ## X3D / X3DOM (experimental)
 
 This package includes elements for X3DOM’s supported X3D node set. You can
-import them from `@pfern/elements/3d.js` and create 3D scenes
+import them from `@pfern/elements/3d` and create 3D scenes
 declaratively:
 
 ### Demo: Interactive 3D Cube
 ```js
 import { appearance, box, material, scene,
-         shape, transform, viewpoint, x3d } from '@pfern/elements/3d.js'
+         shape, transform, viewpoint, x3d } from '@pfern/elements/3d'
 
-export const scene = () =>
+export const cubeScene = () =>
   x3d(
     scene(
       viewpoint({ position: '0 0 6', description: 'Default View' }),
@@ -164,8 +179,20 @@ export const scene = () =>
 ### Lazy Loading
 
 X3DOM is lazy-loaded the first time you call any 3D element. It loads a small
-“core” bundle first, and only loads the larger “full” bundle if you call a
-helper for a node that core doesn’t register.
+“core” bundle first, and only loads the larger “full” bundle if you call
+a helper for a node that core doesn’t register.
+
+## Types (the docs)
+
+Elements.js is JS-first: TypeScript is not required at runtime. This package
+ships `.d.ts` files so editors like VSCode can provide rich inline docs and
+autocomplete.
+
+The goal is for the type definitions to be the canonical reference for:
+
+* HTML/SVG/X3D element helpers
+* DOM events (including the special form-event signature)
+* Elements.js-only props like `style`, `innerHTML`, and `ontick`
 
 ## API
 
@@ -185,17 +212,8 @@ Every HTML, SVG, and X3DOM tag is available as a function:
 ```js
 div({ id: 'box' }, 'hello')
 svg({ width: 100 }, circle({ r: 10 }))
-box({ size: '2,2,2' solid: true })
+box({ size: '2 2 2', solid: true })
 ```
-
-### TypeScript & JSDoc
-
-Each tag function (e.g. `div`, `button`, `svg`, `box`) includes a `@typedef` and
-MDN-sourced description to:
-
-* Provide editor hints
-* Encourage accessibility and semantic markup
-* Enable intelligent autocomplete
 
 ### Testing Philosophy
 
@@ -208,3 +226,4 @@ repository](test/README.md) for some examples.
 MIT License
 Copyright (c) 2026 Paul Fernandez
 
+[dom]: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model

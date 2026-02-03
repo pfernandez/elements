@@ -223,4 +223,3 @@ export const svgTagNames = [
   // View
   'view'
 ]
-

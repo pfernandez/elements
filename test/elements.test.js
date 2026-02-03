@@ -1,7 +1,9 @@
-import { button, component, div, form, input, output, pre, render, svg } from '../elements.js'
+import { body, button, component, div, form, head, html, input,
+  output, pre, render, svg, title } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
+import { startTickLoop } from '../src/core/tick.js'
 
 describe('Elements.js - Pure Data Contracts', () => {
   test('div() returns a vnode with tag "div"', () => {
@@ -254,6 +256,160 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.equal(counts[1], 1)
     assert.equal(dts[0], 0)
     assert.equal(dts[1], 16)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('ontick stops ticking if it throws', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+    const prevConsoleError = console.error
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+
+    let rafId = 0
+    const rafQueue = new Map()
+    globalThis.window = {
+      requestAnimationFrame: cb => {
+        const id = ++rafId
+        rafQueue.set(id, cb)
+        return id
+      },
+      cancelAnimationFrame: id => rafQueue.delete(id),
+      location: { pathname: '/', search: '', hash: '' },
+      history: { pushState: () => {} }
+    }
+
+    let errors = 0
+    console.error = () => { errors++ }
+
+    const container = document.createElement('div')
+    render(div({ ontick: () => { throw new Error('boom') } }, 'x'), container)
+
+    const [firstId] = rafQueue.keys()
+    rafQueue.get(firstId)(0)
+    rafQueue.delete(firstId)
+    await Promise.resolve()
+
+    assert.equal(errors, 1)
+    assert.equal(rafQueue.size, 0)
+
+    console.error = prevConsoleError
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('ontick stops ticking if it returns a Promise', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+    const prevConsoleError = console.error
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+
+    let rafId = 0
+    const rafQueue = new Map()
+    globalThis.window = {
+      requestAnimationFrame: cb => {
+        const id = ++rafId
+        rafQueue.set(id, cb)
+        return id
+      },
+      cancelAnimationFrame: id => rafQueue.delete(id),
+      location: { pathname: '/', search: '', hash: '' },
+      history: { pushState: () => {} }
+    }
+
+    let errors = 0
+    console.error = () => { errors++ }
+
+    const container = document.createElement('div')
+    render(
+      div({ ontick: () => Promise.resolve({}) }, 'x'),
+      container
+    )
+
+    const [firstId] = rafQueue.keys()
+    rafQueue.get(firstId)(0)
+    rafQueue.delete(firstId)
+    await Promise.resolve()
+
+    assert.equal(errors, 1)
+    assert.equal(rafQueue.size, 0)
+
+    console.error = prevConsoleError
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('ontick waits for connection and stops on disconnect', async () => {
+    const prevWindow = globalThis.window
+
+    let rafId = 0
+    const rafQueue = new Map()
+    globalThis.window = {
+      requestAnimationFrame: cb => {
+        const id = ++rafId
+        rafQueue.set(id, cb)
+        return id
+      },
+      cancelAnimationFrame: id => rafQueue.delete(id),
+    }
+
+    const calls = []
+    const el = { isConnected: false }
+
+    startTickLoop(el, (_el, ctx = { n: 0 }, dt) => (calls.push([ctx.n, dt]), ({ n: ctx.n + 1 })))
+
+    const [f1] = rafQueue.keys()
+    rafQueue.get(f1)(0)
+    rafQueue.delete(f1)
+    await Promise.resolve()
+
+    assert.equal(calls.length, 0)
+    assert.equal(rafQueue.size, 1)
+
+    el.isConnected = true
+    const [f2] = rafQueue.keys()
+    rafQueue.get(f2)(16)
+    rafQueue.delete(f2)
+    await Promise.resolve()
+
+    assert.equal(calls.length, 1)
+    assert.deepEqual(calls[0], [0, 0])
+    assert.equal(rafQueue.size, 1)
+
+    el.isConnected = false
+    const [f3] = rafQueue.keys()
+    rafQueue.get(f3)(32)
+    rafQueue.delete(f3)
+    await Promise.resolve()
+
+    assert.equal(rafQueue.size, 0)
+
+    globalThis.window = prevWindow
+  })
+
+  test('render() mounts html() into documentElement', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    render(
+      html(
+        head(title('Hello')),
+        body(div('ok'))
+      )
+    )
+
+    const bodyEl = document.body
+    assert.equal(bodyEl.childNodes[0].tagName.toLowerCase(), 'div')
+    assert.equal(bodyEl.childNodes[0].childNodes[0].nodeValue, 'ok')
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow

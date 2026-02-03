@@ -10,5 +10,5 @@
     "stripInternal": true,
     "outDir": "./types"
   },
-  "include": ["./elements.js"]
+  "include": ["./env.d.ts", "./elements.js", "./3d.js"]
 }

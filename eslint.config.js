@@ -29,16 +29,16 @@ export default
                                                         const: 3 }}],
             'key-spacing': ['warn', { mode: 'minimum' }],
             'linebreak-style': ['error', 'unix'],
-            'max-len': [
-              'warn',
-              {
-                code: 80,
-                ignoreUrls: true,
-                ignoreRegExpLiterals: true,
-                ignoreStrings: true,
-                ignoreTemplateLiterals: true
-              }
-            ],
+            // 'max-len': [
+            //   'warn',
+            //   {
+            //     code: 80,
+            //     ignoreUrls: true,
+            //     ignoreRegExpLiterals: true,
+            //     ignoreStrings: true,
+            //     ignoreTemplateLiterals: true
+            //   }
+            // ],
             'no-extra-parens': 'warn',
             'no-multiple-empty-lines': ['warn', { max: 2, maxEOF: 1 }],
             'no-multi-spaces': ['warn', { ignoreEOLComments: true,
