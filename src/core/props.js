@@ -15,8 +15,6 @@ const isObject = x =>
   typeof x === 'object'
   && x !== null
 
-const tap = (value, effect) => (effect(value), value)
-
 const isX3DOMReadyFor = el =>
   (x3d => !x3d || !!x3d.runtime)(el?.closest?.('x3d'))
 
@@ -47,58 +45,6 @@ const propertyExceptionDefaults = {
   open: false,
   indeterminate: false
 }
-
-const applyTickProp = (el, key, value, _env) =>
-  key !== 'ontick' || typeof value !== 'function'
-    ? false
-    : (tap(undefined, () => el.ontick = value),
-      startTickLoop(el, value, { ready: isX3DOMReadyFor }),
-      true)
-
-const applyPropertyExceptionProp = (el, key, value, _env) =>
-  !(key in propertyExceptions) || !(key in el)
-    ? false
-    : (tap(undefined, () => el[propertyExceptions[key]] = value), true)
-
-const applyEventProp = (el, key, value, env) =>
-  !isEventProp(key, value)
-    ? false
-    : (el[key] = createDeclarativeEventHandler({
-      el,
-      key,
-      handler: value,
-      isRoot: env.isRoot,
-      renderTree: env.renderTree,
-      getCurrentEventRoot: env.getCurrentEventRoot,
-      setCurrentEventRoot: env.setCurrentEventRoot,
-      debug: env.debug
-    }),
-    true)
-
-const applyStyleProp = (el, key, value, _env) =>
-  key !== 'style' || !isObject(value)
-    ? false
-    : (Object.assign(el.style, value), true)
-
-const applyInnerHTMLProp = (el, key, value, _env) =>
-  key !== 'innerHTML'
-    ? false
-    : (tap(undefined, () => el.innerHTML = value), true)
-
-const applyAttributeProp = (el, key, value, env) =>
-  (el.namespaceURI === env.svgNS
-    ? el.setAttributeNS(null, key, value)
-    : el.setAttribute(key, value),
-  true)
-
-const appliers = [
-  applyTickProp,
-  applyPropertyExceptionProp,
-  applyEventProp,
-  applyStyleProp,
-  applyInnerHTMLProp,
-  applyAttributeProp
-]
 
 const removeAttribute = (el, key) =>
   typeof el.removeAttribute === 'function'
@@ -147,10 +93,12 @@ const clearProp = (el, key) =>
  * @param {Record<string, any>} nextProps
  */
 export const removeMissingProps = (el, prevProps, nextProps) =>
-  Object.keys(prevProps)
-    .forEach(key =>
+  (keys => {
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
       !(key in nextProps) && clearProp(el, key)
-    )
+    }
+  })(Object.keys(prevProps))
 
 /**
  * Assign props to a DOM element.
@@ -161,15 +109,54 @@ export const removeMissingProps = (el, prevProps, nextProps) =>
  *   svgNS: string,
  *   debug: boolean,
  *   isRoot: (el: any) => boolean,
- *   renderTree: Function,
+ *   renderTree: (node: any, isRoot?: boolean, namespaceURI?: string | null) =>
+ *     any,
  *   getCurrentEventRoot: () => any,
  *   setCurrentEventRoot: (el: any) => void
  * }} env
  */
 export const assignProperties = (el, props, env) =>
-  Object.keys(props).forEach(key => {
-    const value = props[key]
-    for (let i = 0; i < appliers.length; i++) {
-      if (appliers[i](el, key, value, env)) break
+  (keys => {
+    const isSvg = el.namespaceURI === env.svgNS
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      const value = props[key]
+
+      if (key === 'ontick' && typeof value === 'function') {
+        el.ontick = value
+        startTickLoop(el, value, { ready: isX3DOMReadyFor })
+        continue
+      }
+
+      if (key in propertyExceptions && key in el) {
+        el[propertyExceptions[key]] = value
+        continue
+      }
+
+      if (isEventProp(key, value)) {
+        el[key] = createDeclarativeEventHandler({
+          el,
+          key,
+          handler: value,
+          isRoot: env.isRoot,
+          renderTree: env.renderTree,
+          getCurrentEventRoot: env.getCurrentEventRoot,
+          setCurrentEventRoot: env.setCurrentEventRoot,
+          debug: env.debug
+        })
+        continue
+      }
+
+      if (key === 'style' && isObject(value)) {
+        Object.assign(el.style, value)
+        continue
+      }
+
+      if (key === 'innerHTML') {
+        el.innerHTML = value
+        continue
+      }
+
+      isSvg ? el.setAttributeNS(null, key, value) : el.setAttribute(key, value)
     }
-  })
+  })(Object.keys(props))

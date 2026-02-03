@@ -44,6 +44,41 @@ let currentEventRoot = null
 const getCurrentEventRoot = () => currentEventRoot
 const setCurrentEventRoot = el => currentEventRoot = el
 
+const isObject = x =>
+  typeof x === 'object'
+  && x !== null
+
+const shallowObjectEqual = (a, b) => {
+  if (a === b) return true
+  if (!isObject(a) || !isObject(b)) return false
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
+  if (aKeys.length !== bKeys.length) return false
+  for (let i = 0; i < aKeys.length; i++) {
+    const key = aKeys[i]
+    if (!(key in b) || a[key] !== b[key]) return false
+  }
+  return true
+}
+
+const propsEqual = (a, b) => {
+  if (a === b) return true
+  if (!isObject(a) || !isObject(b)) return false
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
+  if (aKeys.length !== bKeys.length) return false
+  for (let i = 0; i < aKeys.length; i++) {
+    const key = aKeys[i]
+    if (!(key in b)) return false
+    const av = a[key]
+    const bv = b[key]
+    if (key === 'style' && isObject(av) && isObject(bv)) {
+      if (!shallowObjectEqual(av, bv)) return false
+    } else if (av !== bv) return false
+  }
+  return true
+}
+
 /**
  * Determines whether two nodes have changed enough to require replacement.
  * Compares type, string value, or element tag.
@@ -71,11 +106,16 @@ const diffTree = (a, b) => {
   if (b == null) return { type: 'REMOVE' }
   if (changed(a, b)) return { type: 'REPLACE', newNode: b }
   if (Array.isArray(a) && Array.isArray(b)) {
+    const prevProps = a[1] || {}
+    const nextProps = b[1] || {}
+    const propsChanged = !propsEqual(prevProps, nextProps)
+    const children = diffChildren(a, b)
+    if (!propsChanged && !children) return
     return {
       type: 'UPDATE',
-      prevProps: a[1],
-      props: b[1],
-      children: diffChildren(a, b)
+      prevProps: propsChanged ? prevProps : null,
+      props: propsChanged ? nextProps : null,
+      children
     }
   }
 }
@@ -85,17 +125,19 @@ const diffTree = (a, b) => {
  *
  * @param {any[]} a - Previous vnode
  * @param {any[]} b - New vnode
- * @returns {Array} patches - One per child node
+ * @returns {Array<[number, Object]> | null} patches - Sparse patch list
  */
 const diffChildren = (a, b) => {
-  const patches = []
   const aLen = Math.max(0, a.length - 2)
   const bLen = Math.max(0, b.length - 2)
   const len = Math.max(aLen, bLen)
+  /** @type {Array<[number, Object]>} */
+  const patches = []
   for (let i = 0; i < len; i++) {
-    patches[i] = diffTree(a[i + 2], b[i + 2])
+    const patch = diffTree(a[i + 2], b[i + 2])
+    patch && patches.push([i, /** @type {Object} */ (patch)])
   }
-  return patches
+  return patches.length ? patches : null
 }
 
 const propsEnv = {
@@ -116,36 +158,35 @@ const propsEnv = {
  * @returns {any} - Real DOM node
  */
 const renderTree = (node, isRoot = true, namespaceURI = null) => {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return isNodeEnv()
-      ? node
-      : document.createTextNode(String(node))
+  const type = typeof node
+
+  if (type === 'string' || type === 'number') {
+    return isNodeEnv() ? node : document.createTextNode(String(node))
   }
 
-  if (!node || node.length === 0) {
-    return document.createComment('Empty vnode')
-  }
+  if (!node || node.length === 0) return document.createComment('Empty vnode')
 
   if (!Array.isArray(node)) {
     console.error('Malformed vnode (not an array):', node)
     return document.createComment('Invalid vnode')
   }
 
-  if (Array.isArray(node) && node[0] === 'wrap') {
-    const [_tag, props = {}, child] = node
+  const tag = node[0]
+
+  if (tag === 'wrap') {
+    const props = node[1] || {}
+    const child = node[2]
     const el = renderTree(child, true, namespaceURI)
-    if (props && typeof props === 'object' && props.__instance) {
-      rootMap.set(props.__instance, el)
-    }
+    props?.__instance && rootMap.set(props.__instance, el)
     return el
   }
-
-  const [tag, props = {}, ...children] = node
 
   if (typeof tag !== 'string') {
     console.error('Malformed vnode (non-string tag):', node)
     return document.createComment('Invalid vnode')
   }
+
+  const props = node[1] || {}
 
   const elNamespaceURI = tag === 'svg' || namespaceURI === svgNS ? svgNS : null
   const childNamespaceURI =
@@ -180,9 +221,8 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 
   assignProperties(el, props, propsEnv)
 
-  for (let i = 0; i < children.length; i++) {
-    const childEl = renderTree(children[i], false, childNamespaceURI)
-    el.appendChild(childEl)
+  for (let i = 2; i < node.length; i++) {
+    el.appendChild(renderTree(node[i], false, childNamespaceURI))
   }
 
   return el
@@ -191,11 +231,11 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 propsEnv.renderTree = renderTree
 
 const applyPropsUpdate = (el, prevProps, nextProps) =>
-  nextProps
-    ? (removeMissingProps(el, prevProps || {}, nextProps),
-    assignProperties(el, nextProps, propsEnv),
-    undefined)
-    : undefined
+  nextProps == null
+    ? undefined
+    : (removeMissingProps(el, prevProps || {}, nextProps),
+      assignProperties(el, nextProps, propsEnv),
+      undefined)
 
 /**
  * Applies a patch object to a DOM subtree.
@@ -212,7 +252,7 @@ const applyPatch = (parent, patch, index = 0) => {
   switch (patch.type) {
   case 'CREATE': {
     const newEl = renderTree(patch.newNode)
-    parent.appendChild(newEl)
+    child ? parent.insertBefore(newEl, child) : parent.appendChild(newEl)
     break
   }
   case 'REMOVE':
@@ -226,8 +266,11 @@ const applyPatch = (parent, patch, index = 0) => {
   case 'UPDATE':
     if (child) {
       applyPropsUpdate(child, patch.prevProps, patch.props)
-      for (let i = 0; i < patch.children.length; i++) {
-        applyPatch(child, patch.children[i], i)
+      if (patch.children) {
+        for (let i = patch.children.length - 1; i >= 0; i--) {
+          const [childIndex, childPatch] = patch.children[i]
+          applyPatch(child, childPatch, childIndex)
+        }
       }
     }
     break
@@ -366,7 +409,7 @@ export const elements = (() => {
   const acc = {}
   acc.fragment = createElementHelper('fragment')
   for (const tag of tagNames) acc[tag] = createElementHelper(tag)
-  return /** @type {import('./types.js').ElementsElementMap} */ acc
+  return /** @type {import('./types.js').ElementsElementMap} */ (acc)
 })()
 
 // TODO: MathML

@@ -14,6 +14,16 @@ export const createFakeDom = () => {
       return child
     }
 
+    insertBefore(next, ref) {
+      if (next == null) return next
+      if (!ref) return this.appendChild(next)
+      const index = this.childNodes.indexOf(ref)
+      if (index === -1) throw new Error('insertBefore: reference child not found')
+      this.childNodes.splice(index, 0, next)
+      next.parentNode = this
+      return next
+    }
+
     replaceChild(next, prev) {
       const index = this.childNodes.indexOf(prev)
       if (index === -1)

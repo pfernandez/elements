@@ -14,8 +14,29 @@ export const isFormEventProp = key => /^(oninput|onsubmit|onchange)$/.test(key)
 export const getNearestRoot = (el, isRoot) =>
   !el || isRoot(el) ? el : getNearestRoot(el.parentNode, isRoot)
 
+const isThenable = x =>
+  !!x
+  && (typeof x === 'object' || typeof x === 'function')
+  && typeof x.then === 'function'
+
 const describeListener = ({ el, key }) =>
   `Listener '${key}' on <${el.tagName.toLowerCase()}>`
+
+const withEventRoot = (env, target, fn) => {
+  const prevEventRoot = env.getCurrentEventRoot()
+  env.setCurrentEventRoot(target)
+
+  let result
+  try { result = fn() }
+  catch (err) { env.setCurrentEventRoot(prevEventRoot); throw err }
+
+  return !isThenable(result)
+    ? (env.setCurrentEventRoot(prevEventRoot), result)
+    : result.then(
+      value => (env.setCurrentEventRoot(prevEventRoot), value),
+      err => { env.setCurrentEventRoot(prevEventRoot); throw err }
+    )
+}
 
 /**
  * Wrap an event handler so it can return a vnode to trigger an update.
@@ -33,48 +54,48 @@ const describeListener = ({ el, key }) =>
  * }} env
  */
 export const createDeclarativeEventHandler = env =>
-  async (...args) => {
+  (...args) => {
     const target = getNearestRoot(env.el, env.isRoot)
     if (!target) return
 
-    const prevEventRoot = env.getCurrentEventRoot()
-    env.setCurrentEventRoot(target)
-
-    try {
+    return withEventRoot(env, target, () => {
       const event = args[0]
       const isFormEvent = isFormEventProp(env.key)
       const elements = isFormEvent && event?.target?.elements || null
 
-      const result = await (isFormEvent
+      const result = isFormEvent
         ? env.handler.call(env.el, elements, event)
-        : env.handler.call(env.el, event))
+        : env.handler.call(env.el, event)
 
-      isFormEvent && result !== undefined && event.preventDefault()
+      const handleResult = resolved => {
+        isFormEvent && resolved !== undefined && event.preventDefault()
 
-      env.debug && result === undefined
-        && console.warn(
-          `${describeListener(env)} returned nothing.\n`
-            + 'If you intended a UI update, return a vnode array like: '
-            + 'div({}, ...)'
-        )
+        env.debug && resolved === undefined
+          && console.warn(
+            `${describeListener(env)} returned nothing.\n`
+              + 'If you intended a UI update, return a vnode array like: '
+              + 'div({}, ...)'
+          )
 
-      env.debug && result !== undefined && !Array.isArray(result)
-        && console.warn(
-          `${describeListener(env)} returned "${result}".\n`
-            + 'If you intended a UI update, return a vnode array like: '
-            + 'div({}, ...).\n'
-            + 'Otherwise, return undefined (or nothing) for native event '
-            + 'listener behavior.'
-        )
+        env.debug && resolved !== undefined && !Array.isArray(resolved)
+          && console.warn(
+            `${describeListener(env)} returned "${resolved}".\n`
+              + 'If you intended a UI update, return a vnode array like: '
+              + 'div({}, ...).\n'
+              + 'Otherwise, return undefined (or nothing) for native event '
+              + 'listener behavior.'
+          )
 
-      if (!Array.isArray(result)) return
+        if (!Array.isArray(resolved)) return resolved
 
-      const parent = target.parentNode
-      if (!parent) return
+        const parent = target.parentNode
+        if (!parent) return resolved
 
-      const replacement = env.renderTree(result, true)
-      parent.replaceChild(replacement, target)
-    } finally {
-      env.setCurrentEventRoot(prevEventRoot)
-    }
+        const replacement = env.renderTree(resolved, true)
+        parent.replaceChild(replacement, target)
+        return resolved
+      }
+
+      return isThenable(result) ? result.then(handleResult) : handleResult(result)
+    })
   }
