@@ -84,11 +84,22 @@ const ensureX3DOMCore = () => {
   x3domCorePromise = (async () => {
     // Loads assets via standard <link> and <script> tags.
     const loadViaUrl = async () => {
-      const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).toString()
-      const coreUrl = new URL('../../vendor/x3dom.js', import.meta.url).toString()
+      const cssUrl = new URL(
+        '../../vendor/x3dom.css',
+        import.meta.url
+      ).toString()
+      const coreUrl = new URL(
+        '../../vendor/x3dom.js',
+        import.meta.url
+      ).toString()
       await Promise.all([loadStyleOnce(cssUrl), loadScriptOnce(coreUrl)])
       return getX3DOM()
     }
+
+    // If we are not running under a bundler (e.g. Vite), skip attempting
+    // `?raw` imports. Node would treat those as normal module imports and load
+    // the whole vendored bundle.
+    if (!import.meta.env) return loadViaUrl()
 
     // Skip optimized loading on localhost to avoid browser MIME type error.
     if (import.meta.env.DEV) return loadViaUrl()
@@ -130,6 +141,11 @@ const ensureX3DOMFull = async () => {
   const fullUrl =
     new URL('../../vendor/x3dom-full.js', import.meta.url).toString()
   x3domFullPromise = (async () => {
+    if (!import.meta.env) {
+      await loadScriptOnce(fullUrl)
+      return getX3DOM()
+    }
+
     try {
       const { default: jsText } = await import('../../vendor/x3dom-full.js?raw')
       injectScriptTextOnce('full', jsText)
@@ -164,8 +180,10 @@ const ensureX3DOMForTag = async tag => {
 
     if (!x3domLoadedFull && typeof process !== 'undefined'
       && process?.env?.NODE_ENV !== 'production') {
-      console.warn(`[elements] Loading x3dom-full.js because <${tag}> is not
-                    present in core x3dom.js`)
+      console.warn(
+        `[elements] Loading x3dom-full.js because <${tag}> is not present `
+          + 'in core x3dom.js'
+      )
     }
     return ensureX3DOMFull()
   }
@@ -195,4 +213,3 @@ export const withX3DOM = (tag, fn) => (...args) => {
   ensureX3DOMForTag(tag)
   return fn(...args)
 }
-

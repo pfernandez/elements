@@ -15,7 +15,9 @@ const tickStateMap = new WeakMap()
 export const isConnected = el =>
   typeof el?.isConnected === 'boolean' ? el.isConnected : !!el?.parentNode
 
-const isThenable = x => !!x && (typeof x === 'object' || typeof x === 'function')
+const isThenable = x =>
+  !!x
+  && (typeof x === 'object' || typeof x === 'function')
   && typeof x.then === 'function'
 
 export const stopTickLoop = el =>
@@ -44,7 +46,7 @@ export const stopTickLoop = el =>
  *
  * @template Ctx
  * @param {Element} el
- * @param {(el: Element, ctx: Ctx | undefined, dtMs: number) => (Ctx | void)} handler
+ * @param {(el: Element, ctx: any, dtMs: number) => (any | void)} handler
  * @param {{ ready?: (el: Element) => boolean }} [options]
  */
 export const startTickLoop = (el, handler, { ready = () => true } = {}) => {

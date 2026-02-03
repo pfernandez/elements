@@ -14,6 +14,9 @@ export const isFormEventProp = key => /^(oninput|onsubmit|onchange)$/.test(key)
 export const getNearestRoot = (el, isRoot) =>
   !el || isRoot(el) ? el : getNearestRoot(el.parentNode, isRoot)
 
+const describeListener = ({ el, key }) =>
+  `Listener '${key}' on <${el.tagName.toLowerCase()}>`
+
 /**
  * Wrap an event handler so it can return a vnode to trigger an update.
  *
@@ -22,7 +25,8 @@ export const getNearestRoot = (el, isRoot) =>
  *   key: string,
  *   handler: Function,
  *   isRoot: (el: any) => boolean,
- *   renderTree: (node: any, isRoot?: boolean, namespaceURI?: string | null) => any,
+ *   renderTree:
+ *     (node: any, isRoot?: boolean, namespaceURI?: string | null) => any,
  *   getCurrentEventRoot: () => any,
  *   setCurrentEventRoot: (el: any) => void,
  *   debug: boolean
@@ -49,15 +53,18 @@ export const createDeclarativeEventHandler = env =>
 
       env.debug && result === undefined
         && console.warn(
-          `Listener '${env.key}' on <${env.el.tagName.toLowerCase()}> returned nothing.\n`
-            + 'If you intended a UI update, return a vnode array like: div({}, ...)'
+          `${describeListener(env)} returned nothing.\n`
+            + 'If you intended a UI update, return a vnode array like: '
+            + 'div({}, ...)'
         )
 
       env.debug && result !== undefined && !Array.isArray(result)
         && console.warn(
-          `Listener '${env.key}' on <${env.el.tagName.toLowerCase()}> returned "${result}".\n`
-            + 'If you intended a UI update, return a vnode array like: div({}, ...).\n'
-            + 'Otherwise, return undefined (or nothing) for native event listener behavior.'
+          `${describeListener(env)} returned "${result}".\n`
+            + 'If you intended a UI update, return a vnode array like: '
+            + 'div({}, ...).\n'
+            + 'Otherwise, return undefined (or nothing) for native event '
+            + 'listener behavior.'
         )
 
       if (!Array.isArray(result)) return

@@ -44,7 +44,8 @@ const repoUrl = 'https://github.com/x3dom/x3dom.git'
 const tag = `v${version}`
 
 console.log(`Cloning ${repoUrl} (${tag}) -> ${outDir}`)
-execFileSync('git', ['clone', '--depth', '1', '--branch', tag, repoUrl, outDir], {
-  stdio: 'inherit'
-})
-
+execFileSync(
+  'git',
+  ['clone', '--depth', '1', '--branch', tag, repoUrl, outDir],
+  { stdio: 'inherit' }
+)

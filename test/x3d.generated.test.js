@@ -29,10 +29,12 @@ const toExportName = tag => {
 }
 
 test('3d.js exports helpers for every concrete x3dom node', () => {
-  const registrySource = fs.readFileSync(
-    fs.existsSync(x3domVendorFullPath) ? x3domVendorFullPath : x3domVendorCorePath,
-    'utf8'
-  )
+  const x3domVendorPath =
+    fs.existsSync(x3domVendorFullPath)
+      ? x3domVendorFullPath
+      : x3domVendorCorePath
+
+  const registrySource = fs.readFileSync(x3domVendorPath, 'utf8')
   const byName = parseRegistry(registrySource)
 
   // Ensure collision-prone names are not exported directly.
@@ -49,7 +51,8 @@ test('3d.js exports helpers for every concrete x3dom node', () => {
     const tag = toHelperName(name)
     const exportName = toExportName(tag)
     const fn = x3d[exportName]
-    assert.equal(typeof fn, 'function', `missing export: ${exportName} (tag <${tag}>)`)
+    const missing = `missing export: ${exportName} (tag <${tag}>)`
+    assert.equal(typeof fn, 'function', missing)
     const vnode = fn({ id: 'x' })
     assert.ok(Array.isArray(vnode))
     assert.equal(vnode[0], tag)

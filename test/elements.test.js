@@ -3,7 +3,15 @@ import { body, button, component, div, form, head, html, input,
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
+import { createDeclarativeEventHandler } from '../src/core/events.js'
 import { startTickLoop } from '../src/core/tick.js'
+
+const makeWindow = extra =>
+  ({
+    location: { pathname: '/', search: '', hash: '' },
+    history: { pushState: () => {} },
+    ...extra
+  })
 
 describe('Elements.js - Pure Data Contracts', () => {
   test('div() returns a vnode with tag "div"', () => {
@@ -99,11 +107,14 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.equal(result, false)
   })
 
-  test('onsubmit returns empty string → treated as passive (no update)', () => {
-    const f = form({ onsubmit: () => '' })
-    const result = f[1].onsubmit({}, {})
-    assert.equal(result, '')
-  })
+  test(
+    'onsubmit returns empty string → treated as passive (no update)',
+    () => {
+      const f = form({ onsubmit: () => '' })
+      const result = f[1].onsubmit({}, {})
+      assert.equal(result, '')
+    }
+  )
 
   test('style object is preserved in props', () => {
     const vnode = div({ style: { color: 'red', fontSize: '12px' } })
@@ -158,13 +169,15 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.deepEqual(props, { id: 'x' })
   })
 
-  test('multiple component mounts update independently from events', async () => {
+  test(
+    'multiple component mounts update independently from events',
+    async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const Counter = component((n = 0) =>
       div({},
@@ -196,7 +209,8 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
-  })
+    }
+  )
 
   test('ontick runs and threads context', async () => {
     const prevDocument = globalThis.document
@@ -207,16 +221,14 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     let rafId = 0
     const rafQueue = new Map()
-    globalThis.window = {
+    globalThis.window = makeWindow({
       requestAnimationFrame: cb => {
         const id = ++rafId
         rafQueue.set(id, cb)
         return id
       },
-      cancelAnimationFrame: id => rafQueue.delete(id),
-      location: { pathname: '/', search: '', hash: '' },
-      history: { pushState: () => {} }
-    }
+      cancelAnimationFrame: id => rafQueue.delete(id)
+    })
 
     const dts = []
     const counts = []
@@ -270,16 +282,14 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     let rafId = 0
     const rafQueue = new Map()
-    globalThis.window = {
+    globalThis.window = makeWindow({
       requestAnimationFrame: cb => {
         const id = ++rafId
         rafQueue.set(id, cb)
         return id
       },
-      cancelAnimationFrame: id => rafQueue.delete(id),
-      location: { pathname: '/', search: '', hash: '' },
-      history: { pushState: () => {} }
-    }
+      cancelAnimationFrame: id => rafQueue.delete(id)
+    })
 
     const container = document.createElement('div')
     render(div({ ontick: () => { throw new Error('boom') } }, 'x'), container)
@@ -308,16 +318,14 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     let rafId = 0
     const rafQueue = new Map()
-    globalThis.window = {
+    globalThis.window = makeWindow({
       requestAnimationFrame: cb => {
         const id = ++rafId
         rafQueue.set(id, cb)
         return id
       },
-      cancelAnimationFrame: id => rafQueue.delete(id),
-      location: { pathname: '/', search: '', hash: '' },
-      history: { pushState: () => {} }
-    }
+      cancelAnimationFrame: id => rafQueue.delete(id)
+    })
 
     const container = document.createElement('div')
     render(
@@ -357,7 +365,11 @@ describe('Elements.js - Pure Data Contracts', () => {
     const calls = []
     const el = { isConnected: false }
 
-    startTickLoop(el, (_el, ctx = { n: 0 }, dt) => (calls.push([ctx.n, dt]), ({ n: ctx.n + 1 })))
+    startTickLoop(
+      el,
+      (_el, ctx = { n: 0 }, dt) =>
+        (calls.push([ctx.n, dt]), ({ n: ctx.n + 1 }))
+    )
 
     const [f1] = rafQueue.keys()
     rafQueue.get(f1)(0)
@@ -388,13 +400,59 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.window = prevWindow
   })
 
+  test('ontick waits for readiness before ticking', async () => {
+    const prevWindow = globalThis.window
+
+    let rafId = 0
+    const rafQueue = new Map()
+    globalThis.window = {
+      requestAnimationFrame: cb => {
+        const id = ++rafId
+        rafQueue.set(id, cb)
+        return id
+      },
+      cancelAnimationFrame: id => rafQueue.delete(id),
+    }
+
+    const el = { isConnected: true }
+
+    let ready = false
+    let calls = 0
+    const dts = []
+
+    startTickLoop(
+      el,
+      (_el, ctx = { n: 0 }, dt) => (calls++, dts.push(dt), ({ n: ctx.n + 1 })),
+      { ready: () => ready }
+    )
+
+    const [f1] = rafQueue.keys()
+    rafQueue.get(f1)(0)
+    rafQueue.delete(f1)
+    await Promise.resolve()
+
+    assert.equal(calls, 0)
+    assert.equal(rafQueue.size, 1)
+
+    ready = true
+    const [f2] = rafQueue.keys()
+    rafQueue.get(f2)(16)
+    rafQueue.delete(f2)
+    await Promise.resolve()
+
+    assert.equal(calls, 1)
+    assert.deepEqual(dts, [0])
+
+    globalThis.window = prevWindow
+  })
+
   test('render() mounts html() into documentElement', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     render(
       html(
@@ -411,13 +469,176 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.window = prevWindow
   })
 
+  test('render() creates head/body if document is missing them', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+
+    const oldHead = document.head
+    const oldBody = document.body
+    document.documentElement.removeChild(oldHead)
+    document.documentElement.removeChild(oldBody)
+    document.head = null
+    document.body = null
+
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    render(
+      html(
+        head(title('x')),
+        body(div('ok'))
+      )
+    )
+
+    const tags = document.documentElement.childNodes.map(n => n.tagName)
+    assert.ok(tags.includes('HEAD'))
+    assert.ok(tags.includes('BODY'))
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() requires a container for non-html roots', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    assert.throws(
+      () => render(div('x')),
+      /requires a container/
+    )
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('component() can update in-place outside event updates', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const Counter = component((n = 0) =>
+      div(output(n))
+    )
+
+    const container = document.createElement('div')
+    render(div({}, Counter(0)), container)
+    assert.equal(container.childNodes[0].childNodes.length, 1)
+    const getCountText = () =>
+      container.childNodes[0]
+        .childNodes[0]
+        .childNodes[0]
+        .childNodes[0]
+        .nodeValue
+    assert.equal(getCountText(), '0')
+
+    render(div({}, Counter(1)), container)
+    assert.equal(container.childNodes[0].childNodes.length, 1)
+    assert.equal(getCountText(), '1')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('component() renders an error vnode when it throws', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+    const prevConsoleError = console.error
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+    console.error = () => {}
+
+    const Broken = component(() => { throw new Error('boom') })
+
+    const container = document.createElement('div')
+    render(div({}, Broken()), container)
+
+    const msg =
+      container.childNodes[0].childNodes[0].childNodes[0].nodeValue
+    assert.equal(msg, 'Error: boom')
+
+    console.error = prevConsoleError
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() handles empty and malformed vnodes', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+    const prevConsoleError = console.error
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+    console.error = () => {}
+
+    const empty = document.createElement('div')
+    render([], empty)
+    assert.equal(empty.childNodes[0].nodeType, 8)
+    assert.equal(empty.childNodes[0].nodeValue, 'Empty vnode')
+
+    const malformed = document.createElement('div')
+    render({ not: 'a vnode' }, malformed)
+    assert.equal(malformed.childNodes[0].nodeType, 8)
+    assert.equal(malformed.childNodes[0].nodeValue, 'Invalid vnode')
+
+    const nonStringTag = document.createElement('div')
+    render([123, {}, 'x'], nonStringTag)
+    assert.equal(nonStringTag.childNodes[0].nodeType, 8)
+    assert.equal(nonStringTag.childNodes[0].nodeValue, 'Invalid vnode')
+
+    console.error = prevConsoleError
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('debug warns on passive event returns', async () => {
+    const prevWarn = console.warn
+    const warns = []
+    console.warn = (...args) => warns.push(args.join(' '))
+
+    const env = {
+      el: { tagName: 'DIV' },
+      key: 'onclick',
+      handler: () => undefined,
+      isRoot: () => true,
+      renderTree: () => null,
+      getCurrentEventRoot: () => null,
+      setCurrentEventRoot: () => {},
+      debug: true
+    }
+
+    const h1 = createDeclarativeEventHandler(env)
+    await h1({})
+
+    env.handler = () => 'ok'
+    const h2 = createDeclarativeEventHandler(env)
+    await h2({})
+
+    assert.equal(warns.length, 2)
+    assert.ok(warns[0].includes('returned nothing'))
+    assert.ok(warns[1].includes('returned "ok"'))
+
+    console.warn = prevWarn
+  })
+
   test('render() uses setAttributeNS for SVG elements', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(svg({ width: 100, height: 100 }), container)
@@ -437,7 +658,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ innerHTML: '<b>ok</b>' }), container)
@@ -455,7 +676,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ value: 'hi', checked: true }), container)
@@ -483,7 +704,7 @@ describe('Elements.js - Pure Data Contracts', () => {
     }
 
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     assert.throws(
@@ -504,12 +725,16 @@ describe('Elements.js - Pure Data Contracts', () => {
     document.createElement = tag => {
       const el = create(tag)
       tag === 'div'
-        && Object.defineProperty(el, 'value', { set: () => { throw new Error('boom') } })
+        && Object.defineProperty(
+          el,
+          'value',
+          { set: () => { throw new Error('boom') } }
+        )
       return el
     }
 
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     assert.throws(
@@ -527,7 +752,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const Inner = component((n = 0) =>
       div({},
@@ -574,7 +799,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const AsyncCounter = component((n = 0) =>
       div({},
@@ -592,19 +817,23 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.equal(root.childNodes[0].childNodes[0].nodeValue, '0')
 
     await root.childNodes[1].onclick({})
-    assert.equal(container.childNodes[0].childNodes[0].childNodes[0].nodeValue, '1')
+    const updated =
+      container.childNodes[0].childNodes[0].childNodes[0].nodeValue
+    assert.equal(updated, '1')
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
 
-  test('async form handlers preventDefault only when returning a vnode', async () => {
+  test(
+    'async form handlers preventDefault only when returning a vnode',
+    async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container1 = document.createElement('div')
 
@@ -640,7 +869,8 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
-  })
+    }
+  )
 
   test('render() updates attributes in place when vnode tag matches', () => {
     const prevDocument = globalThis.document
@@ -648,7 +878,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ id: 'a' }, 'x'), container)
@@ -672,7 +902,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ id: 'a' }, 'x'), container)
@@ -697,7 +927,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(button({ onclick: () => div('one') }, 'go'), container)
@@ -724,7 +954,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div(button({ onclick: () => 'noop' }, 'go')), container)
@@ -745,7 +975,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ id: 'a' }, 'x'), container)
@@ -764,7 +994,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(button({ onclick: () => div('ok') }, 'go'), container)
@@ -783,7 +1013,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ style: { color: 'red' } }, 'x'), container)
@@ -802,7 +1032,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ innerHTML: '<b>ok</b>' }), container)
@@ -821,7 +1051,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({ value: 'hi', checked: true }, 'x'), container)
@@ -874,7 +1104,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({}, div('a'), div('b')), container)
@@ -882,7 +1112,8 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     render(div({}, div('a')), container)
     assert.equal(container.childNodes[0].childNodes.length, 1)
-    assert.equal(container.childNodes[0].childNodes[0].childNodes[0].nodeValue, 'a')
+    const a = container.childNodes[0].childNodes[0].childNodes[0].nodeValue
+    assert.equal(a, 'a')
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
@@ -894,7 +1125,7 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+    globalThis.window = makeWindow()
 
     const container = document.createElement('div')
     render(div({}, div('a')), container)
@@ -902,7 +1133,8 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     render(div({}, div('a'), div('b')), container)
     assert.equal(container.childNodes[0].childNodes.length, 2)
-    assert.equal(container.childNodes[0].childNodes[1].childNodes[0].nodeValue, 'b')
+    const b = container.childNodes[0].childNodes[1].childNodes[0].nodeValue
+    assert.equal(b, 'b')
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
