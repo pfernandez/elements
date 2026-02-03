@@ -3,14 +3,25 @@
 ### A functional, stateless UI toolkit for composing reactive web pages.
 
 Elements.js borrows the simple elegance of functional UI composition from
-[React](https://react.dev/), distilled to its purest form. No JSX. No keys. No
-virtual DOM heuristics. Components are pure functions; updates are just calling
-the function again with new arguments.
+[React](https://react.dev/), distilled to its purest form:
+
+- No JSX.
+- No keys.
+- No virtual DOM heuristics.
+
+Components are pure functions. The DOM is the state substrate.
 
 While you may choose to manage application logic with tools like
 [Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
-Elements.js keeps _UI state_ exactly where it belongs: in the
-[DOM][dom] itself.
+Elements.js keeps UI state exactly where it belongs: in the [DOM][dom] itself.
+
+## Principles
+
+- **Pure data model:** UI is declared as nested arrays.
+- **Replacement updates:** event handlers can return the next vnode tree, and
+  Elements.js replaces the closest component boundary.
+- **Imperative boundary, functional surface:** DOM mutation exists, but the
+  authoring model stays functional and composable.
 
 ### Example: Recursive counter
 ```js
@@ -103,15 +114,21 @@ render(
           todos())))))
 ```
 
-## Declarative Events
+## How Updates Work
 
-### General Behavior
+Elements.js is designed so you typically call `render()` once at startup (see
+`examples/index.js`). After that, updates happen by returning a vnode from an
+event handler.
 
-* Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
-  to trigger a subtree replacement.
-* If the handler returns `undefined`, the event is treated as passive (no update
-  occurs).
-* Returned vnodes are applied at the closest component boundary.
+### Declarative Events
+
+- Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
+  array to trigger a replacement.
+- If the handler returns `undefined` (or any non-vnode value), the event is
+  passive and the DOM is left alone.
+- Returned vnodes are applied at the closest component boundary.
+
+Errors are not swallowed: thrown errors and rejected Promises propagate.
 
 ### Form Events
 
@@ -137,19 +154,35 @@ form({
 })
 ```
 
-## Update Model
+### Explicit Rerenders
 
-Elements.js is designed so you typically call `render()` once at startup (see
-`examples/index.js`). After that, updates happen by returning a vnode from an
-event handler.
+Calling `render(vtree, container)` again is supported (diff + patch). This is
+useful for explicit rerenders (e.g. dev reload, external state updates).
 
-- If an event handler returns a vnode array, Elements.js replaces the closest
-  component boundary with the newly rendered subtree.
-- If a handler returns `undefined` (or any non-vnode value), the event is
-  treated as passive and the DOM is left alone.
+### Why Replacement (No Keys)
 
-Calling `render(vtree, container)` again is also supported (diff + patch), and
-is useful for explicit rerenders (e.g. dev reload, external state updates).
+Replacement updates keep the model simple:
+
+- You never have to maintain key stability.
+- Identity is the closest component boundary.
+- The DOM remains the single source of truth for UI state.
+
+## Props
+
+Elements.js accepts a single props object as the second element of a vnode:
+
+```js
+['div', { id: 'x', class: 'box' }, 'hello']
+```
+
+In the DOM runtime:
+
+- Most props are assigned via `setAttribute`.
+- A small set of keys are treated as property exceptions when the property
+  exists on the element.
+- Omitting a prop in a subsequent update clears it from the element.
+
+This keeps updates symmetric and predictable.
 
 ## `ontick` (animation hook)
 
@@ -167,6 +200,9 @@ transform({
 
 `ontick` must be synchronous. If it throws (or returns a Promise), ticking
 stops, and the error is not swallowed.
+
+If the element is inside an `<x3d>` scene, Elements.js waits for the X3DOM
+runtime to be ready before ticking.
 
 ## X3D / X3DOM (experimental)
 
@@ -202,7 +238,7 @@ Elements.js is JS-first: TypeScript is not required at runtime. This package
 ships `.d.ts` files so editors like VSCode can provide rich inline docs and
 autocomplete.
 
-The goal is for the type definitions to be the canonical reference for:
+The goal is for type definitions to be the canonical reference for:
 
 * HTML/SVG/X3D element helpers
 * DOM events (including the special form-event signature)
@@ -212,6 +248,8 @@ Most props are assigned as attributes. A small set of keys are treated as
 property exceptions (when the property exists on the element): `value`,
 `checked`, `selected`, `disabled`, `multiple`, `muted`, `volume`,
 `currentTime`, `playbackRate`, `open`, `indeterminate`.
+
+Omitting a prop in a subsequent update clears it from the element.
 
 ## Development
 
@@ -240,6 +278,16 @@ Wrap a recursive pure function that returns a vnode.
 Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
 `container` is required.
 
+### `elements`
+
+All tag helpers are also exported in a map for dynamic use:
+
+```js
+import { elements } from '@pfern/elements'
+
+const { div, button } = elements
+```
+
 ### DOM Elements
 
 Every HTML, SVG, and X3DOM tag is available as a function:
@@ -250,11 +298,15 @@ svg({ width: 100 }, circle({ r: 10 }))
 box({ size: '2 2 2', solid: true })
 ```
 
+### `navigate(path[, options])`
+
+`navigate` updates `window.history` and dispatches a `popstate` event. It is a
+tiny convenience for router-style apps.
+
 ### Testing Philosophy
 
-Elements are data-in, data-out only, so mocking and headless browsers like
-`jsdom` are unnecessary out of the box. See the tests [in this
-repository](test/README.md) for some examples.
+Tests run in Node and use a small in-repo fake DOM for behavioral DOM checks.
+See `test/README.md`.
 
 ## License
 
