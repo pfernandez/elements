@@ -12,9 +12,9 @@ const args = [
   '--test-coverage-include=src/**',
   '--test-coverage-exclude=vendor/**',
   '--test-coverage-exclude=src/core/elements-3d.js',
+  '--test-coverage-exclude=src/core/types.js',
   'test/*.test.*'
 ]
 
 const result = spawnSync('node', args, { stdio: 'inherit' })
 process.exit(result.status ?? 1)
-
