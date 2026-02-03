@@ -4,9 +4,11 @@
  *
  * Purpose:
  * - All UI defined as pure functions that return declarative arrays.
- * - Directly composable into a symbolic tree compatible with Lisp-like dialects.
+ * - Directly composable into a symbolic tree compatible with Lisp-like
+ *   dialects.
  * - No internal mutable state required: DOM itself is the substrate for state.
- * - No JSX, no keys, no reconciler heuristics — just pure structure + replacement.
+ * - No JSX, no keys, no reconciler heuristics — just pure structure +
+ *   replacement.
  *
  */
 
@@ -28,13 +30,15 @@ const svgNS = 'http://www.w3.org/2000/svg'
  * canonical representation. Numbers/booleans are accepted for convenience and
  * are coerced by the DOM.
  *
- * @typedef {string | number | boolean | null | undefined} ElementsAttributeValue
+ * @typedef {string | number | boolean | null | undefined}
+ *   ElementsAttributeValue
  */
 
 /**
  * Inline style object applied via `Object.assign(el.style, style)`.
  *
- * @typedef {Partial<CSSStyleDeclaration> & Record<string, string | number>} ElementsStyleObject
+ * @typedef {Partial<CSSStyleDeclaration> & Record<string, string | number>}
+ *   ElementsStyleObject
  */
 
 /**
@@ -44,7 +48,8 @@ const svgNS = 'http://www.w3.org/2000/svg'
  * [tag, props, ...children]
  * ```
  *
- * @typedef {[tag: string, props: ElementsProps, ...children: ElementsChild[]]} ElementsVNode
+ * @typedef {[tag: string, props: ElementsProps, ...children: ElementsChild[]]}
+ *   ElementsVNode
  */
 
 /**
@@ -53,7 +58,8 @@ const svgNS = 'http://www.w3.org/2000/svg'
  * Note: nested arrays are treated as children values (they are not
  * automatically flattened).
  *
- * @typedef {ElementsVNode | string | number | boolean | null | undefined | any[]} ElementsChild
+ * @typedef {ElementsVNode | string | number | boolean | null | undefined
+ *   | any[]} ElementsChild
  */
 
 /**
@@ -80,7 +86,8 @@ const svgNS = 'http://www.w3.org/2000/svg'
  * nearest component boundary. Otherwise the event is treated as passive.
  *
  * @typedef {ElementsVNode | void | null | false | '' | 0} ElementsEventResult
- * @typedef {ElementsEventResult | Promise<ElementsEventResult>} ElementsMaybeAsyncEventResult
+ * @typedef {ElementsEventResult | Promise<ElementsEventResult>}
+ *   ElementsMaybeAsyncEventResult
  */
 
 /**
@@ -115,6 +122,7 @@ const svgNS = 'http://www.w3.org/2000/svg'
   *   class?: string,
   *   title?: string,
   *   role?: string,
+  *   name?: string,
   *   part?: string,
   *   slot?: string,
   *   exportparts?: string,
@@ -157,20 +165,29 @@ const svgNS = 'http://www.w3.org/2000/svg'
  * }} ElementsGlobalAttributes
  */
 
-/** @typedef {{ [key: `data-${string}`]: ElementsAttributeValue }} ElementsDataAttributes */
-/** @typedef {{ [key: `aria-${string}`]: ElementsAttributeValue }} ElementsAriaAttributes */
+/**
+ * @typedef {{ [key: `data-${string}`]: ElementsAttributeValue }}
+ *   ElementsDataAttributes
+ */
+
+/**
+ * @typedef {{ [key: `aria-${string}`]: ElementsAttributeValue }}
+ *   ElementsAriaAttributes
+ */
 
 /**
  * Dash-cased attributes commonly used by custom elements and utilities.
  *
- * @typedef {{ [key: `${string}-${string}`]: ElementsAttributeValue }} ElementsDashedAttributes
+ * @typedef {{ [key: `${string}-${string}`]: ElementsAttributeValue }}
+ *   ElementsDashedAttributes
  */
 
 /**
  * DOM event handler props.
  *
  * @typedef {Omit<{
- *   [K in keyof GlobalEventHandlersEventMap as `on${K}`]?: ElementsEventHandler<GlobalEventHandlersEventMap[K]>
+ *   [K in keyof GlobalEventHandlersEventMap as `on${K}`]?:
+ *     ElementsEventHandler<GlobalEventHandlersEventMap[K]>
  * }, 'oninput' | 'onsubmit' | 'onchange'> & {
  *   oninput?: ElementsFormEventHandler<InputEvent | Event>,
  *   onsubmit?: ElementsFormEventHandler<SubmitEvent | Event>,

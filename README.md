@@ -137,6 +137,20 @@ form({
 })
 ```
 
+## Update Model
+
+Elements.js is designed so you typically call `render()` once at startup (see
+`examples/index.js`). After that, updates happen by returning a vnode from an
+event handler.
+
+- If an event handler returns a vnode array, Elements.js replaces the closest
+  component boundary with the newly rendered subtree.
+- If a handler returns `undefined` (or any non-vnode value), the event is
+  treated as passive and the DOM is left alone.
+
+Calling `render(vtree, container)` again is also supported (diff + patch), and
+is useful for explicit rerenders (e.g. dev reload, external state updates).
+
 ## `ontick` (animation hook)
 
 `ontick` is a hook (not a DOM event) that runs once per animation frame. It can

@@ -74,7 +74,9 @@ const applyEventProp = ({ el, key, value, env }) =>
     true)
 
 const applyStyleProp = ({ el, key, value, env: _env }) =>
-  key !== 'style' || !isObject(value) ? false : (Object.assign(el.style, value), true)
+  key !== 'style' || !isObject(value)
+    ? false
+    : (Object.assign(el.style, value), true)
 
 const applyInnerHTMLProp = ({ el, key, value, env: _env }) =>
   key !== 'innerHTML' ? false : (el.innerHTML = value, true)
@@ -102,10 +104,12 @@ const removeAttribute = (el, key) =>
 
 const clearStyle = el =>
   (style =>
-    !style ? undefined
+    !style
+      ? undefined
       : 'cssText' in style
         ? (style.cssText = '', undefined)
-        : (Object.keys(style).forEach(k => delete style[k]), undefined))(el?.style)
+        : (Object.keys(style).forEach(k => delete style[k]), undefined)
+  )(el?.style)
 
 const clearInnerHTML = el =>
   el.innerHTML = ''
