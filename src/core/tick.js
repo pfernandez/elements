@@ -79,7 +79,7 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
   const step = t => {
     const connected = isConnected(el)
     const done = !state.running || !connected && state.wasConnected
-    if (done) return state.running = false
+    if (done) return stopTickLoop(el)
 
     if (!connected) {
       state.lastTime = null
@@ -99,16 +99,12 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
     state.lastTime = t
 
     let next
-    try {
-      next = handler.call(el, el, state.ctx, dt)
-    } catch (err) {
-      console.error(err)
-      return state.running = false
-    }
+    try { next = handler.call(el, el, state.ctx, dt) }
+    catch (err) { stopTickLoop(el); throw err }
 
     if (isThenable(next)) {
-      console.error(new TypeError('ontick must be synchronous (no Promises).'))
-      return state.running = false
+      stopTickLoop(el)
+      throw new TypeError('ontick must be synchronous (no Promises).')
     }
 
     next !== undefined && (state.ctx = next)

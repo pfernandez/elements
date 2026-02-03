@@ -264,7 +264,6 @@ describe('Elements.js - Pure Data Contracts', () => {
   test('ontick stops ticking if it throws', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
-    const prevConsoleError = console.error
 
     const { document } = createFakeDom()
     globalThis.document = document
@@ -282,21 +281,20 @@ describe('Elements.js - Pure Data Contracts', () => {
       history: { pushState: () => {} }
     }
 
-    let errors = 0
-    console.error = () => { errors++ }
-
     const container = document.createElement('div')
     render(div({ ontick: () => { throw new Error('boom') } }, 'x'), container)
 
     const [firstId] = rafQueue.keys()
-    rafQueue.get(firstId)(0)
+    const firstFrame = rafQueue.get(firstId)
     rafQueue.delete(firstId)
+    assert.throws(
+      () => firstFrame(0),
+      { name: 'Error', message: 'boom' }
+    )
     await Promise.resolve()
 
-    assert.equal(errors, 1)
     assert.equal(rafQueue.size, 0)
 
-    console.error = prevConsoleError
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
@@ -304,7 +302,6 @@ describe('Elements.js - Pure Data Contracts', () => {
   test('ontick stops ticking if it returns a Promise', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
-    const prevConsoleError = console.error
 
     const { document } = createFakeDom()
     globalThis.document = document
@@ -321,9 +318,6 @@ describe('Elements.js - Pure Data Contracts', () => {
       location: { pathname: '/', search: '', hash: '' },
       history: { pushState: () => {} }
     }
-
-    let errors = 0
-    console.error = () => { errors++ }
 
     const container = document.createElement('div')
     render(
@@ -332,14 +326,16 @@ describe('Elements.js - Pure Data Contracts', () => {
     )
 
     const [firstId] = rafQueue.keys()
-    rafQueue.get(firstId)(0)
+    const firstFrame = rafQueue.get(firstId)
     rafQueue.delete(firstId)
+    assert.throws(
+      () => firstFrame(0),
+      /ontick must be synchronous/
+    )
     await Promise.resolve()
 
-    assert.equal(errors, 1)
     assert.equal(rafQueue.size, 0)
 
-    console.error = prevConsoleError
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })

@@ -166,7 +166,7 @@ transform({
 ```
 
 `ontick` must be synchronous. If it throws (or returns a Promise), ticking
-stops.
+stops, and the error is not swallowed.
 
 ## X3D / X3DOM (experimental)
 

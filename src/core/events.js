@@ -67,8 +67,6 @@ export const createDeclarativeEventHandler = env =>
 
       const replacement = env.renderTree(result, true)
       parent.replaceChild(replacement, target)
-    } catch (error) {
-      console.error(error)
     } finally {
       env.setCurrentEventRoot(prevEventRoot)
     }

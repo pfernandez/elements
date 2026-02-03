@@ -131,10 +131,31 @@ const svgNS = 'http://www.w3.org/2000/svg'
   *   contentsecuritypolicy?: string,
   *   popovertarget?: string,
   *   popovertargetaction?: 'toggle' | 'show' | 'hide',
-  *   autocapitalize?: string,
-  *   enterkeyhint?: string,
-  *   inputmode?: string,
-  *   virtualkeyboardpolicy?: string,
+  *   autocapitalize?:
+  *     | 'none'
+  *     | 'sentences'
+  *     | 'words'
+  *     | 'characters'
+  *     | 'on'
+  *     | 'off',
+  *   enterkeyhint?:
+  *     | 'enter'
+  *     | 'done'
+  *     | 'go'
+  *     | 'next'
+  *     | 'previous'
+  *     | 'search'
+  *     | 'send',
+  *   inputmode?:
+  *     | 'none'
+  *     | 'text'
+  *     | 'tel'
+  *     | 'url'
+  *     | 'email'
+  *     | 'numeric'
+  *     | 'decimal'
+  *     | 'search',
+  *   virtualkeyboardpolicy?: 'auto' | 'manual',
   *   draggable?: boolean,
   *   hidden?: boolean,
   *   inert?: boolean,
