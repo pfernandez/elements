@@ -645,4 +645,101 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('render() updates attributes in place when vnode tag matches', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ id: 'a' }, 'x'), container)
+
+    const el1 = container.childNodes[0]
+    assert.equal(el1.attributes.id, 'a')
+
+    render(div({ id: 'b' }, 'x'), container)
+
+    const el2 = container.childNodes[0]
+    assert.equal(el2, el1)
+    assert.equal(el2.attributes.id, 'b')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() replaces element when vnode tag changes', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ id: 'a' }, 'x'), container)
+
+    const el1 = container.childNodes[0]
+    assert.equal(el1.tagName.toLowerCase(), 'div')
+
+    render(pre({ id: 'b' }, 'x'), container)
+
+    const el2 = container.childNodes[0]
+    assert.equal(el2.tagName.toLowerCase(), 'pre')
+    assert.notEqual(el2, el1)
+    assert.equal(el2.attributes.id, 'b')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() updates event handlers when props change', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(button({ onclick: () => div('one') }, 'go'), container)
+
+    const btn1 = container.childNodes[0]
+    await btn1.onclick({})
+    assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
+    assert.equal(container.childNodes[0].childNodes[0].nodeValue, 'one')
+
+    render(button({ onclick: () => div('two') }, 'go'), container)
+
+    const btn2 = container.childNodes[0]
+    await btn2.onclick({})
+    assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
+    assert.equal(container.childNodes[0].childNodes[0].nodeValue, 'two')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('non-vnode event return is passive (no replacement)', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div(button({ onclick: () => 'noop' }, 'go')), container)
+
+    const root = container.childNodes[0]
+    await root.childNodes[0].onclick({})
+
+    assert.equal(container.childNodes[0], root)
+    assert.equal(root.childNodes[0].tagName.toLowerCase(), 'button')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })

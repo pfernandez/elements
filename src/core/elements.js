@@ -118,30 +118,31 @@ const svgNS = 'http://www.w3.org/2000/svg'
   *   part?: string,
   *   slot?: string,
   *   exportparts?: string,
-  *   nonce?: string,
+ *   nonce?: string,
   *   elementtiming?: string,
- *   popovertarget?: string,
- *   popovertargetaction?: 'toggle' | 'show' | 'hide',
+  *   popovertarget?: string,
+  *   popovertargetaction?: 'toggle' | 'show' | 'hide',
+ *   autocapitalize?: string,
+ *   enterkeyhint?: string,
+ *   inputmode?: string,
+ *   virtualkeyboardpolicy?: string,
   *   draggable?: boolean,
   *   hidden?: boolean,
   *   inert?: boolean,
- *   spellcheck?: boolean,
+  *   spellcheck?: boolean,
   *   tabindex?: number | string,
   *   accesskey?: string,
   *   translate?: 'yes' | 'no',
- *   autocorrect?: 'on' | 'off',
- *   autocomplete?: string,
+  *   autocorrect?: 'on' | 'off',
+  *   autocomplete?: string,
   *   lang?: string,
   *   dir?: 'ltr' | 'rtl' | 'auto',
   *   is?: string,
+  *   writingsuggestions?: 'true' | 'false' | boolean,
   *   contenteditable?: 'true' | 'false' | 'plaintext-only' | boolean,
-  *   inputmode?: string,
-  *   enterkeyhint?: string,
-  *   autocapitalize?: string,
   *   autofocus?: boolean,
-  *   virtualkeyboardpolicy?: string,
   *   popover?: 'auto' | 'manual',
- *   label?: string,
+  *   label?: string,
   *   itemscope?: boolean,
   *   itemtype?: string,
   *   itemid?: string,
@@ -268,6 +269,7 @@ const diffTree = (a, b) => {
   if (Array.isArray(a) && Array.isArray(b)) {
     return {
       type: 'UPDATE',
+      props: b[1],
       children: diffChildren(a.slice(2), b.slice(2))
     }
   }
@@ -408,7 +410,10 @@ const applyPatch = (parent, patch, index = 0) => {
     break
   }
   case 'UPDATE':
-    child && patch.children.forEach((p, i) => applyPatch(child, p, i))
+    if (child) {
+      patch.props && assignProperties(child, patch.props, propsEnv)
+      patch.children.forEach((p, i) => applyPatch(child, p, i))
+    }
     break
   }
 }
