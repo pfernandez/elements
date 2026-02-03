@@ -15,6 +15,8 @@ const isObject = x =>
   typeof x === 'object'
   && x !== null
 
+const tap = (value, effect) => (effect(value), value)
+
 const isX3DOMReadyFor = el =>
   (x3d => !x3d || !!x3d.runtime)(el?.closest?.('x3d'))
 
@@ -49,14 +51,14 @@ const propertyExceptionDefaults = {
 const applyTickProp = ({ el, key, value, env: _env }) =>
   key !== 'ontick' || typeof value !== 'function'
     ? false
-    : (el.ontick = value,
-    startTickLoop(el, value, { ready: isX3DOMReadyFor }),
-    true)
+    : (tap(undefined, () => el.ontick = value),
+      startTickLoop(el, value, { ready: isX3DOMReadyFor }),
+      true)
 
 const applyPropertyExceptionProp = ({ el, key, value, env: _env }) =>
   !(key in propertyExceptions) || !(key in el)
     ? false
-    : (el[propertyExceptions[key]] = value, true)
+    : (tap(undefined, () => el[propertyExceptions[key]] = value), true)
 
 const applyEventProp = ({ el, key, value, env }) =>
   !isEventProp(key, value)
@@ -79,14 +81,15 @@ const applyStyleProp = ({ el, key, value, env: _env }) =>
     : (Object.assign(el.style, value), true)
 
 const applyInnerHTMLProp = ({ el, key, value, env: _env }) =>
-  key !== 'innerHTML' ? false : (el.innerHTML = value, true)
+  key !== 'innerHTML'
+    ? false
+    : (tap(undefined, () => el.innerHTML = value), true)
 
-const applyAttributeProp = ({ el, key, value, env }) => {
-  return el.namespaceURI === env.svgNS
+const applyAttributeProp = ({ el, key, value, env }) =>
+  (el.namespaceURI === env.svgNS
     ? el.setAttributeNS(null, key, value)
     : el.setAttribute(key, value),
-  true
-}
+  true)
 
 const appliers = [
   applyTickProp,
@@ -125,6 +128,14 @@ const clearPropertyException = (el, key) =>
 const clearTick = el =>
   (el.ontick = null, stopTickLoop(el))
 
+const clearProp = (el, key) =>
+  key === 'ontick' ? clearTick(el)
+    : key === 'style' ? clearStyle(el)
+      : key === 'innerHTML' ? clearInnerHTML(el)
+        : key in propertyExceptions ? clearPropertyException(el, key)
+          : key.startsWith('on') ? clearEventProp(el, key)
+            : removeAttribute(el, key)
+
 /**
  * Remove props that existed previously but are absent in the next vnode.
  *
@@ -137,14 +148,8 @@ const clearTick = el =>
  */
 export const removeMissingProps = (el, prevProps, nextProps) =>
   Object.keys(prevProps)
-    .filter(k => !(k in nextProps))
     .forEach(key =>
-      key === 'ontick' ? clearTick(el)
-        : key === 'style' ? clearStyle(el)
-          : key === 'innerHTML' ? clearInnerHTML(el)
-            : key in propertyExceptions ? clearPropertyException(el, key)
-              : key.startsWith('on') ? clearEventProp(el, key)
-                : removeAttribute(el, key)
+      !(key in nextProps) && clearProp(el, key)
     )
 
 /**
@@ -162,6 +167,6 @@ export const removeMissingProps = (el, prevProps, nextProps) =>
  * }} env
  */
 export const assignProperties = (el, props, env) =>
-  Object.entries(props).forEach(([key, value]) =>
-    appliers.some(apply => apply({ el, key, value, env }))
+  Object.keys(props).forEach(key =>
+    appliers.some(apply => apply({ el, key, value: props[key], env }))
   )

@@ -896,6 +896,29 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.window = prevWindow
   })
 
+  test('render() updates number text nodes', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    render(div({}, 0), container)
+
+    const getText = () =>
+      container.childNodes[0].childNodes[0].nodeValue
+
+    assert.equal(getText(), '0')
+
+    render(div({}, 1), container)
+    assert.equal(getText(), '1')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('render() replaces element when vnode tag changes', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window

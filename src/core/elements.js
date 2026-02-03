@@ -291,6 +291,7 @@ const setCurrentEventRoot = el => (currentEventRoot = el)
 const changed = (a, b) =>
   typeof a !== typeof b
   || typeof a === 'string' && a !== b
+  || typeof a === 'number' && a !== b
   || Array.isArray(a) && Array.isArray(b) && a[0] !== b[0]
 
 /**
@@ -302,15 +303,15 @@ const changed = (a, b) =>
  * @returns {Object} - Patch object with type and content
  */
 const diffTree = (a, b) => {
-  if (!a) return { type: 'CREATE', newNode: b }
-  if (!b) return { type: 'REMOVE' }
+  if (a == null) return { type: 'CREATE', newNode: b }
+  if (b == null) return { type: 'REMOVE' }
   if (changed(a, b)) return { type: 'REPLACE', newNode: b }
   if (Array.isArray(a) && Array.isArray(b)) {
     return {
       type: 'UPDATE',
       prevProps: a[1],
       props: b[1],
-      children: diffChildren(a.slice(2), b.slice(2))
+      children: diffChildren(a, b)
     }
   }
 }
@@ -318,15 +319,17 @@ const diffTree = (a, b) => {
 /**
  * Compares the children of two vnodes and returns patch list.
  *
- * @param {Array} aChildren - Previous vnode children
- * @param {Array} bChildren - New vnode children
+ * @param {any[]} a - Previous vnode
+ * @param {any[]} b - New vnode
  * @returns {Array} patches - One per child node
  */
-const diffChildren = (aChildren, bChildren) => {
+const diffChildren = (a, b) => {
   const patches = []
-  const len = Math.max(aChildren.length, bChildren.length)
+  const aLen = Math.max(0, a.length - 2)
+  const bLen = Math.max(0, b.length - 2)
+  const len = Math.max(aLen, bLen)
   for (let i = 0; i < len; i++) {
-    patches[i] = diffTree(aChildren[i], bChildren[i])
+    patches[i] = diffTree(a[i + 2], b[i + 2])
   }
   return patches
 }
@@ -423,6 +426,13 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 
 propsEnv.renderTree = renderTree
 
+const applyPropsUpdate = (el, prevProps, nextProps) =>
+  nextProps
+    ? (removeMissingProps(el, prevProps || {}, nextProps),
+      assignProperties(el, nextProps, propsEnv),
+      undefined)
+    : undefined
+
 /**
  * Applies a patch object to a DOM subtree.
  * Handles creation, removal, replacement, and child updates.
@@ -451,9 +461,7 @@ const applyPatch = (parent, patch, index = 0) => {
   }
   case 'UPDATE':
     if (child) {
-      patch.props
-        && (removeMissingProps(child, patch.prevProps || {}, patch.props),
-        assignProperties(child, patch.props, propsEnv))
+      applyPropsUpdate(child, patch.prevProps, patch.props)
       patch.children.forEach((p, i) => applyPatch(child, p, i))
     }
     break

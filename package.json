@@ -33,12 +33,13 @@
     "gen:x3d:types": "node scripts/generate-x3d.js --types",
     "gen:x3d": "npm run -s gen:x3d:runtime",
     "fetch:x3dom-src": "node scripts/fetch-x3dom-src.js",
-    "build:types": "npm run -s clean:types && npm run -s gen:x3d:runtime && tsc -p tsconfig.json && npm run -s gen:x3d:types",
+    "build:types": "node scripts/build-types.js",
     "prepack": "npm run -s build:types",
     "preview": "vite preview",
     "prepublishOnly": "npm run -s typecheck && npm test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test test/*.test.* --test-reporter spec"
+    "test": "node --test test/*.test.* --test-reporter spec",
+    "test:coverage": "node scripts/test-coverage.js"
   },
   "repository": {
     "type": "git",

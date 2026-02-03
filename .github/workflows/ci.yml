@@ -25,8 +25,8 @@ jobs:
       - name: Build Types
         run: npm run -s build:types
 
-      - name: Test
-        run: npm test
+      - name: Test (coverage)
+        run: npm run -s test:coverage
 
       - name: Build
         run: npm run -s build
