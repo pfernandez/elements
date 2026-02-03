@@ -1162,4 +1162,47 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test(
+    'render() maintains child order across inserts and removals',
+    () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+
+    const view = items =>
+      div({}, ...items.map(x => div({ id: x }, x)))
+
+    const labels = () =>
+      container.childNodes[0].childNodes
+        .map(child => child.attributes.id)
+
+    render(view(['a', 'b', 'c']), container)
+    assert.deepEqual(labels(), ['a', 'b', 'c'])
+
+    // remove middle
+    render(view(['a', 'c']), container)
+    assert.deepEqual(labels(), ['a', 'c'])
+
+    // insert at head
+    render(view(['x', 'a', 'c']), container)
+    assert.deepEqual(labels(), ['x', 'a', 'c'])
+
+    // insert in middle and tail
+    render(view(['x', 'a', 'y', 'c', 'z']), container)
+    assert.deepEqual(labels(), ['x', 'a', 'y', 'c', 'z'])
+
+    // remove head and tail
+    render(view(['a', 'y', 'c']), container)
+    assert.deepEqual(labels(), ['a', 'y', 'c'])
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+    }
+  )
 })
