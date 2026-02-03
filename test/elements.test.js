@@ -571,4 +571,78 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('async event handlers may return a vnode to update', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const AsyncCounter = component((n = 0) =>
+      div({},
+        output(n),
+        button({
+          onclick: async () => Promise.resolve(AsyncCounter(n + 1))
+        }, 'inc')
+      )
+    )
+
+    const container = document.createElement('div')
+    render(AsyncCounter(0), container)
+
+    const root = container.childNodes[0]
+    assert.equal(root.childNodes[0].childNodes[0].nodeValue, '0')
+
+    await root.childNodes[1].onclick({})
+    assert.equal(container.childNodes[0].childNodes[0].childNodes[0].nodeValue, '1')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('async form handlers preventDefault only when returning a vnode', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container1 = document.createElement('div')
+
+    let prevented = 0
+    const event = {
+      preventDefault: () => { prevented++ },
+      target: { elements: { todo: { value: 'x' } } }
+    }
+
+    const App = component((n = 0) =>
+      form({
+        onsubmit: async ({ todo: { value } }) =>
+          value ? Promise.resolve(App(n + 1)) : undefined
+      }, input({ name: 'todo' }), button({ type: 'submit' }, 'go'))
+    )
+
+    render(App(0), container1)
+    await container1.childNodes[0].onsubmit(event)
+
+    assert.equal(prevented, 1)
+
+    const Passive = component(() =>
+      form({ onsubmit: async () => Promise.resolve(undefined) },
+        input({ name: 'todo' }),
+        button({ type: 'submit' }, 'go'))
+    )
+
+    const container2 = document.createElement('div')
+    render(Passive(), container2)
+    await container2.childNodes[0].onsubmit(event)
+
+    assert.equal(prevented, 1)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })
