@@ -1,5 +1,14 @@
 import { elements } from './core/elements.js'
 
+/**
+ * <html>
+ * The root element of an HTML document.
+ *
+ * Note: when `html(...)` is used as the top-level vnode, `render()` will mount
+ * into `document.documentElement` automatically.
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/html
+ *
+ */
 export const html = elements.html
 
 /**

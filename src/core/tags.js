@@ -1,5 +1,5 @@
 /** @internal */
-export const htmlTagNames = [
+export const htmlTagNames = /** @type {const} */ ([
   // Document metadata
   'html',
   'head',
@@ -138,10 +138,10 @@ export const htmlTagNames = [
   'map',
   'area',
   'slot'
-]
+])
 
 /** @internal */
-export const svgTagNames = [
+export const svgTagNames = /** @type {const} */ ([
   // Animation elements
   'animate',
   'animateMotion',
@@ -222,4 +222,4 @@ export const svgTagNames = [
 
   // View
   'view'
-]
+])
