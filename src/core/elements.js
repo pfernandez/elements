@@ -416,10 +416,10 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 
   assignProperties(el, props, propsEnv)
 
-  children.forEach(child => {
-    const childEl = renderTree(child, false, childNamespaceURI)
+  for (let i = 0; i < children.length; i++) {
+    const childEl = renderTree(children[i], false, childNamespaceURI)
     el.appendChild(childEl)
-  })
+  }
 
   return el
 }
@@ -462,7 +462,9 @@ const applyPatch = (parent, patch, index = 0) => {
   case 'UPDATE':
     if (child) {
       applyPropsUpdate(child, patch.prevProps, patch.props)
-      patch.children.forEach((p, i) => applyPatch(child, p, i))
+      for (let i = 0; i < patch.children.length; i++) {
+        applyPatch(child, patch.children[i], i)
+      }
     }
     break
   }

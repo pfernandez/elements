@@ -5,8 +5,15 @@ const run = args => {
   if (result.status) process.exit(result.status)
 }
 
+const runTsc = () => {
+  const bin = process.platform === 'win32'
+    ? 'node_modules/.bin/tsc.cmd'
+    : 'node_modules/.bin/tsc'
+  const result = spawnSync(bin, ['-p', 'tsconfig.json'], { stdio: 'inherit' })
+  if (result.status) process.exit(result.status)
+}
+
 run(['clean:types'])
 run(['gen:x3d:runtime'])
-run(['typecheck'])
+runTsc()
 run(['gen:x3d:types'])
-

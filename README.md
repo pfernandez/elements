@@ -213,6 +213,22 @@ property exceptions (when the property exists on the element): `value`,
 `checked`, `selected`, `disabled`, `multiple`, `muted`, `volume`,
 `currentTime`, `playbackRate`, `open`, `indeterminate`.
 
+## Development
+
+```sh
+npm test
+npm run -s test:coverage
+npm run -s typecheck
+npm run -s build:types
+```
+
+To refresh upstream X3DOM docs for type generation after updating vendor
+bundles (manual step; requires network access):
+
+```sh
+npm run -s fetch:x3dom-src
+```
+
 ## API
 
 ### `component(fn)`

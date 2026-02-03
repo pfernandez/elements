@@ -1,77 +1,45 @@
 # Testing Philosophy: Elements.js
 
-Elements.js is designed around **purity**, **immutability**, and **data-in/data-out UI logic**.
+Elements.js is designed around purity at the *API* boundary: tag helpers and
+components are plain functions that return plain data (vnode arrays).
 
-This testing suite reflects that philosophy:
-
----
+Internally, the framework does imperative DOM work (patching, event wiring, and
+`ontick`). The tests treat those internals as an implementation detail, but
+they still verify the *behavioral contract* that users rely on.
 
 ## What We Test
 
-### Element Structure
+- **Vnode shape:** exported tag helpers return `[tag, props, ...children]`.
+- **Declarative events:** returning a vnode from an event handler replaces the
+  closest component boundary; passive returns do nothing.
+- **Form handler signature:** `onsubmit`, `oninput`, `onchange` receive
+  `(elements, event)` and only call `preventDefault()` when returning a vnode.
+- **`render()` behavior:** initial mount, diff+patch updates, prop updates and
+  removals, and child add/remove behavior.
+- **`ontick`:** readiness gating, stop-on-throw, and stop-on-Promise.
 
-* Every exported tag (e.g. `div`, `svg`, `form`) is a pure function.
-* It returns a **vnode array**: `['tag', props, ...children]`
-* Props and children must appear in the correct positions.
+## How We Test (No jsdom Required)
 
-### Event Listeners
+Tests run in Node using `node:test` and `assert`. For DOM behavior, tests use a
+small in-repo fake DOM implementation (see `test/fake-dom.js`) instead of a
+full browser or `jsdom`.
 
-* Event handlers return vnodes to declaratively update the view.
-* Special cases like `onsubmit`, `oninput`, `onchange` receive `(elements, event)`.
-* Listeners returning falsy values (`null`, `false`, `''`) are treated as passive.
+The goal is to keep tests:
 
-### Components
-
-* `component(fn)` wraps a recursive, stateless function that can call itself with new arguments.
-* Recursive updates should return well-formed vnodes and trigger no side effects.
-
----
-
-## What We Don't Test
-
-We **do not** test:
-
-* Real DOM rendering or patching (that’s internal)
-* Whether `preventDefault()` was called (covered by behavior, not inspection)
-* Any mutation of the DOM
-* Internal utilities like `assignProperties`, `diffTree`, or `render` directly
-
-Instead, we test only what is **observable through public exports**.
-
----
-
-## Purity Contract
-
-> **Every test must be resolvable by examining the return value.**
-> No test depends on the DOM, mutation, timers, side effects, or internal state.
-
-This allows the entire system to be:
-
-* Predictable
-* Stateless
-* Transparent
-
-And trivially portable to other runtimes (SSR, testing, WASM, etc).
-
----
+- **Behavioral:** assert user-visible outcomes, not private helpers.
+- **Portable:** no headless browser dependency.
+- **Fast:** runs in CI on every push.
 
 ## Running Tests
 
 ```bash
-node --test
+npm test
 ```
 
-All tests use native `node:test` and `assert`—no external dependencies.
+## Coverage
 
----
+CI enforces coverage thresholds via Node’s test runner coverage mode.
 
-## Adding New Tests
-
-When adding features, ask:
-
-* Is this behavior observable at the vnode or component level?
-* Can it be tested using only function return values and inputs?
-
-If yes → write a test.
-If not → consider whether the feature belongs in this framework at all.
-
+```bash
+npm run -s test:coverage
+```

@@ -48,19 +48,19 @@ const propertyExceptionDefaults = {
   indeterminate: false
 }
 
-const applyTickProp = ({ el, key, value, env: _env }) =>
+const applyTickProp = (el, key, value, _env) =>
   key !== 'ontick' || typeof value !== 'function'
     ? false
     : (tap(undefined, () => el.ontick = value),
       startTickLoop(el, value, { ready: isX3DOMReadyFor }),
       true)
 
-const applyPropertyExceptionProp = ({ el, key, value, env: _env }) =>
+const applyPropertyExceptionProp = (el, key, value, _env) =>
   !(key in propertyExceptions) || !(key in el)
     ? false
     : (tap(undefined, () => el[propertyExceptions[key]] = value), true)
 
-const applyEventProp = ({ el, key, value, env }) =>
+const applyEventProp = (el, key, value, env) =>
   !isEventProp(key, value)
     ? false
     : (el[key] = createDeclarativeEventHandler({
@@ -75,17 +75,17 @@ const applyEventProp = ({ el, key, value, env }) =>
     }),
     true)
 
-const applyStyleProp = ({ el, key, value, env: _env }) =>
+const applyStyleProp = (el, key, value, _env) =>
   key !== 'style' || !isObject(value)
     ? false
     : (Object.assign(el.style, value), true)
 
-const applyInnerHTMLProp = ({ el, key, value, env: _env }) =>
+const applyInnerHTMLProp = (el, key, value, _env) =>
   key !== 'innerHTML'
     ? false
     : (tap(undefined, () => el.innerHTML = value), true)
 
-const applyAttributeProp = ({ el, key, value, env }) =>
+const applyAttributeProp = (el, key, value, env) =>
   (el.namespaceURI === env.svgNS
     ? el.setAttributeNS(null, key, value)
     : el.setAttribute(key, value),
@@ -167,6 +167,9 @@ export const removeMissingProps = (el, prevProps, nextProps) =>
  * }} env
  */
 export const assignProperties = (el, props, env) =>
-  Object.keys(props).forEach(key =>
-    appliers.some(apply => apply({ el, key, value: props[key], env }))
-  )
+  Object.keys(props).forEach(key => {
+    const value = props[key]
+    for (let i = 0; i < appliers.length; i++) {
+      if (appliers[i](el, key, value, env)) break
+    }
+  })
