@@ -103,14 +103,18 @@ const svgNS = 'http://www.w3.org/2000/svg'
 /**
  * Common global HTML attributes.
  *
+ * This is a permissive shared set: some attributes only apply to certain
+ * elements in the HTML spec, but Elements.js accepts them everywhere because
+ * the underlying DOM will ignore irrelevant attributes.
+ *
  * This is not exhaustive; `data-*` and `aria-*` are supported via template
  * keys below.
  *
  * @typedef {{
  *   id?: string,
  *   class?: string,
- *   title?: string,
- *   role?: string,
+  *   title?: string,
+  *   role?: string,
  *   part?: string,
  *   slot?: string,
  *   exportparts?: string,
@@ -127,14 +131,15 @@ const svgNS = 'http://www.w3.org/2000/svg'
  *   dir?: 'ltr' | 'rtl' | 'auto',
  *   is?: string,
  *   contenteditable?: 'true' | 'false' | 'plaintext-only' | boolean,
- *   inputmode?: string,
- *   enterkeyhint?: string,
- *   autocapitalize?: string,
- *   autofocus?: boolean,
- *   popover?: 'auto' | 'manual',
- *   itemscope?: boolean,
- *   itemtype?: string,
- *   itemid?: string,
+  *   inputmode?: string,
+  *   enterkeyhint?: string,
+  *   autocapitalize?: string,
+  *   autofocus?: boolean,
+  *   virtualkeyboardpolicy?: string,
+  *   popover?: 'auto' | 'manual',
+  *   itemscope?: boolean,
+  *   itemtype?: string,
+  *   itemid?: string,
  *   itemprop?: string,
  *   itemref?: string,
  *   vocab?: string,

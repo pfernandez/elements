@@ -194,6 +194,11 @@ The goal is for the type definitions to be the canonical reference for:
 * DOM events (including the special form-event signature)
 * Elements.js-only props like `style`, `innerHTML`, and `ontick`
 
+Most props are assigned as attributes. A small set of keys are treated as
+property exceptions (when the property exists on the element): `value`,
+`checked`, `selected`, `disabled`, `multiple`, `muted`, `volume`,
+`currentTime`, `playbackRate`, `open`, `indeterminate`.
+
 ## API
 
 ### `component(fn)`
