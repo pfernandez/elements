@@ -18,12 +18,31 @@ const isObject = x =>
 const isX3DOMReadyFor = el =>
   (x3d => !x3d || !!x3d.runtime)(el?.closest?.('x3d'))
 
+const propertyExceptions = {
+  value: 'value',
+  checked: 'checked',
+  selected: 'selected',
+  disabled: 'disabled',
+  multiple: 'multiple',
+  muted: 'muted',
+  volume: 'volume',
+  currentTime: 'currentTime',
+  playbackRate: 'playbackRate',
+  open: 'open',
+  indeterminate: 'indeterminate'
+}
+
 const applyTickProp = ({ el, key, value, env: _env }) =>
   key !== 'ontick' || typeof value !== 'function'
     ? false
     : (el.ontick = value,
       startTickLoop(el, value, { ready: isX3DOMReadyFor }),
       true)
+
+const applyPropertyExceptionProp = ({ el, key, value, env: _env }) =>
+  !(key in propertyExceptions) || !(key in el)
+    ? false
+    : (el[propertyExceptions[key]] = value, true)
 
 const applyEventProp = ({ el, key, value, env }) =>
   !isEventProp(key, value)
@@ -47,21 +66,15 @@ const applyInnerHTMLProp = ({ el, key, value, env: _env }) =>
   key !== 'innerHTML' ? false : (el.innerHTML = value, true)
 
 const applyAttributeProp = ({ el, key, value, env }) => {
-  try {
-    el.namespaceURI === env.svgNS
-      ? el.setAttributeNS(null, key, value)
-      : el.setAttribute(key, value)
-  } catch {
-    env.debug
-      && console.warn(
-        `Illegal DOM property assignment for ${el.tagName}: ${key}: ${value}`
-      )
-  }
-  return true
+  return (el.namespaceURI === env.svgNS
+    ? el.setAttributeNS(null, key, value)
+    : el.setAttribute(key, value),
+  true)
 }
 
 const appliers = [
   applyTickProp,
+  applyPropertyExceptionProp,
   applyEventProp,
   applyStyleProp,
   applyInnerHTMLProp,

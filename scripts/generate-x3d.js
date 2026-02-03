@@ -379,6 +379,10 @@ const writeX3DBaseTypes = byName => {
 }
 
 const main = () => {
+  const args = new Set(process.argv.slice(2))
+  const wantsRuntime = args.size === 0 || args.has('--runtime')
+  const wantsTypes = args.size === 0 || args.has('--types')
+
   if (!fs.existsSync(x3domVendorCorePath)) {
     console.error(`Could not find vendored x3dom core at: ${x3domVendorCorePath}`)
     process.exit(1)
@@ -393,10 +397,10 @@ const main = () => {
 
   const byName = fullRegistry
 
-  writeX3DHelpersRuntime(byName)
-  writeX3DEntrypointTypes()
-  writeX3DTypes(byName)
-  writeX3DBaseTypes(byName)
+  wantsRuntime && writeX3DHelpersRuntime(byName)
+  wantsTypes && writeX3DEntrypointTypes()
+  wantsTypes && writeX3DTypes(byName)
+  wantsTypes && writeX3DBaseTypes(byName)
 }
 
 main()

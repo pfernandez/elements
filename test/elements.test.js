@@ -414,4 +414,63 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('render() uses setAttributeNS for SVG elements', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(svg({ width: 100, height: 100 }), container)
+
+    const el = container.childNodes[0]
+    assert.equal(el.tagName.toLowerCase(), 'svg')
+    assert.equal(el.__setAttributeCount > 0, true)
+    assert.equal(el.__setAttributeNSCount > 0, true)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('innerHTML prop assigns directly', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ innerHTML: '<b>ok</b>' }), container)
+
+    const el = container.childNodes[0]
+    assert.equal(el.innerHTML, '<b>ok</b>')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('property exceptions assign properties (not attributes)', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const container = document.createElement('div')
+    render(div({ value: 'hi', checked: true }), container)
+
+    const el = container.childNodes[0]
+    assert.equal(el.value, 'hi')
+    assert.equal(el.checked, true)
+    assert.equal(el.attributes.value, undefined)
+    assert.equal(el.attributes.checked, undefined)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })

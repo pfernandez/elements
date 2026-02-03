@@ -1,0 +1,50 @@
+/**
+ * Fetch X3DOM source into `.cache/` so `scripts/generate-x3d.js` can extract
+ * JSDoc descriptions and fields from upstream node definitions.
+ *
+ * This is intentionally a manual step: it requires network access.
+ *
+ * Usage:
+ *   node scripts/fetch-x3dom-src.js
+ *   node scripts/fetch-x3dom-src.js 1.8.4
+ */
+
+import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+
+const repoRoot = path.resolve(import.meta.dirname, '..')
+const x3domVendorCorePath = path.join(repoRoot, 'vendor', 'x3dom.js')
+
+const readVendoredVersion = () => {
+  if (!fs.existsSync(x3domVendorCorePath)) return null
+  const src = fs.readFileSync(x3domVendorCorePath, 'utf8')
+  const m = src.match(/X3DOM\s+([0-9]+\.[0-9]+\.[0-9]+)/)
+  return m?.[1] || null
+}
+
+const version = process.argv[2] || readVendoredVersion()
+
+if (!version) {
+  console.error('Could not determine X3DOM version (pass one explicitly).')
+  process.exit(1)
+}
+
+const cacheDir = path.join(repoRoot, '.cache')
+const outDir = path.join(cacheDir, `x3dom-src-${version}`)
+
+if (fs.existsSync(outDir)) {
+  console.log(`Already present: ${outDir}`)
+  process.exit(0)
+}
+
+fs.mkdirSync(cacheDir, { recursive: true })
+
+const repoUrl = 'https://github.com/x3dom/x3dom.git'
+const tag = `v${version}`
+
+console.log(`Cloning ${repoUrl} (${tag}) -> ${outDir}`)
+execFileSync('git', ['clone', '--depth', '1', '--branch', tag, repoUrl, outDir], {
+  stdio: 'inherit'
+})
+

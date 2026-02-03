@@ -111,18 +111,32 @@ const svgNS = 'http://www.w3.org/2000/svg'
  *   class?: string,
  *   title?: string,
  *   role?: string,
- *   tabindex?: number | string,
- *   hidden?: boolean,
  *   draggable?: boolean,
- *   contenteditable?: 'true' | 'false' | 'plaintext-only' | boolean,
+ *   hidden?: boolean,
+ *   inert?: boolean,
  *   spellcheck?: boolean,
- *   dir?: 'ltr' | 'rtl' | 'auto',
- *   lang?: string,
- *   translate?: 'yes' | 'no',
+ *   tabindex?: number | string,
  *   accesskey?: string,
- *   autocapitalize?: string,
+ *   translate?: 'yes' | 'no',
+ *   lang?: string,
+ *   dir?: 'ltr' | 'rtl' | 'auto',
+ *   is?: string,
+ *   contenteditable?: 'true' | 'false' | 'plaintext-only' | boolean,
  *   inputmode?: string,
- *   is?: string
+ *   enterkeyhint?: string,
+ *   autocapitalize?: string,
+ *   autofocus?: boolean,
+ *   popover?: 'auto' | 'manual',
+ *   itemscope?: boolean,
+ *   itemtype?: string,
+ *   itemid?: string,
+ *   itemprop?: string,
+ *   itemref?: string,
+ *   vocab?: string,
+ *   typeof?: string,
+ *   property?: string,
+ *   resource?: string,
+ *   prefix?: string
  * }} ElementsGlobalAttributes
  */
 
@@ -150,10 +164,26 @@ const svgNS = 'http://www.w3.org/2000/svg'
 /**
  * Special (non-attribute) props supported by Elements.js.
  *
+ * Note: some props are assigned as DOM properties (when present on the target
+ * element) rather than attributes: `value`, `checked`, `selected`, `disabled`,
+ * `multiple`, `muted`, `volume`, `currentTime`, `playbackRate`, `open`,
+ * `indeterminate`.
+ *
  * @typedef {{
  *   style?: ElementsStyleObject,
  *   innerHTML?: string,
- *   ontick?: ElementsOnTick
+ *   ontick?: ElementsOnTick,
+ *   value?: string | number,
+ *   checked?: boolean,
+ *   selected?: boolean,
+ *   disabled?: boolean,
+ *   multiple?: boolean,
+ *   muted?: boolean,
+ *   volume?: number,
+ *   currentTime?: number,
+ *   playbackRate?: number,
+ *   open?: boolean,
+ *   indeterminate?: boolean
  * }} ElementsSpecialProps
  */
 

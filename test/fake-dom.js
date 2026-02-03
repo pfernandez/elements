@@ -49,13 +49,28 @@ export const createFakeDom = () => {
       this.attributes = {}
       this.style = {}
       this.innerHTML = ''
+      this.value = ''
+      this.checked = false
+      this.selected = false
+      this.disabled = false
+      this.multiple = false
+      this.muted = false
+      this.volume = 1
+      this.currentTime = 0
+      this.playbackRate = 1
+      this.open = false
+      this.indeterminate = false
+      this.__setAttributeCount = 0
+      this.__setAttributeNSCount = 0
     }
 
     setAttribute(key, value) {
+      this.__setAttributeCount++
       this.attributes[key] = String(value)
     }
 
     setAttributeNS(_ns, key, value) {
+      this.__setAttributeNSCount++
       this.setAttribute(key, value)
     }
   }
@@ -93,4 +108,3 @@ export const createFakeDom = () => {
   const document = new FakeDocument()
   return { document }
 }
-
