@@ -524,4 +524,51 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
+
+  test('event handler update replaces closest component boundary', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = { location: { pathname: '/', search: '', hash: '' }, history: { pushState: () => {} } }
+
+    const Inner = component((n = 0) =>
+      div({},
+        output(n),
+        button({ onclick: () => Inner(n + 1) }, 'inc')
+      )
+    )
+
+    const Outer = component(() =>
+      div({},
+        div({ id: 'sentinel' }, 'outer'),
+        Inner(0)
+      )
+    )
+
+    const container = document.createElement('div')
+    render(Outer(), container)
+
+    const outerRoot = container.childNodes[0]
+    const sentinel = outerRoot.childNodes[0]
+    const innerRoot = outerRoot.childNodes[1]
+
+    assert.equal(sentinel.attributes.id, 'sentinel')
+    assert.equal(sentinel.childNodes[0].nodeValue, 'outer')
+    assert.equal(innerRoot.childNodes[0].childNodes[0].nodeValue, '0')
+
+    await innerRoot.childNodes[1].onclick({})
+
+    const outerRoot2 = container.childNodes[0]
+    const sentinel2 = outerRoot2.childNodes[0]
+    const innerRoot2 = outerRoot2.childNodes[1]
+
+    assert.equal(sentinel2.attributes.id, 'sentinel')
+    assert.equal(sentinel2.childNodes[0].nodeValue, 'outer')
+    assert.equal(innerRoot2.childNodes[0].childNodes[0].nodeValue, '1')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })
