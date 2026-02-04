@@ -206,14 +206,18 @@ runtime to be ready before ticking.
 
 ## X3D / X3DOM (experimental)
 
-This package includes elements for X3DOM’s supported X3D node set. You can
-import them from `@pfern/elements/3d` and create 3D scenes
+The optional `@pfern/elements-3d` package includes elements for X3DOM’s
+supported X3D node set. You can import them and create 3D scenes
 declaratively:
+
+```sh
+npm i @pfern/elements @pfern/elements-3d
+```
 
 ### Demo: Interactive 3D Cube
 ```js
 import { appearance, box, material, scene,
-         shape, transform, viewpoint, x3d } from '@pfern/elements/3d'
+         shape, transform, viewpoint, x3d } from '@pfern/elements-3d'
 
 export const cubeScene = () =>
   x3d(

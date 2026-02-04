@@ -1,10 +1,12 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const repoRoot = path.resolve(import.meta.dirname, '..')
-const x3domVendorCorePath = path.join(repoRoot, 'vendor', 'x3dom.js')
-const x3domVendorFullPath = path.join(repoRoot, 'vendor', 'x3dom-full.js')
-const typesDir = path.join(repoRoot, 'types')
+const pkgRoot = path.resolve(import.meta.dirname, '..')
+const repoRoot = path.resolve(pkgRoot, '..', '..')
+
+const x3domVendorCorePath = path.join(pkgRoot, 'vendor', 'x3dom.js')
+const x3domVendorFullPath = path.join(pkgRoot, 'vendor', 'x3dom-full.js')
+const typesDir = path.join(pkgRoot, 'types')
 const typesSrcDir = path.join(typesDir, 'src')
 
 const ensureDir = dir => fs.mkdirSync(dir, { recursive: true })
@@ -58,13 +60,6 @@ const wrapDoc = (text, { indent = ' * ' } = {}) => {
 }
 
 const extractClassDescFromFile = fileText => {
-  // Prefer @classdesc content from the constructor JSDoc block.
-  // Typical shape:
-  //   /**
-  //    * ...
-  //    * @classdesc Some text...
-  //    * More text...
-  //    */
   const blockRe = /\/\*\*([\s\S]*?)\*\//g
   let match
   while ((match = blockRe.exec(fileText))) {
@@ -77,7 +72,6 @@ const extractClassDescFromFile = fileText => {
       .split('\n')
       .map(l => l.replace(/^\s*\*\s?/, ''))
 
-    // Stop when we hit another @tag at the start of a line.
     const out = []
     for (const line of lines) {
       const trimmed = line.trimEnd()
@@ -93,9 +87,6 @@ const extractClassDescFromFile = fileText => {
 }
 
 const extractFieldsFromFile = fileText => {
-  // Extract addField_* calls.
-  // Typical: this.addField_SFString( ctx, "title", "" );
-  // Some nodes use addField_... (ctx, "name", ...) with whitespace/newlines.
   const re = /this\.addField_([A-Za-z0-9]+)\(\s*ctx\s*,\s*\"([^\"]+)\"/g
   const fields = []
   let match
@@ -270,7 +261,7 @@ const writeX3DHelpersRuntime = byName => {
     )
     lines.push('')
   }
-  const outPath = path.join(repoRoot, 'src', '3d.js')
+  const outPath = path.join(pkgRoot, 'src', '3d.js')
   fs.writeFileSync(outPath, lines.join('\n'))
 }
 
@@ -373,18 +364,18 @@ const writeX3DTypes = byName => {
     lines.push('}')
     lines.push('')
 
-	    lines.push('/**')
-	    lines.push(...wrapDoc(desc))
-	    if (exp !== tag) {
-	      lines.push(` *`)
-	      lines.push(
-	        ` * Exported as \`${exp}\` to avoid colliding with the `
-	          + `HTML/SVG \`${tag}\` helper.`
-	      )
-	    }
-	    lines.push(` * @see ${url}`)
-	    lines.push(' */')
-	    lines.push(`export const ${exp}: ElementHelper<${propsName}>;`)
+    lines.push('/**')
+    lines.push(...wrapDoc(desc))
+    if (exp !== tag) {
+      lines.push(` *`)
+      lines.push(
+        ` * Exported as \`${exp}\` to avoid colliding with the `
+          + `HTML/SVG \`${tag}\` helper.`
+      )
+    }
+    lines.push(` * @see ${url}`)
+    lines.push(' */')
+    lines.push(`export const ${exp}: ElementHelper<${propsName}>;`)
     lines.push('')
   }
 
@@ -401,29 +392,29 @@ const writeX3DBaseTypes = byName => {
     .filter(([name]) => name.startsWith('X3D'))
     .map(([name, component]) => ({ name, component }))
 
-	  const lines = []
-	  lines.push('/**')
-	  lines.push(' * Abstract base types for X3D nodes (not tag helpers).')
-	  lines.push(' *')
-	  lines.push(
-	    ' * These are exported as `type` aliases to enable typing and '
-	      + 'documentation lookups,'
-	  )
-	  lines.push(
-	    ' * without implying that each base type is a concrete tag helper.'
-	  )
-	  lines.push(' *')
-	  lines.push(
-	    ' * Descriptions are sourced from the X3DOM project’s node JSDoc '
-	      + '(when available).'
-	  )
-	  lines.push(' */')
-	  lines.push('')
-	  lines.push(
-	    'type X3DBaseNode = '
-	      + '[tag: string, props: Record<string, any>, ...children: any[]];'
-	  )
-	  lines.push('')
+  const lines = []
+  lines.push('/**')
+  lines.push(' * Abstract base types for X3D nodes (not tag helpers).')
+  lines.push(' *')
+  lines.push(
+    ' * These are exported as `type` aliases to enable typing and '
+      + 'documentation lookups,'
+  )
+  lines.push(
+    ' * without implying that each base type is a concrete tag helper.'
+  )
+  lines.push(' *')
+  lines.push(
+    ' * Descriptions are sourced from the X3DOM project’s node JSDoc '
+      + '(when available).'
+  )
+  lines.push(' */')
+  lines.push('')
+  lines.push(
+    'type X3DBaseNode = '
+      + '[tag: string, props: Record<string, any>, ...children: any[]];'
+  )
+  lines.push('')
   lines.push('/**')
   const x3dNodeDesc =
     docsByPascal.get('X3DNode')
@@ -455,12 +446,12 @@ const main = () => {
   const wantsRuntime = args.size === 0 || args.has('--runtime')
   const wantsTypes = args.size === 0 || args.has('--types')
 
-	  if (!fs.existsSync(x3domVendorCorePath)) {
-	    console.error(
-	      `Could not find vendored x3dom core at: ${x3domVendorCorePath}`
-	    )
-	    process.exit(1)
-	  }
+  if (!fs.existsSync(x3domVendorCorePath)) {
+    console.error(
+      `Could not find vendored x3dom core at: ${x3domVendorCorePath}`
+    )
+    process.exit(1)
+  }
 
   const coreSource = fs.readFileSync(x3domVendorCorePath, 'utf8')
   const coreRegistry = parseRegistry(coreSource)
@@ -478,3 +469,4 @@ const main = () => {
 }
 
 main()
+

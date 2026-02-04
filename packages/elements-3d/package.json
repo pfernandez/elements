@@ -1,0 +1,43 @@
+{
+  "name": "@pfern/elements-3d",
+  "version": "0.1.11",
+  "description": "X3DOM-powered X3D helpers for Elements.js.",
+  "author": "Paul Fernandez",
+  "license": "MIT",
+  "type": "module",
+  "types": "./types/3d.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/3d.d.ts",
+      "import": "./3d.js",
+      "default": "./3d.js"
+    }
+  },
+  "files": [
+    "./3d.js",
+    "./env.d.ts",
+    "./src",
+    "./vendor",
+    "./types"
+  ],
+  "scripts": {
+    "clean:types": "node scripts/clean-types.js",
+    "gen:x3d:runtime": "node scripts/generate-x3d.js --runtime",
+    "gen:x3d:types": "node scripts/generate-x3d.js --types",
+    "fetch:x3dom-src": "node scripts/fetch-x3dom-src.js",
+    "build:types": "node scripts/build-types.js",
+    "typecheck": "node scripts/typecheck.js",
+    "test": "node --test test/*.test.* --test-reporter spec",
+    "test:coverage": "node scripts/test-coverage.js"
+  },
+  "peerDependencies": {
+    "@pfern/elements": "*"
+  },
+  "keywords": [
+    "x3d",
+    "x3dom",
+    "3d",
+    "elements"
+  ]
+}
+

@@ -13,8 +13,10 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 
-const repoRoot = path.resolve(import.meta.dirname, '..')
-const x3domVendorCorePath = path.join(repoRoot, 'vendor', 'x3dom.js')
+const pkgRoot = path.resolve(import.meta.dirname, '..')
+const repoRoot = path.resolve(pkgRoot, '..', '..')
+
+const x3domVendorCorePath = path.join(pkgRoot, 'vendor', 'x3dom.js')
 
 const readVendoredVersion = () => {
   if (!fs.existsSync(x3domVendorCorePath)) return null
@@ -40,12 +42,11 @@ if (fs.existsSync(outDir)) {
 
 fs.mkdirSync(cacheDir, { recursive: true })
 
-const repoUrl = 'https://github.com/x3dom/x3dom.git'
-const tag = `v${version}`
+console.log(`Fetching X3DOM source v${version} into: ${outDir}`)
 
-console.log(`Cloning ${repoUrl} (${tag}) -> ${outDir}`)
 execFileSync(
   'git',
-  ['clone', '--depth', '1', '--branch', tag, repoUrl, outDir],
+  ['clone', '--depth', '1', '--branch', version, 'https://github.com/x3dom/x3dom', outDir],
   { stdio: 'inherit' }
 )
+

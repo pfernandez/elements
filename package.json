@@ -11,28 +11,17 @@
       "types": "./types/elements.d.ts",
       "import": "./elements.js",
       "default": "./elements.js"
-    },
-    "./3d": {
-      "types": "./types/3d.d.ts",
-      "import": "./3d.js",
-      "default": "./3d.js"
     }
   },
   "files": [
     "./elements.js",
-    "./3d.js",
     "./src",
-    "./vendor",
     "./types"
   ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "clean:types": "node scripts/clean-types.js",
-    "gen:x3d:runtime": "node scripts/generate-x3d.js --runtime",
-    "gen:x3d:types": "node scripts/generate-x3d.js --types",
-    "gen:x3d": "npm run -s gen:x3d:runtime",
-    "fetch:x3dom-src": "node scripts/fetch-x3dom-src.js",
     "build:types": "node scripts/build-types.js",
     "prepack": "npm run -s build:types",
     "preview": "vite preview",
@@ -40,6 +29,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test test/*.test.* --test-reporter spec",
     "test:coverage": "node scripts/test-coverage.js",
+    "3d:typecheck": "npm --prefix packages/elements-3d run -s typecheck",
+    "3d:build:types": "npm --prefix packages/elements-3d run -s build:types",
+    "3d:test": "npm --prefix packages/elements-3d test",
+    "3d:test:coverage": "npm --prefix packages/elements-3d run -s test:coverage",
     "pkg:report": "node scripts/package-report.js"
   },
   "repository": {
