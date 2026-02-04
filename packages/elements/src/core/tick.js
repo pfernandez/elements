@@ -28,7 +28,8 @@ export const stopTickLoop = el =>
           && typeof window?.cancelAnimationFrame === 'function'
           && window.cancelAnimationFrame(state.rafId),
       tickStateMap.delete(el),
-      undefined))(tickStateMap.get(el))
+      undefined)
+  )(tickStateMap.get(el))
 
 /**
  * Start (or restart) a tick loop for an element.
@@ -58,11 +59,9 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
 
   const existing = tickStateMap.get(el)
 
-  const same = existing?.handler === handler
+  if (existing?.handler === handler
     && existing?.ready === ready
-    && existing?.running
-
-  if (same) return
+    && existing?.running) return
 
   existing && stopTickLoop(el)
 
@@ -80,8 +79,8 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
 
   const step = t => {
     const connected = isConnected(el)
-    const done = !state.running || !connected && state.wasConnected
-    if (done) return stopTickLoop(el)
+    if (!state.running || (!connected && state.wasConnected))
+      return stopTickLoop(el)
 
     if (!connected) {
       state.lastTime = null

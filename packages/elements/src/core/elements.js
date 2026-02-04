@@ -32,9 +32,9 @@ const svgNS = 'http://www.w3.org/2000/svg'
 const rootMap = new WeakMap()
 
 const getVNode = el => el?.__vnode
-const setVNode = (el, vnode) => el.__vnode = vnode
+const setVNode = (el, vnode) => (el.__vnode = vnode)
 const isRoot = el => !!el?.__root
-const setRoot = el => el.__root = true
+const setRoot = el => (el.__root = true)
 
 const isNodeEnv = () => typeof document === 'undefined'
 
@@ -42,7 +42,7 @@ let componentUpdateDepth = 0
 let currentEventRoot = null
 
 const getCurrentEventRoot = () => currentEventRoot
-const setCurrentEventRoot = el => currentEventRoot = el
+const setCurrentEventRoot = el => (currentEventRoot = el)
 
 const isObject = x =>
   typeof x === 'object'
@@ -52,7 +52,8 @@ const shallowObjectEqual = (a, b) => {
   if (a === b) return true
   if (!isObject(a) || !isObject(b)) return false
   const aKeys = Object.keys(a)
-  if (aKeys.length !== Object.keys(b).length) return false
+  const bKeys = Object.keys(b)
+  if (aKeys.length !== bKeys.length) return false
   for (let i = 0; i < aKeys.length; i++) {
     const key = aKeys[i]
     if (!(key in b) || a[key] !== b[key]) return false
@@ -64,7 +65,8 @@ const propsEqual = (a, b) => {
   if (a === b) return true
   if (!isObject(a) || !isObject(b)) return false
   const aKeys = Object.keys(a)
-  if (aKeys.length !== Object.keys(b).length) return false
+  const bKeys = Object.keys(b)
+  if (aKeys.length !== bKeys.length) return false
   for (let i = 0; i < aKeys.length; i++) {
     const key = aKeys[i]
     if (!(key in b)) return false
@@ -103,19 +105,21 @@ const diffTree = (a, b) => {
   if (a == null) return { type: 'CREATE', newNode: b }
   if (b == null) return { type: 'REMOVE' }
   if (changed(a, b)) return { type: 'REPLACE', newNode: b }
-  if (Array.isArray(a) && Array.isArray(b)) {
-    const prevProps = a[1] || {}
-    const nextProps = b[1] || {}
-    const propsChanged = !propsEqual(prevProps, nextProps)
-    const children = diffChildren(a, b)
-    if (!propsChanged && !children) return
-    return {
+  if (!Array.isArray(a) || !Array.isArray(b)) return
+
+  const prevProps = a[1] || {}
+  const nextProps = b[1] || {}
+  const propsChanged = !propsEqual(prevProps, nextProps)
+  const children = diffChildren(a, b)
+
+  return !propsChanged && !children
+    ? undefined
+    : {
       type: 'UPDATE',
       prevProps: propsChanged ? prevProps : null,
       props: propsChanged ? nextProps : null,
       children
     }
-  }
 }
 
 /**
@@ -158,9 +162,8 @@ const propsEnv = {
 const renderTree = (node, isRoot = true, namespaceURI = null) => {
   const type = typeof node
 
-  if (type === 'string' || type === 'number') {
+  if (type === 'string' || type === 'number')
     return isNodeEnv() ? node : document.createTextNode(String(node))
-  }
 
   if (!node || node.length === 0) return document.createComment('Empty vnode')
 
@@ -185,6 +188,7 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
   }
 
   const props = node[1] || {}
+  const isSpecialRootTag = tag === 'html' || tag === 'head' || tag === 'body'
 
   const elNamespaceURI = tag === 'svg' || namespaceURI === svgNS ? svgNS : null
   const childNamespaceURI =
@@ -199,7 +203,7 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
       ? document.documentElement
       : tag === 'head'
         ? document.head
-        : tag === 'body'
+      : tag === 'body'
           ? document.body
           : elNamespaceURI
             ? document.createElementNS(svgNS, tag)
@@ -212,7 +216,7 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 
   setVNode(el, node)
 
-  if (isRoot && tag !== 'html' && tag !== 'head' && tag !== 'body') {
+  if (isRoot && !isSpecialRootTag) {
     setRoot(el)
     rootMap.set(node, el)
   }

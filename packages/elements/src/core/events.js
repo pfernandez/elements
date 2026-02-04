@@ -24,17 +24,18 @@ const describeListener = ({ el, key }) =>
 
 const withEventRoot = (env, target, fn) => {
   const prevEventRoot = env.getCurrentEventRoot()
+  const restoreEventRoot = () => env.setCurrentEventRoot(prevEventRoot)
   env.setCurrentEventRoot(target)
 
   let result
   try { result = fn() }
-  catch (err) { env.setCurrentEventRoot(prevEventRoot); throw err }
+  catch (err) { restoreEventRoot(); throw err }
 
   return !isThenable(result)
-    ? (env.setCurrentEventRoot(prevEventRoot), result)
+    ? (restoreEventRoot(), result)
     : result.then(
-      value => (env.setCurrentEventRoot(prevEventRoot), value),
-      err => { env.setCurrentEventRoot(prevEventRoot); throw err }
+      value => (restoreEventRoot(), value),
+      err => { restoreEventRoot(); throw err }
     )
 }
 
@@ -78,7 +79,7 @@ export const createDeclarativeEventHandler = env =>
     return withEventRoot(env, target, () => {
       const event = args[0]
       const isFormEvent = isFormEventProp(env.key)
-      const elements = isFormEvent && event?.target?.elements || null
+      const elements = (isFormEvent && event?.target?.elements) || null
 
       const result = isFormEvent
         ? env.handler.call(env.el, elements, event)
