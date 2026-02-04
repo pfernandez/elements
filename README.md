@@ -6,22 +6,28 @@ Elements.js borrows the simple elegance of functional UI composition from
 [React](https://react.dev/), distilled to its purest form:
 
 - No JSX.
-- No keys.
+- No hooks or keys.
 - No virtual DOM heuristics.
 
-Components are pure functions. The DOM is the state substrate.
+Components are pure functions; updates are just calling the function again with
+new arguments.
 
 While you may choose to manage application logic with tools like
 [Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
-Elements.js keeps UI state exactly where it belongs: in the [DOM][dom] itself.
+Elements.js keeps UI state exactly where it belongs: in the
+[DOM][https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Anatomy_of_the_DOM]
+itself.
 
 ## Principles
 
-- **Pure data model:** UI is declared as nested arrays.
-- **Replacement updates:** event handlers can return the next vnode tree, and
-  Elements.js replaces the closest component boundary.
-- **Imperative boundary, functional surface:** DOM mutation exists, but the
-  authoring model stays functional and composable.
+- **Pure data model:** UI elements are represented as are data-in, data-out
+  functions. They accept W3C standard`props`and child elements as arguments, and
+  return nested arrays.
+- **Dynamic updates:** When an event handler returns the output of a component
+  element defined within its scope, the element is updated with its new
+  arguments.
+- **Imperative boundary, functional surface:** DOM mutation is abstracted away,
+  keeping the authoring experience functional and composable.
 
 ### Example: Recursive counter
 ```js
@@ -280,6 +286,17 @@ npm run -s 3d:test
 npm run -s 3d:test:coverage
 npm run -s 3d:typecheck
 ```
+
+### Security / `npm audit`
+
+CI fails on **high+critical** vulnerabilities in production dependencies:
+
+```sh
+npm audit --omit=dev --audit-level=high
+```
+
+CI also prints the full `npm audit` report (including dev dependencies) as a
+non-blocking log to aid triage.
 
 To refresh upstream X3DOM docs for type generation after updating vendor
 bundles (manual step; requires network access):

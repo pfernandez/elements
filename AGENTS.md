@@ -49,4 +49,4 @@ necessary imperative DOM boundary with care.
 ### CI Expectations
 
 - GitHub Actions runs `typecheck`, `build:types`, `test`, `build`, and `npm
-  audit` (fails on high/critical).
+  audit` (fails on high/critical for production deps).

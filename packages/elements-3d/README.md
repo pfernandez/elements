@@ -33,3 +33,5 @@ X3DOM is lazy-loaded the first time you call any helper from this package.
 It loads a small “core” bundle first, and only loads the larger “full” bundle
 if you call a helper for a node that core doesn’t register.
 
+This package includes both bundles (plus `x3dom.css`) so apps can run without a
+CDN or additional runtime fetch steps.

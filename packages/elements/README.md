@@ -12,6 +12,12 @@ autocomplete.
 npm i @pfern/elements
 ```
 
+## How Updates Work
+
+Most apps call `render()` once on page load. After that, updates happen when a
+DOM event handler (e.g. `onclick`, `onsubmit`) returns the next vnode: Elements.js
+replaces the closest component boundary.
+
 ## Usage
 
 ```js
@@ -23,4 +29,12 @@ export const counter = component((count = 0) =>
     button({ onclick: () => counter(count + 1) }, 'Increment')))
 
 render(counter(), document.body)
+```
+
+## Optional 3D
+
+X3DOM / X3D helpers live in `@pfern/elements-3d` to keep this package small:
+
+```sh
+npm i @pfern/elements @pfern/elements-3d
 ```

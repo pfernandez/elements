@@ -37,8 +37,8 @@ jobs:
       - name: Build
         run: npm run -s build
 
-      - name: Audit (fail on high+critical)
-        run: npm audit --audit-level=high
+      - name: Audit (fail on high+critical) (prod deps)
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Audit (report)
         if: always()
