@@ -43,22 +43,19 @@ export { render } from './core/elements.js'
  * @param {{ replace?: boolean }} [options]
  */
 export const navigate = (path, { replace = false } = {}) => {
-  if (typeof window !== 'undefined') {
-    const url = new URL(path, window.location.origin)
-    const isSame =
-      url.pathname === window.location.pathname
-      && url.search === window.location.search
-      && url.hash === window.location.hash
+  if (typeof window === 'undefined') return
 
-    if (!isSame) {
-      const fn = replace ? 'replaceState' : 'pushState'
-      window.history[fn]({}, '', url)
+  const url = new URL(path, window.location.origin)
+  const isSame =
+    url.pathname === window.location.pathname
+    && url.search === window.location.search
+    && url.hash === window.location.hash
 
-      try {
-        window.dispatchEvent(new PopStateEvent('popstate'))
-      } catch {
-        window.dispatchEvent(new Event('popstate'))
-      }
-    }
-  }
+  if (isSame) return
+
+  const fn = replace ? 'replaceState' : 'pushState'
+  window.history[fn]({}, '', url)
+
+  try { window.dispatchEvent(new PopStateEvent('popstate')) }
+  catch { window.dispatchEvent(new Event('popstate')) }
 }
