@@ -22,10 +22,10 @@ const isThenable = x =>
 const describeListener = ({ el, key }) =>
   `Listener '${key}' on <${el.tagName.toLowerCase()}>`
 
-const withEventRoot = (env, target, fn) => {
+const withEventRoot = (env, eventRoot, fn) => {
   const prevEventRoot = env.getCurrentEventRoot()
   const restoreEventRoot = () => env.setCurrentEventRoot(prevEventRoot)
-  env.setCurrentEventRoot(target)
+  env.setCurrentEventRoot(eventRoot)
 
   let result
   try { result = fn() }
@@ -73,10 +73,10 @@ const warnPassiveReturn = (env, resolved) =>
  */
 export const createDeclarativeEventHandler = env =>
   (...args) => {
-    const target = getNearestRoot(env.el, env.isRoot)
-    if (!target) return
+    const eventRoot = getNearestRoot(env.el, env.isRoot)
+    if (!eventRoot) return
 
-    return withEventRoot(env, target, () => {
+    return withEventRoot(env, eventRoot, () => {
       const event = args[0]
       const isFormEvent = isFormEventProp(env.key)
       const elements = (isFormEvent && event?.target?.elements) || null
@@ -92,11 +92,11 @@ export const createDeclarativeEventHandler = env =>
 
         if (!Array.isArray(resolved)) return resolved
 
-        const parent = target.parentNode
+        const parent = eventRoot.parentNode
         if (!parent) return resolved
 
         const replacement = env.renderTree(resolved, true)
-        parent.replaceChild(replacement, target)
+        parent.replaceChild(replacement, eventRoot)
         return resolved
       }
 
