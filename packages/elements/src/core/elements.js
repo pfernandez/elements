@@ -52,8 +52,7 @@ const shallowObjectEqual = (a, b) => {
   if (a === b) return true
   if (!isObject(a) || !isObject(b)) return false
   const aKeys = Object.keys(a)
-  const bKeys = Object.keys(b)
-  if (aKeys.length !== bKeys.length) return false
+  if (aKeys.length !== Object.keys(b).length) return false
   for (let i = 0; i < aKeys.length; i++) {
     const key = aKeys[i]
     if (!(key in b) || a[key] !== b[key]) return false
@@ -65,8 +64,7 @@ const propsEqual = (a, b) => {
   if (a === b) return true
   if (!isObject(a) || !isObject(b)) return false
   const aKeys = Object.keys(a)
-  const bKeys = Object.keys(b)
-  if (aKeys.length !== bKeys.length) return false
+  if (aKeys.length !== Object.keys(b).length) return false
   for (let i = 0; i < aKeys.length; i++) {
     const key = aKeys[i]
     if (!(key in b)) return false
@@ -234,8 +232,7 @@ const applyPropsUpdate = (el, prevProps, nextProps) =>
   nextProps == null
     ? undefined
     : (removeMissingProps(el, prevProps || {}, nextProps),
-      assignProperties(el, nextProps, propsEnv),
-      undefined)
+      assignProperties(el, nextProps, propsEnv))
 
 /**
  * Applies a patch object to a DOM subtree.

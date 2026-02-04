@@ -262,6 +262,9 @@ npm test
 npm run -s test:coverage
 npm run -s typecheck
 npm run -s build:types
+npm run -s 3d:test
+npm run -s 3d:test:coverage
+npm run -s 3d:typecheck
 ```
 
 To refresh upstream X3DOM docs for type generation after updating vendor

@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { createTagHelper, withX3DOM } from '../src/core/elements-3d.js'
+const loadX3DOMModule = () =>
+  import(
+    `${new URL('../src/core/elements-3d.js', import.meta.url).href}`
+      + `?t=${Math.random()}`
+  )
 
 test(
   'withX3DOM does not throw when window+document exist in Node',
   async () => {
+  const { createTagHelper, withX3DOM } = await loadX3DOMModule()
   const prevWindow = globalThis.window
   const prevDocument = globalThis.document
   const prevX3dom = globalThis.x3dom
@@ -48,6 +53,105 @@ test(
   const scriptCount = headChildren.filter(x => x.tagName === 'SCRIPT').length
   assert.ok(linkCount >= 1)
   assert.ok(scriptCount >= 1)
+
+  globalThis.window = prevWindow
+  globalThis.document = prevDocument
+  globalThis.x3dom = prevX3dom
+  }
+)
+
+test(
+  'withX3DOM loads full bundle when a node is missing from core',
+  async () => {
+  const { createTagHelper, withX3DOM } = await loadX3DOMModule()
+  const prevWindow = globalThis.window
+  const prevDocument = globalThis.document
+  const prevX3dom = globalThis.x3dom
+  const prevWarn = console.warn
+
+  const headChildren = []
+  console.warn = () => {}
+
+  globalThis.document = {
+    head: {
+      appendChild: el => {
+        headChildren.push(el)
+
+        if (el.tagName === 'SCRIPT' && String(el.src).includes('x3dom.js')) {
+          globalThis.x3dom = globalThis.x3dom || {
+            reload: () => {},
+            nodeTypesLC: { x3d: true }
+          }
+          globalThis.window && (globalThis.window.x3dom = globalThis.x3dom)
+        }
+
+        if (el.tagName === 'SCRIPT' && String(el.src).includes('x3dom-full.js')) {
+          globalThis.x3dom
+            && (globalThis.x3dom.nodeTypesLC.arc2d = true)
+          globalThis.window && (globalThis.window.x3dom = globalThis.x3dom)
+        }
+
+        typeof el.onload === 'function' && el.onload()
+        return el
+      }
+    },
+    createElement: tag => {
+      const el = {
+        tagName: String(tag).toUpperCase(),
+        attributes: {}
+      }
+      el.setAttribute = (k, v) => { el.attributes[k] = String(v) }
+      return el
+    },
+    querySelector: () => null
+  }
+
+  globalThis.window = {
+    requestAnimationFrame: cb => cb(0),
+    cancelAnimationFrame: () => {},
+    x3dom: null
+  }
+
+  globalThis.x3dom = null
+
+  const arc2d = withX3DOM('arc2d', createTagHelper('arc2d'))
+  assert.deepEqual(arc2d({ id: 'x' }), ['arc2d', { id: 'x' }])
+
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  const scriptSrcs =
+    headChildren
+      .filter(x => x.tagName === 'SCRIPT')
+      .map(x => String(x.src))
+
+  const hasCore = scriptSrcs.some(s => s.includes('x3dom.js'))
+  const hasFull = scriptSrcs.some(s => s.includes('x3dom-full.js'))
+  assert.equal(hasCore, true)
+  assert.equal(hasFull, true)
+
+  console.warn = prevWarn
+  globalThis.window = prevWindow
+  globalThis.document = prevDocument
+  globalThis.x3dom = prevX3dom
+  }
+)
+
+test(
+  'withX3DOM is a no-op when document is missing (SSR)',
+  async () => {
+  const { createTagHelper, withX3DOM } = await loadX3DOMModule()
+  const prevWindow = globalThis.window
+  const prevDocument = globalThis.document
+  const prevX3dom = globalThis.x3dom
+
+  globalThis.window = undefined
+  globalThis.document = undefined
+  globalThis.x3dom = undefined
+
+  const x3d = withX3DOM('x3d', createTagHelper('x3d'))
+  assert.deepEqual(x3d({ id: 'x' }), ['x3d', { id: 'x' }])
+
+  await new Promise(resolve => setTimeout(resolve, 0))
 
   globalThis.window = prevWindow
   globalThis.document = prevDocument
