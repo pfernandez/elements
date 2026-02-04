@@ -41,6 +41,12 @@ export const counter = component((count = 0) =>
 npm install @pfern/elements
 ```
 
+### Optional 3D / X3DOM helpers
+
+```sh
+npm install @pfern/elements @pfern/elements-3d
+```
+
 ### Install as a minimal starter app
 ```sh
 npx @pfern/create-elements my-app
@@ -256,6 +262,14 @@ property exceptions (when the property exists on the element): `value`,
 Omitting a prop in a subsequent update clears it from the element.
 
 ## Development
+
+This repository is a monorepo:
+
+- `@pfern/elements` lives in `packages/elements`
+- `@pfern/elements-3d` lives in `packages/elements-3d`
+
+The root `package.json` provides convenience scripts that proxy into each
+package workspace.
 
 ```sh
 npm test

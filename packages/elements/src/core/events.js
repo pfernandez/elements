@@ -38,6 +38,23 @@ const withEventRoot = (env, target, fn) => {
     )
 }
 
+const warnPassiveReturn = (env, resolved) =>
+  resolved === undefined
+    ? console.warn(
+      `${describeListener(env)} returned nothing.\n`
+        + 'If you intended a UI update, return a vnode array like: '
+        + 'div({}, ...)'
+    )
+    : !Array.isArray(resolved)
+      ? console.warn(
+        `${describeListener(env)} returned "${resolved}".\n`
+          + 'If you intended a UI update, return a vnode array like: '
+          + 'div({}, ...).\n'
+          + 'Otherwise, return undefined (or nothing) for native event '
+          + 'listener behavior.'
+      )
+      : undefined
+
 /**
  * Wrap an event handler so it can return a vnode to trigger an update.
  *
@@ -70,21 +87,7 @@ export const createDeclarativeEventHandler = env =>
       const handleResult = resolved => {
         isFormEvent && resolved !== undefined && event.preventDefault()
 
-        env.debug && resolved === undefined
-          && console.warn(
-            `${describeListener(env)} returned nothing.\n`
-              + 'If you intended a UI update, return a vnode array like: '
-              + 'div({}, ...)'
-          )
-
-        env.debug && resolved !== undefined && !Array.isArray(resolved)
-          && console.warn(
-            `${describeListener(env)} returned "${resolved}".\n`
-              + 'If you intended a UI update, return a vnode array like: '
-              + 'div({}, ...).\n'
-              + 'Otherwise, return undefined (or nothing) for native event '
-              + 'listener behavior.'
-          )
+        env.debug && warnPassiveReturn(env, resolved)
 
         if (!Array.isArray(resolved)) return resolved
 

@@ -15,6 +15,9 @@ const isObject = x =>
   typeof x === 'object'
   && x !== null
 
+const deleteKey = (obj, key) =>
+  (delete obj[String(key)], undefined)
+
 const isX3DOMReadyFor = el =>
   (x3d => !x3d || !!x3d.runtime)(el?.closest?.('x3d'))
 
@@ -49,7 +52,7 @@ const propertyExceptionDefaults = {
 const removeAttribute = (el, key) =>
   typeof el.removeAttribute === 'function'
     ? el.removeAttribute(key)
-    : (el.attributes && delete el.attributes[String(key)], undefined)
+    : el.attributes ? deleteKey(el.attributes, key) : undefined
 
 const clearStyle = el =>
   (style =>
@@ -93,12 +96,9 @@ const clearProp = (el, key) =>
  * @param {Record<string, any>} nextProps
  */
 export const removeMissingProps = (el, prevProps, nextProps) =>
-  (keys => {
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      !(key in nextProps) && clearProp(el, key)
-    }
-  })(Object.keys(prevProps))
+  (keys =>
+    keys.forEach(key => !(key in nextProps) && clearProp(el, key))
+  )(Object.keys(prevProps))
 
 /**
  * Assign props to a DOM element.
