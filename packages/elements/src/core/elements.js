@@ -89,9 +89,9 @@ const propsEqual = (a, b) => {
  */
 const changed = (a, b) =>
   typeof a !== typeof b
-  || typeof a === 'string' && a !== b
-  || typeof a === 'number' && a !== b
-  || Array.isArray(a) && Array.isArray(b) && a[0] !== b[0]
+  || (typeof a === 'string' && a !== b)
+  || (typeof a === 'number' && a !== b)
+  || (Array.isArray(a) && Array.isArray(b) && a[0] !== b[0])
 
 /**
  * Computes a patch object describing how to transform tree `a` into tree `b`.
@@ -198,16 +198,13 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
         ? svgNS
         : namespaceURI
 
-  let el =
-    tag === 'html'
-      ? document.documentElement
-      : tag === 'head'
-        ? document.head
-      : tag === 'body'
-          ? document.body
-          : elNamespaceURI
-            ? document.createElementNS(svgNS, tag)
-            : document.createElement(tag)
+  let el = null
+  if (tag === 'html') el = document.documentElement
+  else if (tag === 'head') el = document.head
+  else if (tag === 'body') el = document.body
+  else el = elNamespaceURI
+      ? document.createElementNS(svgNS, tag)
+      : document.createElement(tag)
 
   if (!el && (tag === 'head' || tag === 'body')) {
     el = document.createElement(tag)

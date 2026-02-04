@@ -95,10 +95,13 @@ const clearProp = (el, key) =>
  * @param {Record<string, any>} prevProps
  * @param {Record<string, any>} nextProps
  */
-export const removeMissingProps = (el, prevProps, nextProps) =>
-  (keys =>
-    keys.forEach(key => !(key in nextProps) && clearProp(el, key))
-  )(Object.keys(prevProps))
+export const removeMissingProps = (el, prevProps, nextProps) => {
+  const keys = Object.keys(prevProps)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    !(key in nextProps) && clearProp(el, key)
+  }
+}
 
 /**
  * Assign props to a DOM element.
@@ -115,48 +118,48 @@ export const removeMissingProps = (el, prevProps, nextProps) =>
  *   setCurrentEventRoot: (el: any) => void
  * }} env
  */
-export const assignProperties = (el, props, env) =>
-  (keys => {
-    const isSvg = el.namespaceURI === env.svgNS
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      const value = props[key]
+export const assignProperties = (el, props, env) => {
+  const isSvg = el.namespaceURI === env.svgNS
+  const keys = Object.keys(props)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    const value = props[key]
 
-      if (key === 'ontick' && typeof value === 'function') {
-        el.ontick = value
-        startTickLoop(el, value, { ready: isX3DOMReadyFor })
-        continue
-      }
-
-      if (key in propertyExceptions && key in el) {
-        el[propertyExceptions[key]] = value
-        continue
-      }
-
-      if (isEventProp(key, value)) {
-        el[key] = createDeclarativeEventHandler({
-          el,
-          key,
-          handler: value,
-          isRoot: env.isRoot,
-          renderTree: env.renderTree,
-          getCurrentEventRoot: env.getCurrentEventRoot,
-          setCurrentEventRoot: env.setCurrentEventRoot,
-          debug: env.debug
-        })
-        continue
-      }
-
-      if (key === 'style' && isObject(value)) {
-        Object.assign(el.style, value)
-        continue
-      }
-
-      if (key === 'innerHTML') {
-        el.innerHTML = value
-        continue
-      }
-
-      isSvg ? el.setAttributeNS(null, key, value) : el.setAttribute(key, value)
+    if (key === 'ontick' && typeof value === 'function') {
+      el.ontick = value
+      startTickLoop(el, value, { ready: isX3DOMReadyFor })
+      continue
     }
-  })(Object.keys(props))
+
+    if (key in propertyExceptions && key in el) {
+      el[propertyExceptions[key]] = value
+      continue
+    }
+
+    if (isEventProp(key, value)) {
+      el[key] = createDeclarativeEventHandler({
+        el,
+        key,
+        handler: value,
+        isRoot: env.isRoot,
+        renderTree: env.renderTree,
+        getCurrentEventRoot: env.getCurrentEventRoot,
+        setCurrentEventRoot: env.setCurrentEventRoot,
+        debug: env.debug
+      })
+      continue
+    }
+
+    if (key === 'style' && isObject(value)) {
+      Object.assign(el.style, value)
+      continue
+    }
+
+    if (key === 'innerHTML') {
+      el.innerHTML = value
+      continue
+    }
+
+    isSvg ? el.setAttributeNS(null, key, value) : el.setAttribute(key, value)
+  }
+}

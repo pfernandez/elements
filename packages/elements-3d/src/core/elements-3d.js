@@ -19,27 +19,35 @@ let x3domFullPromise = null
 let x3domLoadedFull = false
 let x3domLoadFailed = false
 
+const getHead = () =>
+  document?.head || document?.documentElement || null
+
 const injectStyleTextOnce = (id, cssText) => {
-  if (!document?.querySelector(`style[data-x3dom="${id}"]`)) {
+  const head = getHead()
+  if (!head) return
+  if (!document?.querySelector?.(`style[data-x3dom="${id}"]`)) {
     const style = document.createElement('style')
     style.setAttribute('data-x3dom', id)
     style.textContent = cssText
-    document.head.appendChild(style)
+    head.appendChild(style)
   }
 }
 
 const injectScriptTextOnce = (id, jsText) => {
-  if (!document.querySelector(`script[data-x3dom="${id}"]`)) {
+  const head = getHead()
+  if (!head) return
+  if (!document?.querySelector?.(`script[data-x3dom="${id}"]`)) {
     const script = document.createElement('script')
     script.setAttribute('data-x3dom', id)
     script.text = jsText
-    document.head.appendChild(script)
+    head.appendChild(script)
   }
 }
 
 const loadStyleOnce = href => {
-  if (!document
-    || document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) {
+  const head = getHead()
+  if (!head
+    || document?.querySelector?.(`link[rel="stylesheet"][href="${href}"]`)) {
     return Promise.resolve()
   }
   return new Promise((resolve, reject) => {
@@ -48,12 +56,13 @@ const loadStyleOnce = href => {
     link.href = href
     link.onload = () => resolve()
     link.onerror = err => reject(err)
-    document.head.appendChild(link)
+    head.appendChild(link)
   })
 }
 
 const loadScriptOnce = src => {
-  if (!document || document.querySelector(`script[src="${src}"]`)) {
+  const head = getHead()
+  if (!head || document?.querySelector?.(`script[src="${src}"]`)) {
     return Promise.resolve()
   }
   return new Promise((resolve, reject) => {
@@ -62,7 +71,7 @@ const loadScriptOnce = src => {
     script.defer = true
     script.onload = () => resolve()
     script.onerror = err => reject(err)
-    document.head.appendChild(script)
+    head.appendChild(script)
   })
 }
 
@@ -173,7 +182,7 @@ const ensureX3DOMForTag = async tag => {
     if (tag === 'x3d') return x3dom
 
     // Reloads in case an element is removed and re-added to the DOM.
-    window?.requestAnimationFrame(() => window.x3dom.reload?.())
+    window?.requestAnimationFrame?.(() => window.x3dom.reload?.())
 
     const hasNode = !!x3dom?.nodeTypesLC?.[String(tag).toLowerCase()]
     if (hasNode) return x3dom
