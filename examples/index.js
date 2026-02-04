@@ -1,5 +1,6 @@
 import { body, h1, h2, head, header, html, link,
-         main, meta, p, render, section, title } from '../elements.js'
+         main, meta, p, render, section, title }
+  from '../packages/elements/elements.js'
 import { scope } from './components/scope.js'
 import { todos } from './components/todos.js'
 import { x3dDemo } from './components/x3d-demo.js'

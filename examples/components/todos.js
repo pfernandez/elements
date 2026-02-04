@@ -1,5 +1,6 @@
 import { button, component, div,
-         form, input, li, span, ul } from '../../elements.js'
+         form, input, li, span, ul }
+  from '../../packages/elements/elements.js'
 
 const demoItems = [
   { value: 'Add my first todo', done: true },

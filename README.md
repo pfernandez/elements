@@ -294,11 +294,18 @@ const { div, button } = elements
 
 ### DOM Elements
 
-Every HTML, SVG, and X3DOM tag is available as a function:
+Every HTML and SVG tag is available as a function:
 
 ```js
 div({ id: 'box' }, 'hello')
 svg({ width: 100 }, circle({ r: 10 }))
+```
+
+For X3D / X3DOM nodes, use `@pfern/elements-3d`:
+
+```js
+import { box } from '@pfern/elements-3d'
+
 box({ size: '2 2 2', solid: true })
 ```
 

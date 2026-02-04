@@ -1,0 +1,40 @@
+{
+  "name": "@pfern/elements",
+  "version": "0.1.11",
+  "description": "A minimalist, pure functional declarative UI toolkit.",
+  "author": "Paul Fernandez",
+  "license": "MIT",
+  "type": "module",
+  "types": "./types/elements.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/elements.d.ts",
+      "import": "./elements.js",
+      "default": "./elements.js"
+    }
+  },
+  "files": [
+    "./elements.js",
+    "./env.d.ts",
+    "./src",
+    "./types"
+  ],
+  "scripts": {
+    "clean:types": "node scripts/clean-types.js",
+    "build:types": "node scripts/build-types.js",
+    "typecheck": "node scripts/typecheck.js",
+    "test": "node --test test/*.test.* --test-reporter spec",
+    "test:coverage": "node scripts/test-coverage.js"
+  },
+  "keywords": [
+    "ui",
+    "functional",
+    "declarative",
+    "frontend",
+    "vdom",
+    "jsx-free",
+    "stateless",
+    "recursive",
+    "html"
+  ]
+}

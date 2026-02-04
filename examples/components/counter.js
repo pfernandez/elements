@@ -1,4 +1,5 @@
-import { button, component, div, output } from '../../elements.js'
+import { button, component, div, output }
+  from '../../packages/elements/elements.js'
 
 export const counter = component((count = 0) =>
   div(

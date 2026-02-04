@@ -1,59 +1,31 @@
 {
-  "name": "@pfern/elements",
-  "version": "0.1.11",
-  "description": "A minimalist, pure functional declarative UI toolkit.",
-  "author": "Paul Fernandez",
-  "license": "MIT",
+  "name": "elements-workspace",
+  "private": true,
   "type": "module",
-  "types": "./types/elements.d.ts",
-  "exports": {
-    ".": {
-      "types": "./types/elements.d.ts",
-      "import": "./elements.js",
-      "default": "./elements.js"
-    }
-  },
-  "files": [
-    "./elements.js",
-    "./src",
-    "./types"
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "clean:types": "node scripts/clean-types.js",
-    "build:types": "node scripts/build-types.js",
-    "prepack": "npm run -s build:types",
     "preview": "vite preview",
-    "prepublishOnly": "npm run -s typecheck && npm test",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test test/*.test.* --test-reporter spec",
-    "test:coverage": "node scripts/test-coverage.js",
+    "typecheck": "npm --prefix packages/elements run -s typecheck",
+    "build:types": "npm --prefix packages/elements run -s build:types && npm --prefix packages/elements-3d run -s build:types",
+    "test": "npm --prefix packages/elements test",
+    "test:coverage": "npm --prefix packages/elements run -s test:coverage",
     "3d:typecheck": "npm --prefix packages/elements-3d run -s typecheck",
     "3d:build:types": "npm --prefix packages/elements-3d run -s build:types",
     "3d:test": "npm --prefix packages/elements-3d test",
     "3d:test:coverage": "npm --prefix packages/elements-3d run -s test:coverage",
-    "pkg:report": "node scripts/package-report.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pfernandez/elements.git"
+    "fetch:x3dom-src": "npm --prefix packages/elements-3d run -s fetch:x3dom-src",
+    "3d:fetch:x3dom-src": "npm --prefix packages/elements-3d run -s fetch:x3dom-src",
+    "pkg:report": "node scripts/package-report.js packages/elements",
+    "3d:pkg:report": "node scripts/package-report.js packages/elements-3d"
   },
   "devDependencies": {
     "@types/node": "^25.0.10",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
-  },
-  "keywords": [
-    "ui",
-    "functional",
-    "declarative",
-    "frontend",
-    "vdom",
-    "jsx-free",
-    "stateless",
-    "recursive",
-    "html"
-  ]
+  }
 }

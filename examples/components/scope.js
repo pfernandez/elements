@@ -1,4 +1,5 @@
-import { button, component, div, h3 } from '../../elements.js'
+import { button, component, div, h3 }
+  from '../../packages/elements/elements.js'
 import { counter } from './counter.js'
 
 export const scope = component(() =>
@@ -7,4 +8,3 @@ export const scope = component(() =>
       div({ class: 'grid' },
           div(h3('Counter 1'), counter()),
           div(h3('Counter 2'), counter()))))
-

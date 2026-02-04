@@ -28,7 +28,8 @@ const formatBytes = bytes =>
       : `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 
 const main = () => {
-  const pkg = readJson('package.json')
+  const pkgDir = path.resolve(process.argv[2] || '.')
+  const pkg = readJson(path.join(pkgDir, 'package.json'))
   const included = dedupe([
     'package.json',
     'README.md',
@@ -38,7 +39,7 @@ const main = () => {
 
   const expanded = dedupe(
     included.flatMap(entry => {
-      const fullPath = path.resolve(entry)
+      const fullPath = path.resolve(pkgDir, entry)
       if (!fs.existsSync(fullPath)) return []
       return isDirectory(fullPath)
         ? listFilesRecursive(fullPath)
@@ -60,7 +61,7 @@ const main = () => {
   const largest = [...rows].sort((a, b) => b.bytes - a.bytes).slice(0, 20)
 
   console.log(`name: ${pkg.name}`)
-  console.log(`version: ${pkg.version}`)
+  pkg.version && console.log(`version: ${pkg.version}`)
   console.log(`files: ${rows.length}`)
   console.log(`bytes: ${totalBytes} (${formatBytes(totalBytes)})`)
   console.log('')
@@ -69,4 +70,3 @@ const main = () => {
 }
 
 main()
-

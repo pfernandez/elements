@@ -31,9 +31,6 @@ jobs:
       - name: Typecheck (3d)
         run: npm run -s 3d:typecheck
 
-      - name: Build Types (3d)
-        run: npm run -s 3d:build:types
-
       - name: Test (coverage) (3d)
         run: npm run -s 3d:test:coverage
 

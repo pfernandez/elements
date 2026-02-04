@@ -10,7 +10,6 @@ const args = [
   '--test-coverage-functions=90',
   '--test-coverage-include=elements.js',
   '--test-coverage-include=src/**',
-  '--test-coverage-exclude=vendor/**',
   '--test-coverage-exclude=src/core/types.js',
   'test/*.test.*'
 ]
