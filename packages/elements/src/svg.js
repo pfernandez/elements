@@ -1,6 +1,13 @@
 import { elements } from './core/elements.js'
 
 /**
+ * SVG tag helpers.
+ *
+ * Like `src/html.js`, this module stays intentionally “flat”: one named export
+ * per SVG element with a short description for editor-first documentation.
+ */
+
+/**
  * The <animate> SVG element provides a way to animate an attribute of an element over time.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animate
  *

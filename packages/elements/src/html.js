@@ -1,6 +1,14 @@
 import { elements } from './core/elements.js'
 
 /**
+ * HTML tag helpers.
+ *
+ * This module is intentionally “flat”: each tag helper is exported by name with
+ * a short human-readable description so editor intellisense can act as primary
+ * documentation (JS-first, no TS required at runtime).
+ */
+
+/**
  * <html>
  * The root element of an HTML document.
  *
