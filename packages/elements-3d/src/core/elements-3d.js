@@ -85,6 +85,31 @@ const reloadX3DOM = () => {
   }
 }
 
+const shutdownX3DOMCanvases = x3dom => {
+  try {
+    const canvases = x3dom?.canvases
+    if (!Array.isArray(canvases) || canvases.length === 0) return
+    if (!canvases[0]?.doc) return
+    for (let i = 0; i < canvases.length; i++) {
+      const c = canvases[i]
+      c?.doc?.shutdown?.(c?.gl)
+    }
+    x3dom.canvases = []
+  } catch (err) {
+    console.warn('x3dom canvas shutdown failed', err)
+  }
+}
+
+let reloadScheduled = false
+const scheduleReloadX3DOM = () => {
+  if (reloadScheduled) return
+  reloadScheduled = true
+  window?.requestAnimationFrame?.(() => {
+    reloadScheduled = false
+    reloadX3DOM()
+  })
+}
+
 const ensureX3DOMCore = () => {
   if (typeof window === 'undefined' || x3domLoadFailed) return null
   if (getX3DOM()?.reload) return Promise.resolve(getX3DOM())
@@ -130,7 +155,10 @@ const ensureX3DOMCore = () => {
   })()
     .then(() => {
       reloadX3DOM()
-      return getX3DOM()
+      const x3dom = getX3DOM()
+      x3dom && (x3dom.__elementsLoadedCore = true)
+      globalThis.__elementsX3domLoadedCore = true
+      return x3dom
     })
     .catch(err => {
       x3domLoadFailed = true
@@ -146,6 +174,11 @@ const ensureX3DOMFull = async () => {
   await ensureX3DOMCore()
   if (x3domFullPromise) return x3domFullPromise
   x3domLoadedFull = true
+
+  // `x3dom-full.js` defines `var x3dom = ...` and replaces the global object.
+  // Before loading it, explicitly shut down any existing canvases created by
+  // the core build to avoid WebGL context leaks.
+  shutdownX3DOMCanvases(getX3DOM())
 
   const fullUrl =
     new URL('../../vendor/x3dom-full.js', import.meta.url).toString()
@@ -166,7 +199,15 @@ const ensureX3DOMFull = async () => {
   })()
     .then(() => {
       reloadX3DOM()
-      return getX3DOM()
+      const x3dom = getX3DOM()
+      // Provide a stable, consumer-visible signal for demos/apps that want to
+      // know whether the full bundle has been loaded.
+      //
+      // Note: `x3dom-full.js` replaces the global `x3dom` object, so we set the
+      // flag both on `x3dom` *and* on `globalThis` for stability.
+      x3dom && (x3dom.__elementsLoadedFull = true)
+      globalThis.__elementsX3domLoadedFull = true
+      return x3dom
     })
     .catch(err => {
       console.warn('x3dom full failed to load', err)
@@ -182,7 +223,7 @@ const ensureX3DOMForTag = async tag => {
     if (tag === 'x3d') return x3dom
 
     // Reloads in case an element is removed and re-added to the DOM.
-    window?.requestAnimationFrame?.(() => window.x3dom.reload?.())
+    scheduleReloadX3DOM()
 
     const hasNode = !!x3dom?.nodeTypesLC?.[String(tag).toLowerCase()]
     if (hasNode) return x3dom
@@ -194,7 +235,17 @@ const ensureX3DOMForTag = async tag => {
           + 'in core x3dom.js'
       )
     }
-    return ensureX3DOMFull()
+    const full = ensureX3DOMFull()
+
+    // In practice, DOM insertion timing + lazy X3DOM parsing means a single
+    // reload can happen “too early”. After x3dom-full loads, schedule another
+    // reload on the next frame to ensure newly-supported tags are parsed.
+    //
+    // This is especially important in dev where components can re-render
+    // frequently and full-only nodes (e.g. <disk2d>) should “just appear”.
+    full?.then?.(() => scheduleReloadX3DOM())
+
+    return full
   }
 }
 
