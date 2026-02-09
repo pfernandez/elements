@@ -872,6 +872,44 @@ describe('Elements.js - Pure Data Contracts', () => {
     }
   )
 
+  test('oninput passes event.target.value (not elements)', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+
+    let gotValue
+    let prevented = 0
+
+    const App = component((value = '') =>
+      div({},
+        input({
+          type: 'range',
+          value,
+          oninput: next => (gotValue = next, App(next))
+        })
+      )
+    )
+
+    render(App('0.1'), container)
+    const inputEl = container.childNodes[0].childNodes[0]
+
+    inputEl.oninput({
+      target: { value: '0.2' },
+      preventDefault: () => { prevented++ }
+    })
+
+    assert.equal(gotValue, '0.2')
+    assert.equal(prevented, 0)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('render() updates attributes in place when vnode tag matches', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window

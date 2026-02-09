@@ -12,16 +12,19 @@ export const anchor = withX3DOM('anchor', createTagHelper('anchor'))
 export const appearance = withX3DOM('appearance', createTagHelper('appearance'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/Arc2D.html
+ * Exported as `arc2D` to avoid colliding with the HTML/SVG `arc2d` helper.
  */
-export const arc2d = withX3DOM('arc2d', createTagHelper('arc2d'))
+export const arc2D = withX3DOM('arc2d', createTagHelper('arc2d'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/ArcClose2D.html
+ * Exported as `arcClose2D` to avoid colliding with the HTML/SVG `arcclose2d` helper.
  */
-export const arcclose2d = withX3DOM('arcclose2d', createTagHelper('arcclose2d'))
+export const arcClose2D = withX3DOM('arcclose2d', createTagHelper('arcclose2d'))
 
 /** @see https://doc.x3dom.org/author/Sound/AudioClip.html
+ * Exported as `audioClip` to avoid colliding with the HTML/SVG `audioclip` helper.
  */
-export const audioclip = withX3DOM('audioclip', createTagHelper('audioclip'))
+export const audioClip = withX3DOM('audioclip', createTagHelper('audioclip'))
 
 /** @see https://doc.x3dom.org/author/EnvironmentalEffects/Background.html
  */
@@ -32,88 +35,107 @@ export const background = withX3DOM('background', createTagHelper('background'))
 export const billboard = withX3DOM('billboard', createTagHelper('billboard'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/BinaryGeometry.html
+ * Exported as `binaryGeometry` to avoid colliding with the HTML/SVG `binarygeometry` helper.
  */
-export const binarygeometry = withX3DOM('binarygeometry', createTagHelper('binarygeometry'))
+export const binaryGeometry = withX3DOM('binarygeometry', createTagHelper('binarygeometry'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/BlendedVolumeStyle.html
+ * Exported as `blendedVolumeStyle` to avoid colliding with the HTML/SVG `blendedvolumestyle` helper.
  */
-export const blendedvolumestyle = withX3DOM('blendedvolumestyle', createTagHelper('blendedvolumestyle'))
+export const blendedVolumeStyle = withX3DOM('blendedvolumestyle', createTagHelper('blendedvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Shape/BlendMode.html
+ * Exported as `blendMode` to avoid colliding with the HTML/SVG `blendmode` helper.
  */
-export const blendmode = withX3DOM('blendmode', createTagHelper('blendmode'))
+export const blendMode = withX3DOM('blendmode', createTagHelper('blendmode'))
 
 /** @see https://doc.x3dom.org/author/Grouping/Block.html
  */
 export const block = withX3DOM('block', createTagHelper('block'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/BooleanFilter.html
+ * Exported as `booleanFilter` to avoid colliding with the HTML/SVG `booleanfilter` helper.
  */
-export const booleanfilter = withX3DOM('booleanfilter', createTagHelper('booleanfilter'))
+export const booleanFilter = withX3DOM('booleanfilter', createTagHelper('booleanfilter'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/BooleanSequencer.html
+ * Exported as `booleanSequencer` to avoid colliding with the HTML/SVG `booleansequencer` helper.
  */
-export const booleansequencer = withX3DOM('booleansequencer', createTagHelper('booleansequencer'))
+export const booleanSequencer = withX3DOM('booleansequencer', createTagHelper('booleansequencer'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/BooleanToggle.html
+ * Exported as `booleanToggle` to avoid colliding with the HTML/SVG `booleantoggle` helper.
  */
-export const booleantoggle = withX3DOM('booleantoggle', createTagHelper('booleantoggle'))
+export const booleanToggle = withX3DOM('booleantoggle', createTagHelper('booleantoggle'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/BooleanTrigger.html
+ * Exported as `booleanTrigger` to avoid colliding with the HTML/SVG `booleantrigger` helper.
  */
-export const booleantrigger = withX3DOM('booleantrigger', createTagHelper('booleantrigger'))
+export const booleanTrigger = withX3DOM('booleantrigger', createTagHelper('booleantrigger'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/BoundaryEnhancementVolumeStyle.html
+ * Exported as `boundaryEnhancementVolumeStyle` to avoid colliding with the HTML/SVG `boundaryenhancementvolumestyle` helper.
  */
-export const boundaryenhancementvolumestyle = withX3DOM('boundaryenhancementvolumestyle', createTagHelper('boundaryenhancementvolumestyle'))
+export const boundaryEnhancementVolumeStyle = withX3DOM('boundaryenhancementvolumestyle', createTagHelper('boundaryenhancementvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/Box.html
  */
 export const box = withX3DOM('box', createTagHelper('box'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/BufferAccessor.html
+ * Exported as `bufferAccessor` to avoid colliding with the HTML/SVG `bufferaccessor` helper.
  */
-export const bufferaccessor = withX3DOM('bufferaccessor', createTagHelper('bufferaccessor'))
+export const bufferAccessor = withX3DOM('bufferaccessor', createTagHelper('bufferaccessor'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/BufferGeometry.html
+ * Exported as `bufferGeometry` to avoid colliding with the HTML/SVG `buffergeometry` helper.
  */
-export const buffergeometry = withX3DOM('buffergeometry', createTagHelper('buffergeometry'))
+export const bufferGeometry = withX3DOM('buffergeometry', createTagHelper('buffergeometry'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/BufferView.html
+ * Exported as `bufferView` to avoid colliding with the HTML/SVG `bufferview` helper.
  */
-export const bufferview = withX3DOM('bufferview', createTagHelper('bufferview'))
+export const bufferView = withX3DOM('bufferview', createTagHelper('bufferview'))
 
 /** @see https://doc.x3dom.org/author/BVHRefiner/BVHRefiner.html
+ * Exported as `bVHRefiner` to avoid colliding with the HTML/SVG `bvhrefiner` helper.
  */
-export const bvhrefiner = withX3DOM('bvhrefiner', createTagHelper('bvhrefiner'))
+export const bVHRefiner = withX3DOM('bvhrefiner', createTagHelper('bvhrefiner'))
 
 /** @see https://doc.x3dom.org/author/CADGeometry/CADAssembly.html
+ * Exported as `cADAssembly` to avoid colliding with the HTML/SVG `cadassembly` helper.
  */
-export const cadassembly = withX3DOM('cadassembly', createTagHelper('cadassembly'))
+export const cADAssembly = withX3DOM('cadassembly', createTagHelper('cadassembly'))
 
 /** @see https://doc.x3dom.org/author/CADGeometry/CADFace.html
+ * Exported as `cADFace` to avoid colliding with the HTML/SVG `cadface` helper.
  */
-export const cadface = withX3DOM('cadface', createTagHelper('cadface'))
+export const cADFace = withX3DOM('cadface', createTagHelper('cadface'))
 
 /** @see https://doc.x3dom.org/author/CADGeometry/CADLayer.html
+ * Exported as `cADLayer` to avoid colliding with the HTML/SVG `cadlayer` helper.
  */
-export const cadlayer = withX3DOM('cadlayer', createTagHelper('cadlayer'))
+export const cADLayer = withX3DOM('cadlayer', createTagHelper('cadlayer'))
 
 /** @see https://doc.x3dom.org/author/CADGeometry/CADPart.html
+ * Exported as `cADPart` to avoid colliding with the HTML/SVG `cadpart` helper.
  */
-export const cadpart = withX3DOM('cadpart', createTagHelper('cadpart'))
+export const cADPart = withX3DOM('cadpart', createTagHelper('cadpart'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/CartoonVolumeStyle.html
+ * Exported as `cartoonVolumeStyle` to avoid colliding with the HTML/SVG `cartoonvolumestyle` helper.
  */
-export const cartoonvolumestyle = withX3DOM('cartoonvolumestyle', createTagHelper('cartoonvolumestyle'))
+export const cartoonVolumeStyle = withX3DOM('cartoonvolumestyle', createTagHelper('cartoonvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/Circle2D.html
+ * Exported as `circle2D` to avoid colliding with the HTML/SVG `circle2d` helper.
  */
-export const circle2d = withX3DOM('circle2d', createTagHelper('circle2d'))
+export const circle2D = withX3DOM('circle2d', createTagHelper('circle2d'))
 
 /** @see https://doc.x3dom.org/author/Rendering/ClipPlane.html
+ * Exported as `clipPlane` to avoid colliding with the HTML/SVG `clipplane` helper.
  */
-export const clipplane = withX3DOM('clipplane', createTagHelper('clipplane'))
+export const clipPlane = withX3DOM('clipplane', createTagHelper('clipplane'))
 
 /** @see https://doc.x3dom.org/author/Navigation/Collision.html
  */
@@ -124,108 +146,130 @@ export const collision = withX3DOM('collision', createTagHelper('collision'))
 export const color = withX3DOM('color', createTagHelper('color'))
 
 /** @see https://doc.x3dom.org/author/Followers/ColorChaser.html
+ * Exported as `colorChaser` to avoid colliding with the HTML/SVG `colorchaser` helper.
  */
-export const colorchaser = withX3DOM('colorchaser', createTagHelper('colorchaser'))
+export const colorChaser = withX3DOM('colorchaser', createTagHelper('colorchaser'))
 
 /** @see https://doc.x3dom.org/author/Followers/ColorDamper.html
+ * Exported as `colorDamper` to avoid colliding with the HTML/SVG `colordamper` helper.
  */
-export const colordamper = withX3DOM('colordamper', createTagHelper('colordamper'))
+export const colorDamper = withX3DOM('colordamper', createTagHelper('colordamper'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/ColorInterpolator.html
+ * Exported as `colorInterpolator` to avoid colliding with the HTML/SVG `colorinterpolator` helper.
  */
-export const colorinterpolator = withX3DOM('colorinterpolator', createTagHelper('colorinterpolator'))
+export const colorInterpolator = withX3DOM('colorinterpolator', createTagHelper('colorinterpolator'))
 
 /** @see https://doc.x3dom.org/author/Shape/ColorMaskMode.html
+ * Exported as `colorMaskMode` to avoid colliding with the HTML/SVG `colormaskmode` helper.
  */
-export const colormaskmode = withX3DOM('colormaskmode', createTagHelper('colormaskmode'))
+export const colorMaskMode = withX3DOM('colormaskmode', createTagHelper('colormaskmode'))
 
 /** @see https://doc.x3dom.org/author/Rendering/ColorRGBA.html
+ * Exported as `colorRGBA` to avoid colliding with the HTML/SVG `colorrgba` helper.
  */
-export const colorrgba = withX3DOM('colorrgba', createTagHelper('colorrgba'))
+export const colorRGBA = withX3DOM('colorrgba', createTagHelper('colorrgba'))
 
 /** @see https://doc.x3dom.org/author/Shaders/CommonSurfaceShader.html
+ * Exported as `commonSurfaceShader` to avoid colliding with the HTML/SVG `commonsurfaceshader` helper.
  */
-export const commonsurfaceshader = withX3DOM('commonsurfaceshader', createTagHelper('commonsurfaceshader'))
+export const commonSurfaceShader = withX3DOM('commonsurfaceshader', createTagHelper('commonsurfaceshader'))
 
 /** @see https://doc.x3dom.org/author/CubeMapTexturing/ComposedCubeMapTexture.html
+ * Exported as `composedCubeMapTexture` to avoid colliding with the HTML/SVG `composedcubemaptexture` helper.
  */
-export const composedcubemaptexture = withX3DOM('composedcubemaptexture', createTagHelper('composedcubemaptexture'))
+export const composedCubeMapTexture = withX3DOM('composedcubemaptexture', createTagHelper('composedcubemaptexture'))
 
 /** @see https://doc.x3dom.org/author/Shaders/ComposedShader.html
+ * Exported as `composedShader` to avoid colliding with the HTML/SVG `composedshader` helper.
  */
-export const composedshader = withX3DOM('composedshader', createTagHelper('composedshader'))
+export const composedShader = withX3DOM('composedshader', createTagHelper('composedshader'))
 
 /** @see https://doc.x3dom.org/author/Texturing3D/ComposedTexture3D.html
+ * Exported as `composedTexture3D` to avoid colliding with the HTML/SVG `composedtexture3d` helper.
  */
-export const composedtexture3d = withX3DOM('composedtexture3d', createTagHelper('composedtexture3d'))
+export const composedTexture3D = withX3DOM('composedtexture3d', createTagHelper('composedtexture3d'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/ComposedVolumeStyle.html
+ * Exported as `composedVolumeStyle` to avoid colliding with the HTML/SVG `composedvolumestyle` helper.
  */
-export const composedvolumestyle = withX3DOM('composedvolumestyle', createTagHelper('composedvolumestyle'))
+export const composedVolumeStyle = withX3DOM('composedvolumestyle', createTagHelper('composedvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/Cone.html
  */
 export const cone = withX3DOM('cone', createTagHelper('cone'))
 
 /** @see https://doc.x3dom.org/author/NURBS/Contour2D.html
+ * Exported as `contour2D` to avoid colliding with the HTML/SVG `contour2d` helper.
  */
-export const contour2d = withX3DOM('contour2d', createTagHelper('contour2d'))
+export const contour2D = withX3DOM('contour2d', createTagHelper('contour2d'))
 
 /** @see https://doc.x3dom.org/author/NURBS/ContourPolyline2D.html
+ * Exported as `contourPolyline2D` to avoid colliding with the HTML/SVG `contourpolyline2d` helper.
  */
-export const contourpolyline2d = withX3DOM('contourpolyline2d', createTagHelper('contourpolyline2d'))
+export const contourPolyline2D = withX3DOM('contourpolyline2d', createTagHelper('contourpolyline2d'))
 
 /** @see https://doc.x3dom.org/author/Rendering/Coordinate.html
  */
 export const coordinate = withX3DOM('coordinate', createTagHelper('coordinate'))
 
 /** @see https://doc.x3dom.org/author/Followers/CoordinateDamper.html
+ * Exported as `coordinateDamper` to avoid colliding with the HTML/SVG `coordinatedamper` helper.
  */
-export const coordinatedamper = withX3DOM('coordinatedamper', createTagHelper('coordinatedamper'))
+export const coordinateDamper = withX3DOM('coordinatedamper', createTagHelper('coordinatedamper'))
 
 /** @see https://doc.x3dom.org/author/Nurbs/CoordinateDouble.html
+ * Exported as `coordinateDouble` to avoid colliding with the HTML/SVG `coordinatedouble` helper.
  */
-export const coordinatedouble = withX3DOM('coordinatedouble', createTagHelper('coordinatedouble'))
+export const coordinateDouble = withX3DOM('coordinatedouble', createTagHelper('coordinatedouble'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/CoordinateInterpolator.html
+ * Exported as `coordinateInterpolator` to avoid colliding with the HTML/SVG `coordinateinterpolator` helper.
  */
-export const coordinateinterpolator = withX3DOM('coordinateinterpolator', createTagHelper('coordinateinterpolator'))
+export const coordinateInterpolator = withX3DOM('coordinateinterpolator', createTagHelper('coordinateinterpolator'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/Cylinder.html
  */
 export const cylinder = withX3DOM('cylinder', createTagHelper('cylinder'))
 
 /** @see https://doc.x3dom.org/author/PointingDeviceSensor/CylinderSensor.html
+ * Exported as `cylinderSensor` to avoid colliding with the HTML/SVG `cylindersensor` helper.
  */
-export const cylindersensor = withX3DOM('cylindersensor', createTagHelper('cylindersensor'))
+export const cylinderSensor = withX3DOM('cylindersensor', createTagHelper('cylindersensor'))
 
 /** @see https://doc.x3dom.org/author/Shape/DepthMode.html
+ * Exported as `depthMode` to avoid colliding with the HTML/SVG `depthmode` helper.
  */
-export const depthmode = withX3DOM('depthmode', createTagHelper('depthmode'))
+export const depthMode = withX3DOM('depthmode', createTagHelper('depthmode'))
 
 /** @see https://doc.x3dom.org/author/Lighting/DirectionalLight.html
+ * Exported as `directionalLight` to avoid colliding with the HTML/SVG `directionallight` helper.
  */
-export const directionallight = withX3DOM('directionallight', createTagHelper('directionallight'))
+export const directionalLight = withX3DOM('directionallight', createTagHelper('directionallight'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/Dish.html
  */
 export const dish = withX3DOM('dish', createTagHelper('dish'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/Disk2D.html
+ * Exported as `disk2D` to avoid colliding with the HTML/SVG `disk2d` helper.
  */
-export const disk2d = withX3DOM('disk2d', createTagHelper('disk2d'))
+export const disk2D = withX3DOM('disk2d', createTagHelper('disk2d'))
 
 /** @see https://doc.x3dom.org/author/Navigation/DynamicLOD.html
+ * Exported as `dynamicLOD` to avoid colliding with the HTML/SVG `dynamiclod` helper.
  */
-export const dynamiclod = withX3DOM('dynamiclod', createTagHelper('dynamiclod'))
+export const dynamicLOD = withX3DOM('dynamiclod', createTagHelper('dynamiclod'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/EdgeEnhancementVolumeStyle.html
+ * Exported as `edgeEnhancementVolumeStyle` to avoid colliding with the HTML/SVG `edgeenhancementvolumestyle` helper.
  */
-export const edgeenhancementvolumestyle = withX3DOM('edgeenhancementvolumestyle', createTagHelper('edgeenhancementvolumestyle'))
+export const edgeEnhancementVolumeStyle = withX3DOM('edgeenhancementvolumestyle', createTagHelper('edgeenhancementvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/ElevationGrid.html
+ * Exported as `elevationGrid` to avoid colliding with the HTML/SVG `elevationgrid` helper.
  */
-export const elevationgrid = withX3DOM('elevationgrid', createTagHelper('elevationgrid'))
+export const elevationGrid = withX3DOM('elevationgrid', createTagHelper('elevationgrid'))
 
 /** @see https://doc.x3dom.org/author/EnvironmentalEffects/Environment.html
  */
@@ -240,136 +284,166 @@ export const extrusion = withX3DOM('extrusion', createTagHelper('extrusion'))
 export const field = withX3DOM('field', createTagHelper('field'))
 
 /** @see https://doc.x3dom.org/author/Shaders/FloatVertexAttribute.html
+ * Exported as `floatVertexAttribute` to avoid colliding with the HTML/SVG `floatvertexattribute` helper.
  */
-export const floatvertexattribute = withX3DOM('floatvertexattribute', createTagHelper('floatvertexattribute'))
+export const floatVertexAttribute = withX3DOM('floatvertexattribute', createTagHelper('floatvertexattribute'))
 
 /** @see https://doc.x3dom.org/author/EnvironmentalEffects/Fog.html
  */
 export const fog = withX3DOM('fog', createTagHelper('fog'))
 
 /** @see https://doc.x3dom.org/author/Text/FontStyle.html
+ * Exported as `fontStyle` to avoid colliding with the HTML/SVG `fontstyle` helper.
  */
-export const fontstyle = withX3DOM('fontstyle', createTagHelper('fontstyle'))
+export const fontStyle = withX3DOM('fontstyle', createTagHelper('fontstyle'))
 
 /** @see https://doc.x3dom.org/author/CubeMapTexturing/GeneratedCubeMapTexture.html
+ * Exported as `generatedCubeMapTexture` to avoid colliding with the HTML/SVG `generatedcubemaptexture` helper.
  */
-export const generatedcubemaptexture = withX3DOM('generatedcubemaptexture', createTagHelper('generatedcubemaptexture'))
+export const generatedCubeMapTexture = withX3DOM('generatedcubemaptexture', createTagHelper('generatedcubemaptexture'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoCoordinate.html
+ * Exported as `geoCoordinate` to avoid colliding with the HTML/SVG `geocoordinate` helper.
  */
-export const geocoordinate = withX3DOM('geocoordinate', createTagHelper('geocoordinate'))
+export const geoCoordinate = withX3DOM('geocoordinate', createTagHelper('geocoordinate'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoElevationGrid.html
+ * Exported as `geoElevationGrid` to avoid colliding with the HTML/SVG `geoelevationgrid` helper.
  */
-export const geoelevationgrid = withX3DOM('geoelevationgrid', createTagHelper('geoelevationgrid'))
+export const geoElevationGrid = withX3DOM('geoelevationgrid', createTagHelper('geoelevationgrid'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoLocation.html
+ * Exported as `geoLocation` to avoid colliding with the HTML/SVG `geolocation` helper.
  */
-export const geolocation = withX3DOM('geolocation', createTagHelper('geolocation'))
+export const geoLocation = withX3DOM('geolocation', createTagHelper('geolocation'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoLOD.html
+ * Exported as `geoLOD` to avoid colliding with the HTML/SVG `geolod` helper.
  */
-export const geolod = withX3DOM('geolod', createTagHelper('geolod'))
+export const geoLOD = withX3DOM('geolod', createTagHelper('geolod'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoMetadata.html
+ * Exported as `geoMetadata` to avoid colliding with the HTML/SVG `geometadata` helper.
  */
-export const geometadata = withX3DOM('geometadata', createTagHelper('geometadata'))
+export const geoMetadata = withX3DOM('geometadata', createTagHelper('geometadata'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoOrigin.html
+ * Exported as `geoOrigin` to avoid colliding with the HTML/SVG `geoorigin` helper.
  */
-export const geoorigin = withX3DOM('geoorigin', createTagHelper('geoorigin'))
+export const geoOrigin = withX3DOM('geoorigin', createTagHelper('geoorigin'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoPositionInterpolator.html
+ * Exported as `geoPositionInterpolator` to avoid colliding with the HTML/SVG `geopositioninterpolator` helper.
  */
-export const geopositioninterpolator = withX3DOM('geopositioninterpolator', createTagHelper('geopositioninterpolator'))
+export const geoPositionInterpolator = withX3DOM('geopositioninterpolator', createTagHelper('geopositioninterpolator'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoTransform.html
+ * Exported as `geoTransform` to avoid colliding with the HTML/SVG `geotransform` helper.
  */
-export const geotransform = withX3DOM('geotransform', createTagHelper('geotransform'))
+export const geoTransform = withX3DOM('geotransform', createTagHelper('geotransform'))
 
 /** @see https://doc.x3dom.org/author/Geospatial/GeoViewpoint.html
+ * Exported as `geoViewpoint` to avoid colliding with the HTML/SVG `geoviewpoint` helper.
  */
-export const geoviewpoint = withX3DOM('geoviewpoint', createTagHelper('geoviewpoint'))
+export const geoViewpoint = withX3DOM('geoviewpoint', createTagHelper('geoviewpoint'))
 
 /** @see https://doc.x3dom.org/author/Grouping/Group.html
  */
 export const group = withX3DOM('group', createTagHelper('group'))
 
 /** @see https://doc.x3dom.org/author/H-Anim/HAnimDisplacer.html
+ * Exported as `hAnimDisplacer` to avoid colliding with the HTML/SVG `hanimdisplacer` helper.
  */
-export const hanimdisplacer = withX3DOM('hanimdisplacer', createTagHelper('hanimdisplacer'))
+export const hAnimDisplacer = withX3DOM('hanimdisplacer', createTagHelper('hanimdisplacer'))
 
 /** @see https://doc.x3dom.org/author/H-Anim/HAnimHumanoid.html
+ * Exported as `hAnimHumanoid` to avoid colliding with the HTML/SVG `hanimhumanoid` helper.
  */
-export const hanimhumanoid = withX3DOM('hanimhumanoid', createTagHelper('hanimhumanoid'))
+export const hAnimHumanoid = withX3DOM('hanimhumanoid', createTagHelper('hanimhumanoid'))
 
 /** @see https://doc.x3dom.org/author/H-Anim/HAnimJoint.html
+ * Exported as `hAnimJoint` to avoid colliding with the HTML/SVG `hanimjoint` helper.
  */
-export const hanimjoint = withX3DOM('hanimjoint', createTagHelper('hanimjoint'))
+export const hAnimJoint = withX3DOM('hanimjoint', createTagHelper('hanimjoint'))
 
 /** @see https://doc.x3dom.org/author/H-Anim/HAnimSegment.html
+ * Exported as `hAnimSegment` to avoid colliding with the HTML/SVG `hanimsegment` helper.
  */
-export const hanimsegment = withX3DOM('hanimsegment', createTagHelper('hanimsegment'))
+export const hAnimSegment = withX3DOM('hanimsegment', createTagHelper('hanimsegment'))
 
 /** @see https://doc.x3dom.org/author/H-Anim/HAnimSite.html
+ * Exported as `hAnimSite` to avoid colliding with the HTML/SVG `hanimsite` helper.
  */
-export const hanimsite = withX3DOM('hanimsite', createTagHelper('hanimsite'))
+export const hAnimSite = withX3DOM('hanimsite', createTagHelper('hanimsite'))
 
 /** @see https://doc.x3dom.org/author/Texturing/ImageTexture.html
+ * Exported as `imageTexture` to avoid colliding with the HTML/SVG `imagetexture` helper.
  */
-export const imagetexture = withX3DOM('imagetexture', createTagHelper('imagetexture'))
+export const imageTexture = withX3DOM('imagetexture', createTagHelper('imagetexture'))
 
 /** @see https://doc.x3dom.org/author/Texturing3D/ImageTexture3D.html
+ * Exported as `imageTexture3D` to avoid colliding with the HTML/SVG `imagetexture3d` helper.
  */
-export const imagetexture3d = withX3DOM('imagetexture3d', createTagHelper('imagetexture3d'))
+export const imageTexture3D = withX3DOM('imagetexture3d', createTagHelper('imagetexture3d'))
 
 /** @see https://doc.x3dom.org/author/Texturing/ImageTextureAtlas.html
+ * Exported as `imageTextureAtlas` to avoid colliding with the HTML/SVG `imagetextureatlas` helper.
  */
-export const imagetextureatlas = withX3DOM('imagetextureatlas', createTagHelper('imagetextureatlas'))
+export const imageTextureAtlas = withX3DOM('imagetextureatlas', createTagHelper('imagetextureatlas'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/IndexedFaceSet.html
+ * Exported as `indexedFaceSet` to avoid colliding with the HTML/SVG `indexedfaceset` helper.
  */
-export const indexedfaceset = withX3DOM('indexedfaceset', createTagHelper('indexedfaceset'))
+export const indexedFaceSet = withX3DOM('indexedfaceset', createTagHelper('indexedfaceset'))
 
 /** @see https://doc.x3dom.org/author/Rendering/IndexedLineSet.html
+ * Exported as `indexedLineSet` to avoid colliding with the HTML/SVG `indexedlineset` helper.
  */
-export const indexedlineset = withX3DOM('indexedlineset', createTagHelper('indexedlineset'))
+export const indexedLineSet = withX3DOM('indexedlineset', createTagHelper('indexedlineset'))
 
 /** @see https://doc.x3dom.org/author/CADGeometry/IndexedQuadSet.html
+ * Exported as `indexedQuadSet` to avoid colliding with the HTML/SVG `indexedquadset` helper.
  */
-export const indexedquadset = withX3DOM('indexedquadset', createTagHelper('indexedquadset'))
+export const indexedQuadSet = withX3DOM('indexedquadset', createTagHelper('indexedquadset'))
 
 /** @see https://doc.x3dom.org/author/Rendering/IndexedTriangleSet.html
+ * Exported as `indexedTriangleSet` to avoid colliding with the HTML/SVG `indexedtriangleset` helper.
  */
-export const indexedtriangleset = withX3DOM('indexedtriangleset', createTagHelper('indexedtriangleset'))
+export const indexedTriangleSet = withX3DOM('indexedtriangleset', createTagHelper('indexedtriangleset'))
 
 /** @see https://doc.x3dom.org/author/Rendering/IndexedTriangleStripSet.html
+ * Exported as `indexedTriangleStripSet` to avoid colliding with the HTML/SVG `indexedtrianglestripset` helper.
  */
-export const indexedtrianglestripset = withX3DOM('indexedtrianglestripset', createTagHelper('indexedtrianglestripset'))
+export const indexedTriangleStripSet = withX3DOM('indexedtrianglestripset', createTagHelper('indexedtrianglestripset'))
 
 /** @see https://doc.x3dom.org/author/Networking/Inline.html
  */
 export const inline = withX3DOM('inline', createTagHelper('inline'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/IntegerSequencer.html
+ * Exported as `integerSequencer` to avoid colliding with the HTML/SVG `integersequencer` helper.
  */
-export const integersequencer = withX3DOM('integersequencer', createTagHelper('integersequencer'))
+export const integerSequencer = withX3DOM('integersequencer', createTagHelper('integersequencer'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/IntegerTrigger.html
+ * Exported as `integerTrigger` to avoid colliding with the HTML/SVG `integertrigger` helper.
  */
-export const integertrigger = withX3DOM('integertrigger', createTagHelper('integertrigger'))
+export const integerTrigger = withX3DOM('integertrigger', createTagHelper('integertrigger'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/IsoSurfaceVolumeData.html
+ * Exported as `isoSurfaceVolumeData` to avoid colliding with the HTML/SVG `isosurfacevolumedata` helper.
  */
-export const isosurfacevolumedata = withX3DOM('isosurfacevolumedata', createTagHelper('isosurfacevolumedata'))
+export const isoSurfaceVolumeData = withX3DOM('isosurfacevolumedata', createTagHelper('isosurfacevolumedata'))
 
 /** @see https://doc.x3dom.org/author/Shape/LineProperties.html
+ * Exported as `lineProperties` to avoid colliding with the HTML/SVG `lineproperties` helper.
  */
-export const lineproperties = withX3DOM('lineproperties', createTagHelper('lineproperties'))
+export const lineProperties = withX3DOM('lineproperties', createTagHelper('lineproperties'))
 
 /** @see https://doc.x3dom.org/author/Rendering/LineSet.html
+ * Exported as `lineSet` to avoid colliding with the HTML/SVG `lineset` helper.
  */
-export const lineset = withX3DOM('lineset', createTagHelper('lineset'))
+export const lineSet = withX3DOM('lineset', createTagHelper('lineset'))
 
 /** @see https://doc.x3dom.org/author/Navigation/LOD.html
  */
@@ -380,296 +454,368 @@ export const lod = withX3DOM('lod', createTagHelper('lod'))
 export const material = withX3DOM('material', createTagHelper('material'))
 
 /** @see https://doc.x3dom.org/author/Texturing/MatrixTextureTransform.html
+ * Exported as `matrixTextureTransform` to avoid colliding with the HTML/SVG `matrixtexturetransform` helper.
  */
-export const matrixtexturetransform = withX3DOM('matrixtexturetransform', createTagHelper('matrixtexturetransform'))
+export const matrixTextureTransform = withX3DOM('matrixtexturetransform', createTagHelper('matrixtexturetransform'))
 
 /** @see https://doc.x3dom.org/author/Grouping/MatrixTransform.html
+ * Exported as `matrixTransform` to avoid colliding with the HTML/SVG `matrixtransform` helper.
  */
-export const matrixtransform = withX3DOM('matrixtransform', createTagHelper('matrixtransform'))
+export const matrixTransform = withX3DOM('matrixtransform', createTagHelper('matrixtransform'))
 
 /** @see https://doc.x3dom.org/author/Rendering/Mesh.html
  */
 export const mesh = withX3DOM('mesh', createTagHelper('mesh'))
 
 /** @see https://doc.x3dom.org/author/Core/MetadataBoolean.html
+ * Exported as `metadataBoolean` to avoid colliding with the HTML/SVG `metadataboolean` helper.
  */
-export const metadataboolean = withX3DOM('metadataboolean', createTagHelper('metadataboolean'))
+export const metadataBoolean = withX3DOM('metadataboolean', createTagHelper('metadataboolean'))
 
 /** @see https://doc.x3dom.org/author/Core/MetadataDouble.html
+ * Exported as `metadataDouble` to avoid colliding with the HTML/SVG `metadatadouble` helper.
  */
-export const metadatadouble = withX3DOM('metadatadouble', createTagHelper('metadatadouble'))
+export const metadataDouble = withX3DOM('metadatadouble', createTagHelper('metadatadouble'))
 
 /** @see https://doc.x3dom.org/author/Core/MetadataFloat.html
+ * Exported as `metadataFloat` to avoid colliding with the HTML/SVG `metadatafloat` helper.
  */
-export const metadatafloat = withX3DOM('metadatafloat', createTagHelper('metadatafloat'))
+export const metadataFloat = withX3DOM('metadatafloat', createTagHelper('metadatafloat'))
 
 /** @see https://doc.x3dom.org/author/Core/MetadataInteger.html
+ * Exported as `metadataInteger` to avoid colliding with the HTML/SVG `metadatainteger` helper.
  */
-export const metadatainteger = withX3DOM('metadatainteger', createTagHelper('metadatainteger'))
+export const metadataInteger = withX3DOM('metadatainteger', createTagHelper('metadatainteger'))
 
 /** @see https://doc.x3dom.org/author/Core/MetadataSet.html
+ * Exported as `metadataSet` to avoid colliding with the HTML/SVG `metadataset` helper.
  */
-export const metadataset = withX3DOM('metadataset', createTagHelper('metadataset'))
+export const metadataSet = withX3DOM('metadataset', createTagHelper('metadataset'))
 
 /** @see https://doc.x3dom.org/author/Core/MetadataString.html
+ * Exported as `metadataString` to avoid colliding with the HTML/SVG `metadatastring` helper.
  */
-export const metadatastring = withX3DOM('metadatastring', createTagHelper('metadatastring'))
+export const metadataString = withX3DOM('metadatastring', createTagHelper('metadatastring'))
 
 /** @see https://doc.x3dom.org/author/Texturing/MovieTexture.html
+ * Exported as `movieTexture` to avoid colliding with the HTML/SVG `movietexture` helper.
  */
-export const movietexture = withX3DOM('movietexture', createTagHelper('movietexture'))
+export const movieTexture = withX3DOM('movietexture', createTagHelper('movietexture'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/MPRPlane.html
+ * Exported as `mPRPlane` to avoid colliding with the HTML/SVG `mprplane` helper.
  */
-export const mprplane = withX3DOM('mprplane', createTagHelper('mprplane'))
+export const mPRPlane = withX3DOM('mprplane', createTagHelper('mprplane'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/MPRVolumeStyle.html
+ * Exported as `mPRVolumeStyle` to avoid colliding with the HTML/SVG `mprvolumestyle` helper.
  */
-export const mprvolumestyle = withX3DOM('mprvolumestyle', createTagHelper('mprvolumestyle'))
+export const mPRVolumeStyle = withX3DOM('mprvolumestyle', createTagHelper('mprvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Texturing/MultiTexture.html
+ * Exported as `multiTexture` to avoid colliding with the HTML/SVG `multitexture` helper.
  */
-export const multitexture = withX3DOM('multitexture', createTagHelper('multitexture'))
+export const multiTexture = withX3DOM('multitexture', createTagHelper('multitexture'))
 
 /** @see https://doc.x3dom.org/author/Texturing/MultiTextureCoordinate.html
+ * Exported as `multiTextureCoordinate` to avoid colliding with the HTML/SVG `multitexturecoordinate` helper.
  */
-export const multitexturecoordinate = withX3DOM('multitexturecoordinate', createTagHelper('multitexturecoordinate'))
+export const multiTextureCoordinate = withX3DOM('multitexturecoordinate', createTagHelper('multitexturecoordinate'))
 
 /** @see https://doc.x3dom.org/author/Navigation/NavigationInfo.html
+ * Exported as `navigationInfo` to avoid colliding with the HTML/SVG `navigationinfo` helper.
  */
-export const navigationinfo = withX3DOM('navigationinfo', createTagHelper('navigationinfo'))
+export const navigationInfo = withX3DOM('navigationinfo', createTagHelper('navigationinfo'))
 
 /** @see https://doc.x3dom.org/author/Rendering/Normal.html
  */
 export const normal = withX3DOM('normal', createTagHelper('normal'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/NormalInterpolator.html
+ * Exported as `normalInterpolator` to avoid colliding with the HTML/SVG `normalinterpolator` helper.
  */
-export const normalinterpolator = withX3DOM('normalinterpolator', createTagHelper('normalinterpolator'))
+export const normalInterpolator = withX3DOM('normalinterpolator', createTagHelper('normalinterpolator'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/Nozzle.html
  */
 export const nozzle = withX3DOM('nozzle', createTagHelper('nozzle'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsCurve.html
+ * Exported as `nurbsCurve` to avoid colliding with the HTML/SVG `nurbscurve` helper.
  */
-export const nurbscurve = withX3DOM('nurbscurve', createTagHelper('nurbscurve'))
+export const nurbsCurve = withX3DOM('nurbscurve', createTagHelper('nurbscurve'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsCurve2D.html
+ * Exported as `nurbsCurve2D` to avoid colliding with the HTML/SVG `nurbscurve2d` helper.
  */
-export const nurbscurve2d = withX3DOM('nurbscurve2d', createTagHelper('nurbscurve2d'))
+export const nurbsCurve2D = withX3DOM('nurbscurve2d', createTagHelper('nurbscurve2d'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsOrientationInterpolator.html
+ * Exported as `nurbsOrientationInterpolator` to avoid colliding with the HTML/SVG `nurbsorientationinterpolator` helper.
  */
-export const nurbsorientationinterpolator = withX3DOM('nurbsorientationinterpolator', createTagHelper('nurbsorientationinterpolator'))
+export const nurbsOrientationInterpolator = withX3DOM('nurbsorientationinterpolator', createTagHelper('nurbsorientationinterpolator'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsPatchSurface.html
+ * Exported as `nurbsPatchSurface` to avoid colliding with the HTML/SVG `nurbspatchsurface` helper.
  */
-export const nurbspatchsurface = withX3DOM('nurbspatchsurface', createTagHelper('nurbspatchsurface'))
+export const nurbsPatchSurface = withX3DOM('nurbspatchsurface', createTagHelper('nurbspatchsurface'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsPositionInterpolator.html
+ * Exported as `nurbsPositionInterpolator` to avoid colliding with the HTML/SVG `nurbspositioninterpolator` helper.
  */
-export const nurbspositioninterpolator = withX3DOM('nurbspositioninterpolator', createTagHelper('nurbspositioninterpolator'))
+export const nurbsPositionInterpolator = withX3DOM('nurbspositioninterpolator', createTagHelper('nurbspositioninterpolator'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsSurfaceInterpolator.html
+ * Exported as `nurbsSurfaceInterpolator` to avoid colliding with the HTML/SVG `nurbssurfaceinterpolator` helper.
  */
-export const nurbssurfaceinterpolator = withX3DOM('nurbssurfaceinterpolator', createTagHelper('nurbssurfaceinterpolator'))
+export const nurbsSurfaceInterpolator = withX3DOM('nurbssurfaceinterpolator', createTagHelper('nurbssurfaceinterpolator'))
 
 /** @see https://doc.x3dom.org/author/NURBS/NurbsTrimmedSurface.html
+ * Exported as `nurbsTrimmedSurface` to avoid colliding with the HTML/SVG `nurbstrimmedsurface` helper.
  */
-export const nurbstrimmedsurface = withX3DOM('nurbstrimmedsurface', createTagHelper('nurbstrimmedsurface'))
+export const nurbsTrimmedSurface = withX3DOM('nurbstrimmedsurface', createTagHelper('nurbstrimmedsurface'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/OpacityMapVolumeStyle.html
+ * Exported as `opacityMapVolumeStyle` to avoid colliding with the HTML/SVG `opacitymapvolumestyle` helper.
  */
-export const opacitymapvolumestyle = withX3DOM('opacitymapvolumestyle', createTagHelper('opacitymapvolumestyle'))
+export const opacityMapVolumeStyle = withX3DOM('opacitymapvolumestyle', createTagHelper('opacitymapvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Followers/OrientationChaser.html
+ * Exported as `orientationChaser` to avoid colliding with the HTML/SVG `orientationchaser` helper.
  */
-export const orientationchaser = withX3DOM('orientationchaser', createTagHelper('orientationchaser'))
+export const orientationChaser = withX3DOM('orientationchaser', createTagHelper('orientationchaser'))
 
 /** @see https://doc.x3dom.org/author/Followers/OrientationDamper.html
+ * Exported as `orientationDamper` to avoid colliding with the HTML/SVG `orientationdamper` helper.
  */
-export const orientationdamper = withX3DOM('orientationdamper', createTagHelper('orientationdamper'))
+export const orientationDamper = withX3DOM('orientationdamper', createTagHelper('orientationdamper'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/OrientationInterpolator.html
+ * Exported as `orientationInterpolator` to avoid colliding with the HTML/SVG `orientationinterpolator` helper.
  */
-export const orientationinterpolator = withX3DOM('orientationinterpolator', createTagHelper('orientationinterpolator'))
+export const orientationInterpolator = withX3DOM('orientationinterpolator', createTagHelper('orientationinterpolator'))
 
 /** @see https://doc.x3dom.org/author/Navigation/OrthoViewpoint.html
+ * Exported as `orthoViewpoint` to avoid colliding with the HTML/SVG `orthoviewpoint` helper.
  */
-export const orthoviewpoint = withX3DOM('orthoviewpoint', createTagHelper('orthoviewpoint'))
+export const orthoViewpoint = withX3DOM('orthoviewpoint', createTagHelper('orthoviewpoint'))
 
 /** @see https://doc.x3dom.org/author/Rendering/ParticleSet.html
+ * Exported as `particleSet` to avoid colliding with the HTML/SVG `particleset` helper.
  */
-export const particleset = withX3DOM('particleset', createTagHelper('particleset'))
+export const particleSet = withX3DOM('particleset', createTagHelper('particleset'))
 
 /** @see https://doc.x3dom.org/author/BVHRefiner/Patch.html
  */
 export const patch = withX3DOM('patch', createTagHelper('patch'))
 
 /** @see https://doc.x3dom.org/author/Lighting/PhysicalEnvironmentLight.html
+ * Exported as `physicalEnvironmentLight` to avoid colliding with the HTML/SVG `physicalenvironmentlight` helper.
  */
-export const physicalenvironmentlight = withX3DOM('physicalenvironmentlight', createTagHelper('physicalenvironmentlight'))
+export const physicalEnvironmentLight = withX3DOM('physicalenvironmentlight', createTagHelper('physicalenvironmentlight'))
 
 /** @see https://doc.x3dom.org/author/Shape/PhysicalMaterial.html
+ * Exported as `physicalMaterial` to avoid colliding with the HTML/SVG `physicalmaterial` helper.
  */
-export const physicalmaterial = withX3DOM('physicalmaterial', createTagHelper('physicalmaterial'))
+export const physicalMaterial = withX3DOM('physicalmaterial', createTagHelper('physicalmaterial'))
 
 /** @see https://doc.x3dom.org/author/Texturing/PixelTexture.html
+ * Exported as `pixelTexture` to avoid colliding with the HTML/SVG `pixeltexture` helper.
  */
-export const pixeltexture = withX3DOM('pixeltexture', createTagHelper('pixeltexture'))
+export const pixelTexture = withX3DOM('pixeltexture', createTagHelper('pixeltexture'))
 
 /** @see https://doc.x3dom.org/author/Texturing3D/PixelTexture3D.html
+ * Exported as `pixelTexture3D` to avoid colliding with the HTML/SVG `pixeltexture3d` helper.
  */
-export const pixeltexture3d = withX3DOM('pixeltexture3d', createTagHelper('pixeltexture3d'))
+export const pixelTexture3D = withX3DOM('pixeltexture3d', createTagHelper('pixeltexture3d'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/Plane.html
  */
 export const plane = withX3DOM('plane', createTagHelper('plane'))
 
 /** @see https://doc.x3dom.org/author/PointingDeviceSensor/PlaneSensor.html
+ * Exported as `planeSensor` to avoid colliding with the HTML/SVG `planesensor` helper.
  */
-export const planesensor = withX3DOM('planesensor', createTagHelper('planesensor'))
+export const planeSensor = withX3DOM('planesensor', createTagHelper('planesensor'))
 
 /** @see https://doc.x3dom.org/author/Lighting/PointLight.html
+ * Exported as `pointLight` to avoid colliding with the HTML/SVG `pointlight` helper.
  */
-export const pointlight = withX3DOM('pointlight', createTagHelper('pointlight'))
+export const pointLight = withX3DOM('pointlight', createTagHelper('pointlight'))
 
 /** @see https://doc.x3dom.org/author/Shape/PointProperties.html
+ * Exported as `pointProperties` to avoid colliding with the HTML/SVG `pointproperties` helper.
  */
-export const pointproperties = withX3DOM('pointproperties', createTagHelper('pointproperties'))
+export const pointProperties = withX3DOM('pointproperties', createTagHelper('pointproperties'))
 
 /** @see https://doc.x3dom.org/author/Rendering/PointSet.html
+ * Exported as `pointSet` to avoid colliding with the HTML/SVG `pointset` helper.
  */
-export const pointset = withX3DOM('pointset', createTagHelper('pointset'))
+export const pointSet = withX3DOM('pointset', createTagHelper('pointset'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/Polyline2D.html
+ * Exported as `polyline2D` to avoid colliding with the HTML/SVG `polyline2d` helper.
  */
-export const polyline2d = withX3DOM('polyline2d', createTagHelper('polyline2d'))
+export const polyline2D = withX3DOM('polyline2d', createTagHelper('polyline2d'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/Polypoint2D.html
+ * Exported as `polypoint2D` to avoid colliding with the HTML/SVG `polypoint2d` helper.
  */
-export const polypoint2d = withX3DOM('polypoint2d', createTagHelper('polypoint2d'))
+export const polypoint2D = withX3DOM('polypoint2d', createTagHelper('polypoint2d'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/PopGeometry.html
+ * Exported as `popGeometry` to avoid colliding with the HTML/SVG `popgeometry` helper.
  */
-export const popgeometry = withX3DOM('popgeometry', createTagHelper('popgeometry'))
+export const popGeometry = withX3DOM('popgeometry', createTagHelper('popgeometry'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/PopGeometryLevel.html
+ * Exported as `popGeometryLevel` to avoid colliding with the HTML/SVG `popgeometrylevel` helper.
  */
-export const popgeometrylevel = withX3DOM('popgeometrylevel', createTagHelper('popgeometrylevel'))
+export const popGeometryLevel = withX3DOM('popgeometrylevel', createTagHelper('popgeometrylevel'))
 
 /** @see https://doc.x3dom.org/author/Followers/PositionChaser.html
+ * Exported as `positionChaser` to avoid colliding with the HTML/SVG `positionchaser` helper.
  */
-export const positionchaser = withX3DOM('positionchaser', createTagHelper('positionchaser'))
+export const positionChaser = withX3DOM('positionchaser', createTagHelper('positionchaser'))
 
 /** @see https://doc.x3dom.org/author/Followers/PositionChaser2D.html
+ * Exported as `positionChaser2D` to avoid colliding with the HTML/SVG `positionchaser2d` helper.
  */
-export const positionchaser2d = withX3DOM('positionchaser2d', createTagHelper('positionchaser2d'))
+export const positionChaser2D = withX3DOM('positionchaser2d', createTagHelper('positionchaser2d'))
 
 /** @see https://doc.x3dom.org/author/Followers/PositionDamper.html
+ * Exported as `positionDamper` to avoid colliding with the HTML/SVG `positiondamper` helper.
  */
-export const positiondamper = withX3DOM('positiondamper', createTagHelper('positiondamper'))
+export const positionDamper = withX3DOM('positiondamper', createTagHelper('positiondamper'))
 
 /** @see https://doc.x3dom.org/author/Followers/PositionDamper2D.html
+ * Exported as `positionDamper2D` to avoid colliding with the HTML/SVG `positiondamper2d` helper.
  */
-export const positiondamper2d = withX3DOM('positiondamper2d', createTagHelper('positiondamper2d'))
+export const positionDamper2D = withX3DOM('positiondamper2d', createTagHelper('positiondamper2d'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/PositionInterpolator.html
+ * Exported as `positionInterpolator` to avoid colliding with the HTML/SVG `positioninterpolator` helper.
  */
-export const positioninterpolator = withX3DOM('positioninterpolator', createTagHelper('positioninterpolator'))
+export const positionInterpolator = withX3DOM('positioninterpolator', createTagHelper('positioninterpolator'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/PositionInterpolator2D.html
+ * Exported as `positionInterpolator2D` to avoid colliding with the HTML/SVG `positioninterpolator2d` helper.
  */
-export const positioninterpolator2d = withX3DOM('positioninterpolator2d', createTagHelper('positioninterpolator2d'))
+export const positionInterpolator2D = withX3DOM('positioninterpolator2d', createTagHelper('positioninterpolator2d'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/ProjectionVolumeStyle.html
+ * Exported as `projectionVolumeStyle` to avoid colliding with the HTML/SVG `projectionvolumestyle` helper.
  */
-export const projectionvolumestyle = withX3DOM('projectionvolumestyle', createTagHelper('projectionvolumestyle'))
+export const projectionVolumeStyle = withX3DOM('projectionvolumestyle', createTagHelper('projectionvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/Pyramid.html
  */
 export const pyramid = withX3DOM('pyramid', createTagHelper('pyramid'))
 
 /** @see https://doc.x3dom.org/author/CADGeometry/QuadSet.html
+ * Exported as `quadSet` to avoid colliding with the HTML/SVG `quadset` helper.
  */
-export const quadset = withX3DOM('quadset', createTagHelper('quadset'))
+export const quadSet = withX3DOM('quadset', createTagHelper('quadset'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/RadarVolumeStyle.html
+ * Exported as `radarVolumeStyle` to avoid colliding with the HTML/SVG `radarvolumestyle` helper.
  */
-export const radarvolumestyle = withX3DOM('radarvolumestyle', createTagHelper('radarvolumestyle'))
+export const radarVolumeStyle = withX3DOM('radarvolumestyle', createTagHelper('radarvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/Rectangle2D.html
+ * Exported as `rectangle2D` to avoid colliding with the HTML/SVG `rectangle2d` helper.
  */
-export const rectangle2d = withX3DOM('rectangle2d', createTagHelper('rectangle2d'))
+export const rectangle2D = withX3DOM('rectangle2d', createTagHelper('rectangle2d'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/RectangularTorus.html
+ * Exported as `rectangularTorus` to avoid colliding with the HTML/SVG `rectangulartorus` helper.
  */
-export const rectangulartorus = withX3DOM('rectangulartorus', createTagHelper('rectangulartorus'))
+export const rectangularTorus = withX3DOM('rectangulartorus', createTagHelper('rectangulartorus'))
 
 /** @see https://doc.x3dom.org/author/Texturing/RefinementTexture.html
+ * Exported as `refinementTexture` to avoid colliding with the HTML/SVG `refinementtexture` helper.
  */
-export const refinementtexture = withX3DOM('refinementtexture', createTagHelper('refinementtexture'))
+export const refinementTexture = withX3DOM('refinementtexture', createTagHelper('refinementtexture'))
 
 /** @see https://doc.x3dom.org/author/Grouping/RemoteSelectionGroup.html
+ * Exported as `remoteSelectionGroup` to avoid colliding with the HTML/SVG `remoteselectiongroup` helper.
  */
-export const remoteselectiongroup = withX3DOM('remoteselectiongroup', createTagHelper('remoteselectiongroup'))
+export const remoteSelectionGroup = withX3DOM('remoteselectiongroup', createTagHelper('remoteselectiongroup'))
 
 /** @see https://doc.x3dom.org/author/Texturing/RenderedTexture.html
+ * Exported as `renderedTexture` to avoid colliding with the HTML/SVG `renderedtexture` helper.
  */
-export const renderedtexture = withX3DOM('renderedtexture', createTagHelper('renderedtexture'))
+export const renderedTexture = withX3DOM('renderedtexture', createTagHelper('renderedtexture'))
+
+/**
+ * X3D ROUTE statement (event routing).
+ *
+ * X3DOM supports authoring ROUTEs using a <route> element with
+ * `fromNode`, `fromField`, `toNode`, and `toField` attributes.
+ */
+export const route = withX3DOM('route', createTagHelper('route'))
 
 /** @see https://doc.x3dom.org/author/Followers/ScalarChaser.html
+ * Exported as `scalarChaser` to avoid colliding with the HTML/SVG `scalarchaser` helper.
  */
-export const scalarchaser = withX3DOM('scalarchaser', createTagHelper('scalarchaser'))
+export const scalarChaser = withX3DOM('scalarchaser', createTagHelper('scalarchaser'))
 
 /** @see https://doc.x3dom.org/author/Followers/ScalarDamper.html
+ * Exported as `scalarDamper` to avoid colliding with the HTML/SVG `scalardamper` helper.
  */
-export const scalardamper = withX3DOM('scalardamper', createTagHelper('scalardamper'))
+export const scalarDamper = withX3DOM('scalardamper', createTagHelper('scalardamper'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/ScalarInterpolator.html
+ * Exported as `scalarInterpolator` to avoid colliding with the HTML/SVG `scalarinterpolator` helper.
  */
-export const scalarinterpolator = withX3DOM('scalarinterpolator', createTagHelper('scalarinterpolator'))
+export const scalarInterpolator = withX3DOM('scalarinterpolator', createTagHelper('scalarinterpolator'))
 
 /** @see https://doc.x3dom.org/author/Grouping/Scene.html
  */
 export const scene = withX3DOM('scene', createTagHelper('scene'))
 
 /** @see https://doc.x3dom.org/author/Layout/ScreenGroup.html
+ * Exported as `screenGroup` to avoid colliding with the HTML/SVG `screengroup` helper.
  */
-export const screengroup = withX3DOM('screengroup', createTagHelper('screengroup'))
+export const screenGroup = withX3DOM('screengroup', createTagHelper('screengroup'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/SegmentedVolumeData.html
+ * Exported as `segmentedVolumeData` to avoid colliding with the HTML/SVG `segmentedvolumedata` helper.
  */
-export const segmentedvolumedata = withX3DOM('segmentedvolumedata', createTagHelper('segmentedvolumedata'))
+export const segmentedVolumeData = withX3DOM('segmentedvolumedata', createTagHelper('segmentedvolumedata'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/ShadedVolumeStyle.html
+ * Exported as `shadedVolumeStyle` to avoid colliding with the HTML/SVG `shadedvolumestyle` helper.
  */
-export const shadedvolumestyle = withX3DOM('shadedvolumestyle', createTagHelper('shadedvolumestyle'))
+export const shadedVolumeStyle = withX3DOM('shadedvolumestyle', createTagHelper('shadedvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Shaders/ShaderPart.html
+ * Exported as `shaderPart` to avoid colliding with the HTML/SVG `shaderpart` helper.
  */
-export const shaderpart = withX3DOM('shaderpart', createTagHelper('shaderpart'))
+export const shaderPart = withX3DOM('shaderpart', createTagHelper('shaderpart'))
 
 /** @see https://doc.x3dom.org/author/Shape/Shape.html
  */
 export const shape = withX3DOM('shape', createTagHelper('shape'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/SilhouetteEnhancementVolumeStyle.html
+ * Exported as `silhouetteEnhancementVolumeStyle` to avoid colliding with the HTML/SVG `silhouetteenhancementvolumestyle` helper.
  */
-export const silhouetteenhancementvolumestyle = withX3DOM('silhouetteenhancementvolumestyle', createTagHelper('silhouetteenhancementvolumestyle'))
+export const silhouetteEnhancementVolumeStyle = withX3DOM('silhouetteenhancementvolumestyle', createTagHelper('silhouetteenhancementvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/SlopedCylinder.html
+ * Exported as `slopedCylinder` to avoid colliding with the HTML/SVG `slopedcylinder` helper.
  */
-export const slopedcylinder = withX3DOM('slopedcylinder', createTagHelper('slopedcylinder'))
+export const slopedCylinder = withX3DOM('slopedcylinder', createTagHelper('slopedcylinder'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/Snout.html
  */
 export const snout = withX3DOM('snout', createTagHelper('snout'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/SolidOfRevolution.html
+ * Exported as `solidOfRevolution` to avoid colliding with the HTML/SVG `solidofrevolution` helper.
  */
-export const solidofrevolution = withX3DOM('solidofrevolution', createTagHelper('solidofrevolution'))
+export const solidOfRevolution = withX3DOM('solidofrevolution', createTagHelper('solidofrevolution'))
 
 /** @see https://doc.x3dom.org/author/Sound/Sound.html
  */
@@ -680,104 +826,126 @@ export const sound = withX3DOM('sound', createTagHelper('sound'))
 export const sphere = withX3DOM('sphere', createTagHelper('sphere'))
 
 /** @see https://doc.x3dom.org/author/Geometry3DExt/SphereSegment.html
+ * Exported as `sphereSegment` to avoid colliding with the HTML/SVG `spheresegment` helper.
  */
-export const spheresegment = withX3DOM('spheresegment', createTagHelper('spheresegment'))
+export const sphereSegment = withX3DOM('spheresegment', createTagHelper('spheresegment'))
 
 /** @see https://doc.x3dom.org/author/PointingDeviceSensor/SphereSensor.html
+ * Exported as `sphereSensor` to avoid colliding with the HTML/SVG `spheresensor` helper.
  */
-export const spheresensor = withX3DOM('spheresensor', createTagHelper('spheresensor'))
+export const sphereSensor = withX3DOM('spheresensor', createTagHelper('spheresensor'))
 
 /** @see https://doc.x3dom.org/author/Interpolation/SplinePositionInterpolator.html
+ * Exported as `splinePositionInterpolator` to avoid colliding with the HTML/SVG `splinepositioninterpolator` helper.
  */
-export const splinepositioninterpolator = withX3DOM('splinepositioninterpolator', createTagHelper('splinepositioninterpolator'))
+export const splinePositionInterpolator = withX3DOM('splinepositioninterpolator', createTagHelper('splinepositioninterpolator'))
 
 /** @see https://doc.x3dom.org/author/Lighting/SpotLight.html
+ * Exported as `spotLight` to avoid colliding with the HTML/SVG `spotlight` helper.
  */
-export const spotlight = withX3DOM('spotlight', createTagHelper('spotlight'))
+export const spotLight = withX3DOM('spotlight', createTagHelper('spotlight'))
 
 /** @see https://doc.x3dom.org/author/Grouping/StaticGroup.html
+ * Exported as `staticGroup` to avoid colliding with the HTML/SVG `staticgroup` helper.
  */
-export const staticgroup = withX3DOM('staticgroup', createTagHelper('staticgroup'))
+export const staticGroup = withX3DOM('staticgroup', createTagHelper('staticgroup'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/StippleVolumeStyle.html
+ * Exported as `stippleVolumeStyle` to avoid colliding with the HTML/SVG `stipplevolumestyle` helper.
  */
-export const stipplevolumestyle = withX3DOM('stipplevolumestyle', createTagHelper('stipplevolumestyle'))
+export const stippleVolumeStyle = withX3DOM('stipplevolumestyle', createTagHelper('stipplevolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Shaders/SurfaceShaderTexture.html
+ * Exported as `surfaceShaderTexture` to avoid colliding with the HTML/SVG `surfaceshadertexture` helper.
  */
-export const surfaceshadertexture = withX3DOM('surfaceshadertexture', createTagHelper('surfaceshadertexture'))
+export const surfaceShaderTexture = withX3DOM('surfaceshadertexture', createTagHelper('surfaceshadertexture'))
 
 /** @see https://doc.x3dom.org/author/Followers/TexCoordDamper2D.html
+ * Exported as `texCoordDamper2D` to avoid colliding with the HTML/SVG `texcoorddamper2d` helper.
  */
-export const texcoorddamper2d = withX3DOM('texcoorddamper2d', createTagHelper('texcoorddamper2d'))
+export const texCoordDamper2D = withX3DOM('texcoorddamper2d', createTagHelper('texcoorddamper2d'))
 
 /** @see https://doc.x3dom.org/author/Texturing/Texture.html
  */
 export const texture = withX3DOM('texture', createTagHelper('texture'))
 
 /** @see https://doc.x3dom.org/author/Texturing/TextureCoordinate.html
+ * Exported as `textureCoordinate` to avoid colliding with the HTML/SVG `texturecoordinate` helper.
  */
-export const texturecoordinate = withX3DOM('texturecoordinate', createTagHelper('texturecoordinate'))
+export const textureCoordinate = withX3DOM('texturecoordinate', createTagHelper('texturecoordinate'))
 
 /** @see https://doc.x3dom.org/author/Texturing3D/TextureCoordinate3D.html
+ * Exported as `textureCoordinate3D` to avoid colliding with the HTML/SVG `texturecoordinate3d` helper.
  */
-export const texturecoordinate3d = withX3DOM('texturecoordinate3d', createTagHelper('texturecoordinate3d'))
+export const textureCoordinate3D = withX3DOM('texturecoordinate3d', createTagHelper('texturecoordinate3d'))
 
 /** @see https://doc.x3dom.org/author/Texturing/TextureCoordinateGenerator.html
+ * Exported as `textureCoordinateGenerator` to avoid colliding with the HTML/SVG `texturecoordinategenerator` helper.
  */
-export const texturecoordinategenerator = withX3DOM('texturecoordinategenerator', createTagHelper('texturecoordinategenerator'))
+export const textureCoordinateGenerator = withX3DOM('texturecoordinategenerator', createTagHelper('texturecoordinategenerator'))
 
 /** @see https://doc.x3dom.org/author/Texturing/TextureProperties.html
+ * Exported as `textureProperties` to avoid colliding with the HTML/SVG `textureproperties` helper.
  */
-export const textureproperties = withX3DOM('textureproperties', createTagHelper('textureproperties'))
+export const textureProperties = withX3DOM('textureproperties', createTagHelper('textureproperties'))
 
 /** @see https://doc.x3dom.org/author/Texturing/TextureTransform.html
+ * Exported as `textureTransform` to avoid colliding with the HTML/SVG `texturetransform` helper.
  */
-export const texturetransform = withX3DOM('texturetransform', createTagHelper('texturetransform'))
+export const textureTransform = withX3DOM('texturetransform', createTagHelper('texturetransform'))
 
 /** @see https://doc.x3dom.org/author/Texturing3D/TextureTransform3D.html
+ * Exported as `textureTransform3D` to avoid colliding with the HTML/SVG `texturetransform3d` helper.
  */
-export const texturetransform3d = withX3DOM('texturetransform3d', createTagHelper('texturetransform3d'))
+export const textureTransform3D = withX3DOM('texturetransform3d', createTagHelper('texturetransform3d'))
 
 /** @see https://doc.x3dom.org/author/Texturing3D/TextureTransformMatrix3D.html
+ * Exported as `textureTransformMatrix3D` to avoid colliding with the HTML/SVG `texturetransformmatrix3d` helper.
  */
-export const texturetransformmatrix3d = withX3DOM('texturetransformmatrix3d', createTagHelper('texturetransformmatrix3d'))
+export const textureTransformMatrix3D = withX3DOM('texturetransformmatrix3d', createTagHelper('texturetransformmatrix3d'))
 
 /** @see https://doc.x3dom.org/author/Time/TimeSensor.html
+ * Exported as `timeSensor` to avoid colliding with the HTML/SVG `timesensor` helper.
  */
-export const timesensor = withX3DOM('timesensor', createTagHelper('timesensor'))
+export const timeSensor = withX3DOM('timesensor', createTagHelper('timesensor'))
 
 /** @see https://doc.x3dom.org/author/EventUtilities/TimeTrigger.html
+ * Exported as `timeTrigger` to avoid colliding with the HTML/SVG `timetrigger` helper.
  */
-export const timetrigger = withX3DOM('timetrigger', createTagHelper('timetrigger'))
+export const timeTrigger = withX3DOM('timetrigger', createTagHelper('timetrigger'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/ToneMappedVolumeStyle.html
+ * Exported as `toneMappedVolumeStyle` to avoid colliding with the HTML/SVG `tonemappedvolumestyle` helper.
  */
-export const tonemappedvolumestyle = withX3DOM('tonemappedvolumestyle', createTagHelper('tonemappedvolumestyle'))
+export const toneMappedVolumeStyle = withX3DOM('tonemappedvolumestyle', createTagHelper('tonemappedvolumestyle'))
 
 /** @see https://doc.x3dom.org/author/Geometry3D/Torus.html
  */
 export const torus = withX3DOM('torus', createTagHelper('torus'))
 
 /** @see https://doc.x3dom.org/author/PointingDeviceSensor/TouchSensor.html
+ * Exported as `touchSensor` to avoid colliding with the HTML/SVG `touchsensor` helper.
  */
-export const touchsensor = withX3DOM('touchsensor', createTagHelper('touchsensor'))
+export const touchSensor = withX3DOM('touchsensor', createTagHelper('touchsensor'))
 
 /** @see https://doc.x3dom.org/author/Grouping/Transform.html
  */
 export const transform = withX3DOM('transform', createTagHelper('transform'))
 
 /** @see https://doc.x3dom.org/author/Rendering/TriangleSet.html
+ * Exported as `triangleSet` to avoid colliding with the HTML/SVG `triangleset` helper.
  */
-export const triangleset = withX3DOM('triangleset', createTagHelper('triangleset'))
+export const triangleSet = withX3DOM('triangleset', createTagHelper('triangleset'))
 
 /** @see https://doc.x3dom.org/author/Geometry2D/TriangleSet2D.html
+ * Exported as `triangleSet2D` to avoid colliding with the HTML/SVG `triangleset2d` helper.
  */
-export const triangleset2d = withX3DOM('triangleset2d', createTagHelper('triangleset2d'))
+export const triangleSet2D = withX3DOM('triangleset2d', createTagHelper('triangleset2d'))
 
 /** @see https://doc.x3dom.org/author/Shape/TwoSidedMaterial.html
+ * Exported as `twoSidedMaterial` to avoid colliding with the HTML/SVG `twosidedmaterial` helper.
  */
-export const twosidedmaterial = withX3DOM('twosidedmaterial', createTagHelper('twosidedmaterial'))
+export const twoSidedMaterial = withX3DOM('twosidedmaterial', createTagHelper('twosidedmaterial'))
 
 /** @see https://doc.x3dom.org/author/Shaders/Uniform.html
  */
@@ -792,12 +960,14 @@ export const viewfrustum = withX3DOM('viewfrustum', createTagHelper('viewfrustum
 export const viewpoint = withX3DOM('viewpoint', createTagHelper('viewpoint'))
 
 /** @see https://doc.x3dom.org/author/VolumeRendering/VolumeData.html
+ * Exported as `volumeData` to avoid colliding with the HTML/SVG `volumedata` helper.
  */
-export const volumedata = withX3DOM('volumedata', createTagHelper('volumedata'))
+export const volumeData = withX3DOM('volumedata', createTagHelper('volumedata'))
 
 /** @see https://doc.x3dom.org/author/Core/WorldInfo.html
+ * Exported as `worldInfo` to avoid colliding with the HTML/SVG `worldinfo` helper.
  */
-export const worldinfo = withX3DOM('worldinfo', createTagHelper('worldinfo'))
+export const worldInfo = withX3DOM('worldinfo', createTagHelper('worldinfo'))
 
 /** @see https://doc.x3dom.org/author/Core/X3D.html
  */

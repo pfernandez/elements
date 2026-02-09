@@ -4,7 +4,6 @@ import path from 'node:path'
 const pkgRoot = path.resolve(import.meta.dirname, '..')
 const repoRoot = path.resolve(pkgRoot, '..', '..')
 
-const x3domVendorCorePath = path.join(pkgRoot, 'vendor', 'x3dom.js')
 const x3domVendorFullPath = path.join(pkgRoot, 'vendor', 'x3dom-full.js')
 const typesDir = path.join(pkgRoot, 'types')
 const typesSrcDir = path.join(typesDir, 'src')
@@ -20,18 +19,21 @@ const parseRegistry = source => {
 }
 
 const loadVendoredX3domVersion = () => {
-  if (!fs.existsSync(x3domVendorCorePath)) return null
-  const src = fs.readFileSync(x3domVendorCorePath, 'utf8')
+  if (!fs.existsSync(x3domVendorFullPath)) return null
+  const src = fs.readFileSync(x3domVendorFullPath, 'utf8')
   const m = src.match(/X3DOM\s+([0-9]+\.[0-9]+\.[0-9]+)/)
   return m?.[1] || null
 }
 
+const toTagName = pascal => {
+  if (pascal === 'LOD') return 'lod'
+  // In HTML, X3D node names are written lowercase (<arc2d>, <geoLocation>, ...).
+  return pascal.toLowerCase()
+}
+
 const toHelperName = pascal => {
   if (pascal === 'LOD') return 'lod'
-  // X3DOM nodes are authored in PascalCase (e.g. ArcClose2D) but in HTML the
-  // tag name is effectively lowercase. We keep helper names aligned with the
-  // lowercase tag.
-  return pascal.toLowerCase()
+  return pascal[0].toLowerCase() + pascal.slice(1)
 }
 
 const toExportName = tag => {
@@ -221,18 +223,22 @@ const writeX3DHelpersRuntime = byName => {
     .map(([pascal, component]) => ({
       pascal,
       component,
-      tag: toHelperName(pascal)
+      tag: toTagName(pascal),
+      helper: toHelperName(pascal)
     }))
 
   // Generate explicit exports so tree-shaking works well.
   const exportsList = [
     { exportName: 'x3d', tag: 'x3d', pascal: 'X3D', component: 'Core' },
-    ...concrete.map(({ pascal, component, tag }) => ({
-      exportName: toExportName(tag),
+    ...concrete.map(({ pascal, component, tag, helper }) => ({
+      exportName: toExportName(helper),
       tag,
       pascal,
       component
-    }))
+    })),
+    // X3D ROUTE is expressed as an element in X3DOM authoring, but it is not
+    // registered via registerNodeType.
+    { exportName: 'route', tag: 'route', pascal: 'ROUTE', component: 'Core' }
   ]
 
   // Keep stable order by export name for easier diffs.
@@ -247,9 +253,17 @@ const writeX3DHelpersRuntime = byName => {
   )
   lines.push('')
   for (const e of exportsList) {
-    lines.push(
-      `/** @see https://doc.x3dom.org/author/${e.component}/${e.pascal}.html`
-    )
+    if (e.exportName === 'route') {
+      lines.push('/**')
+      lines.push(' * X3D ROUTE statement (event routing).')
+      lines.push(' *')
+      lines.push(' * X3DOM supports authoring ROUTEs using a <route> element with')
+      lines.push(' * `fromNode`, `fromField`, `toNode`, and `toField` attributes.')
+    } else {
+      lines.push(
+        `/** @see https://doc.x3dom.org/author/${e.component}/${e.pascal}.html`
+      )
+    }
     if (e.exportName !== e.tag) lines.push(
       ` * Exported as \`${e.exportName}\` to avoid colliding with the `
         + `HTML/SVG \`${e.tag}\` helper.`
@@ -276,7 +290,8 @@ const writeX3DTypes = byName => {
     .map(([pascal, component]) => ({
       pascal,
       component,
-      tag: toHelperName(pascal)
+      tag: toTagName(pascal),
+      helper: toHelperName(pascal)
     }))
 
   const lines = []
@@ -347,8 +362,8 @@ const writeX3DTypes = byName => {
   lines.push('export const x3d: ElementHelper;')
   lines.push('')
 
-  for (const { pascal, component, tag } of concrete) {
-    const exp = toExportName(tag)
+  for (const { pascal, component, tag, helper } of concrete) {
+    const exp = toExportName(helper)
     const url = makeDocUrl(component, pascal)
     const tagLabel = tag === 'lod' ? '<lod> (LOD)' : `<${tag}>`
     const desc =
@@ -378,6 +393,22 @@ const writeX3DTypes = byName => {
     lines.push(`export const ${exp}: ElementHelper<${propsName}>;`)
     lines.push('')
   }
+
+  lines.push('export interface RouteProps extends X3DProps {')
+  lines.push('  fromNode?: string;')
+  lines.push('  fromField?: string;')
+  lines.push('  toNode?: string;')
+  lines.push('  toField?: string;')
+  lines.push('}')
+  lines.push('')
+  lines.push('/**')
+  lines.push(' * X3D ROUTE statement (event routing).')
+  lines.push(' *')
+  lines.push(' * X3DOM supports authoring ROUTEs using a <route> element with')
+  lines.push(' * `fromNode`, `fromField`, `toNode`, and `toField` attributes.')
+  lines.push(' */')
+  lines.push('export const route: ElementHelper<RouteProps>;')
+  lines.push('')
 
   const outPath = path.join(typesSrcDir, 'x3d.d.ts')
   fs.writeFileSync(outPath, lines.join('\n'))
@@ -446,21 +477,14 @@ const main = () => {
   const wantsRuntime = args.size === 0 || args.has('--runtime')
   const wantsTypes = args.size === 0 || args.has('--types')
 
-  if (!fs.existsSync(x3domVendorCorePath)) {
+  if (!fs.existsSync(x3domVendorFullPath)) {
     console.error(
-      `Could not find vendored x3dom core at: ${x3domVendorCorePath}`
+      `Could not find vendored x3dom-full at: ${x3domVendorFullPath}`
     )
     process.exit(1)
   }
 
-  const coreSource = fs.readFileSync(x3domVendorCorePath, 'utf8')
-  const coreRegistry = parseRegistry(coreSource)
-
-  const fullRegistry = fs.existsSync(x3domVendorFullPath)
-    ? parseRegistry(fs.readFileSync(x3domVendorFullPath, 'utf8'))
-    : coreRegistry
-
-  const byName = fullRegistry
+  const byName = parseRegistry(fs.readFileSync(x3domVendorFullPath, 'utf8'))
 
   wantsRuntime && writeX3DHelpersRuntime(byName)
   wantsTypes && writeX3DEntrypointTypes()
@@ -469,4 +493,3 @@ const main = () => {
 }
 
 main()
-

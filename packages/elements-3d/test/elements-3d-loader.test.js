@@ -61,7 +61,7 @@ test(
 )
 
 test(
-  'withX3DOM loads full bundle when a node is missing from core',
+  'withX3DOM loads x3dom-full (and never core)',
   async () => {
   const { createTagHelper, withX3DOM } = await loadX3DOMModule()
   const prevWindow = globalThis.window
@@ -76,20 +76,6 @@ test(
     head: {
       appendChild: el => {
         headChildren.push(el)
-
-        if (el.tagName === 'SCRIPT' && String(el.src).includes('x3dom.js')) {
-          globalThis.x3dom = globalThis.x3dom || {
-            reload: () => {},
-            nodeTypesLC: { x3d: true }
-          }
-          globalThis.window && (globalThis.window.x3dom = globalThis.x3dom)
-        }
-
-        if (el.tagName === 'SCRIPT' && String(el.src).includes('x3dom-full.js')) {
-          globalThis.x3dom
-            && (globalThis.x3dom.nodeTypesLC.arc2d = true)
-          globalThis.window && (globalThis.window.x3dom = globalThis.x3dom)
-        }
 
         typeof el.onload === 'function' && el.onload()
         return el
@@ -124,10 +110,9 @@ test(
       .filter(x => x.tagName === 'SCRIPT')
       .map(x => String(x.src))
 
-  const hasCore = scriptSrcs.some(s => s.includes('x3dom.js'))
   const hasFull = scriptSrcs.some(s => s.includes('x3dom-full.js'))
-  assert.equal(hasCore, true)
   assert.equal(hasFull, true)
+  assert.equal(scriptSrcs.some(s => s.includes('x3dom.js')), false)
 
   console.warn = prevWarn
   globalThis.window = prevWindow

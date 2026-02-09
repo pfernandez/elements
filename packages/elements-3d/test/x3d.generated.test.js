@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
 import { test } from 'node:test'
 
 import * as x3d from '../src/3d.js'
 
-import fs from 'node:fs'
-
-const x3domVendorCorePath = new URL('../vendor/x3dom.js', import.meta.url)
 const x3domVendorFullPath = new URL('../vendor/x3dom-full.js', import.meta.url)
 
 const parseRegistry = source => {
@@ -16,9 +14,14 @@ const parseRegistry = source => {
   return byName
 }
 
-const toHelperName = pascal => {
+const toTagName = pascal => {
   if (pascal === 'LOD') return 'lod'
   return pascal.toLowerCase()
+}
+
+const toHelperName = pascal => {
+  if (pascal === 'LOD') return 'lod'
+  return pascal[0].toLowerCase() + pascal.slice(1)
 }
 
 const toExportName = tag => {
@@ -29,12 +32,8 @@ const toExportName = tag => {
 }
 
 test('3d.js exports helpers for every concrete x3dom node', () => {
-  const x3domVendorPath =
-    fs.existsSync(x3domVendorFullPath)
-      ? x3domVendorFullPath
-      : x3domVendorCorePath
-
-  const registrySource = fs.readFileSync(x3domVendorPath, 'utf8')
+  assert.equal(fs.existsSync(x3domVendorFullPath), true)
+  const registrySource = fs.readFileSync(x3domVendorFullPath, 'utf8')
   const byName = parseRegistry(registrySource)
 
   // Ensure collision-prone names are not exported directly.
@@ -48,8 +47,9 @@ test('3d.js exports helpers for every concrete x3dom node', () => {
 
   for (const name of byName.keys()) {
     if (name.startsWith('X3D')) continue
-    const tag = toHelperName(name)
-    const exportName = toExportName(tag)
+    const tag = toTagName(name)
+    const helperName = toHelperName(name)
+    const exportName = toExportName(helperName)
     const fn = x3d[exportName]
     const missing = `missing export: ${exportName} (tag <${tag}>)`
     assert.equal(typeof fn, 'function', missing)
@@ -58,4 +58,8 @@ test('3d.js exports helpers for every concrete x3dom node', () => {
     assert.equal(vnode[0], tag)
     assert.deepEqual(vnode[1], { id: 'x' })
   }
+
+  // ROUTE is supported as a tag helper, but is not in registerNodeType.
+  assert.equal(typeof x3d.route, 'function')
+  assert.equal(x3d.route({ fromNode: 'a' })[0], 'route')
 })

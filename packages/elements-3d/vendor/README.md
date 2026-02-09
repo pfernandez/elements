@@ -1,7 +1,7 @@
 # Vendored X3DOM artifacts
 
 This folder contains vendored build artifacts from the upstream X3DOM project.
-They are included so that `@pfern/elements` can:
+They are included so that `@pfern/elements-3d` can:
 
 - Provide comprehensive X3D tag helpers (core + full node sets).
 - Lazy-load X3DOM at runtime without requiring consumers to import `x3dom`
@@ -11,7 +11,6 @@ They are included so that `@pfern/elements` can:
 
 ## Files
 
-- `vendor/x3dom.js` — “core/basic” bundle.
 - `vendor/x3dom-full.js` — “full” bundle that includes additional components
   (e.g. Geometry2D, Geospatial, VolumeRendering, etc.).
 - `vendor/x3dom.css` — X3DOM CSS.
@@ -28,7 +27,6 @@ version, using the upstream build script:
 3. Run build:
    - `node build/src-builder.js`
 4. Copy outputs from `dist/`:
-   - `dist/x3dom.js` → `elements/vendor/x3dom.js`
    - `dist/x3dom-full.js` → `elements/vendor/x3dom-full.js`
    - `dist/x3dom.css` → `elements/vendor/x3dom.css`
 
@@ -41,4 +39,3 @@ After updating the vendored artifacts (or changing X3DOM versions), regenerate
 the runtime helpers and type definitions:
 
 - `npm run -s gen:x3d`
-

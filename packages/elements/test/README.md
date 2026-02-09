@@ -13,7 +13,9 @@ they still verify the *behavioral contract* that users rely on.
 - **Declarative events:** returning a vnode from an event handler replaces the
   closest component boundary; passive returns do nothing.
 - **Form handler signature:** `onsubmit`, `oninput`, `onchange` receive
-  `(elements, event)` and only call `preventDefault()` when returning a vnode.
+  `(arg, event)` where `onsubmit` gets `event.target.elements` and
+  `oninput`/`onchange` get `event.target.value`; only `onsubmit` calls
+  `preventDefault()` when returning a vnode.
 - **`render()` behavior:** initial mount, diff+patch updates, prop updates and
   removals, and child add/remove behavior.
 - **`ontick`:** readiness gating, stop-on-throw, and stop-on-Promise.

@@ -10,6 +10,8 @@ export const isEventProp = (key, value) =>
   key.startsWith('on') && typeof value === 'function'
 
 export const isFormEventProp = key => /^(oninput|onsubmit|onchange)$/.test(key)
+export const isSubmitEventProp = key => key === 'onsubmit'
+export const isValueEventProp = key => /^(oninput|onchange)$/.test(key)
 
 export const getNearestRoot = (el, isRoot) =>
   !el || isRoot(el) ? el : getNearestRoot(el.parentNode, isRoot)
@@ -79,14 +81,22 @@ export const createDeclarativeEventHandler = env =>
     return withEventRoot(env, eventRoot, () => {
       const event = args[0]
       const isFormEvent = isFormEventProp(env.key)
-      const elements = (isFormEvent && event?.target?.elements) || null
+      const isSubmitEvent = isSubmitEventProp(env.key)
+      const isValueEvent = isValueEventProp(env.key)
+
+      const arg =
+        isSubmitEvent
+          ? event?.target?.elements || null
+          : isValueEvent
+            ? event?.target?.value
+            : null
 
       const result = isFormEvent
-        ? env.handler.call(env.el, elements, event)
+        ? env.handler.call(env.el, arg, event)
         : env.handler.call(env.el, event)
 
       const handleResult = resolved => {
-        isFormEvent && resolved !== undefined && event.preventDefault()
+        isSubmitEvent && resolved !== undefined && event.preventDefault()
 
         env.debug && warnPassiveReturn(env, resolved)
 

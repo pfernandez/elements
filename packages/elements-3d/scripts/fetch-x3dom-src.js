@@ -16,11 +16,11 @@ import path from 'node:path'
 const pkgRoot = path.resolve(import.meta.dirname, '..')
 const repoRoot = path.resolve(pkgRoot, '..', '..')
 
-const x3domVendorCorePath = path.join(pkgRoot, 'vendor', 'x3dom.js')
+const x3domVendorFullPath = path.join(pkgRoot, 'vendor', 'x3dom-full.js')
 
 const readVendoredVersion = () => {
-  if (!fs.existsSync(x3domVendorCorePath)) return null
-  const src = fs.readFileSync(x3domVendorCorePath, 'utf8')
+  if (!fs.existsSync(x3domVendorFullPath)) return null
+  const src = fs.readFileSync(x3domVendorFullPath, 'utf8')
   const m = src.match(/X3DOM\s+([0-9]+\.[0-9]+\.[0-9]+)/)
   return m?.[1] || null
 }
@@ -49,4 +49,3 @@ execFileSync(
   ['clone', '--depth', '1', '--branch', version, 'https://github.com/x3dom/x3dom', outDir],
   { stdio: 'inherit' }
 )
-
