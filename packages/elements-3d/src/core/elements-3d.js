@@ -19,6 +19,58 @@
 let x3domPromise = null
 let x3domLoadFailed = false
 
+let canvas2dPatched = false
+
+const patchCanvas2DWillReadFrequentlyOnce = () => {
+  if (canvas2dPatched) return
+  canvas2dPatched = true
+
+  // TODO(upstream): Submit a PR to X3DOM so its Text texture/mipmap pipeline
+  // requests `getContext('2d', { willReadFrequently: true })` when it relies on
+  // repeated `getImageData()` readbacks (avoids Chrome warning + can improve
+  // performance).
+  const Canvas = globalThis?.HTMLCanvasElement
+  const originalGetContext = Canvas?.prototype?.getContext
+  if (typeof originalGetContext !== 'function') return
+
+  Canvas.prototype.getContext = function (type, attrs, ...rest) {
+    const shouldConsiderPatching =
+      type === '2d'
+      && (attrs === undefined || (typeof attrs === 'object' && attrs !== null))
+      && !(attrs && 'willReadFrequently' in attrs)
+
+    if (shouldConsiderPatching) {
+      // Chrome warning:
+      //   "Canvas2D: Multiple readback operations using getImageData are faster
+      //    with the willReadFrequently attribute set to true"
+      //
+      // X3DOM’s <Text> implementation uploads mipmaps by repeatedly calling
+      // `getImageData()` on a 2D canvas. Hint the browser to optimize for that.
+      const stack = (() => {
+        try { return new Error().stack || '' }
+        catch { return '' }
+      })()
+
+      const isLikelyX3DOMTextPath =
+        stack.includes('uploadTextMipmap')
+        || stack.includes('x3dom-full.js')
+        || stack.includes('x3dom.js')
+
+      if (isLikelyX3DOMTextPath) {
+        const nextAttrs =
+          attrs
+            ? { ...attrs, willReadFrequently: true }
+            : { willReadFrequently: true }
+
+        try { return originalGetContext.call(this, type, nextAttrs, ...rest) }
+        catch { /* fallback below */ }
+      }
+    }
+
+    return originalGetContext.call(this, type, attrs, ...rest)
+  }
+}
+
 const getHead = () =>
   document?.head || document?.documentElement || null
 
@@ -75,6 +127,10 @@ const scheduleReloadX3DOM = () => {
 
 const ensureX3DOM = () => {
   if (typeof window === 'undefined' || x3domLoadFailed) return null
+
+  // Apply once per page load (even if x3dom was loaded externally).
+  patchCanvas2DWillReadFrequentlyOnce()
+
   if (getX3DOM()?.reload) return Promise.resolve(getX3DOM())
   if (x3domPromise) return x3domPromise
 
