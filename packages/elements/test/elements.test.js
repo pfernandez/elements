@@ -1,4 +1,4 @@
-import { body, button, component, div, form, head, html, input,
+import { a, body, button, component, div, form, head, html, input,
   output, pre, render, svg, title } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -910,6 +910,32 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.window = prevWindow
   })
 
+
+
+  test('<a> onclick returning a vnode prevents default navigation', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    let prevented = 0
+
+    const container = document.createElement('div')
+    render(a({ href: '/x', onclick: () => div('ok') }, 'go'), container)
+
+    await container.childNodes[0].onclick({
+      button: 0,
+      preventDefault: () => { prevented++ }
+    })
+
+    assert.equal(prevented, 1)
+    assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
   test('render() updates attributes in place when vnode tag matches', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window

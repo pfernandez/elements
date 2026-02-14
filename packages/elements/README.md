@@ -18,6 +18,11 @@ Most apps call `render()` once on page load. After that, updates happen when a
 DOM event handler (e.g. `onclick`, `onsubmit`) returns the next vnode: Elements.js
 replaces the closest component boundary.
 
+
+Note: for `<a href>` links, if an `onclick` handler returns a vnode, Elements.js
+calls `event.preventDefault()` for unmodified left-clicks so SPAs can use real
+links without manual boilerplate.
+
 ## Usage
 
 ```js

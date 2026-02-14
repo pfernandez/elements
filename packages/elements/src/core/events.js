@@ -21,6 +21,30 @@ const isThenable = x =>
   && (typeof x === 'object' || typeof x === 'function')
   && typeof x.then === 'function'
 
+
+const getHref = el =>
+  typeof el?.getAttribute === 'function'
+    ? el.getAttribute('href')
+    : el?.attributes?.href ?? el?.href
+
+const isPlainLeftClick = event =>
+  event?.button == null
+    ? false
+    : event.button === 0
+      && !event.defaultPrevented
+      && !event.metaKey
+      && !event.ctrlKey
+      && !event.shiftKey
+      && !event.altKey
+
+const shouldPreventDefaultOnUpdate = (env, event) =>
+  env.key === 'onclick'
+  && env.el?.tagName?.toLowerCase?.() === 'a'
+  && !!getHref(env.el)
+  && event?.cancelable !== false
+  && typeof event?.preventDefault === 'function'
+  && isPlainLeftClick(event)
+
 const describeListener = ({ el, key }) =>
   `Listener '${key}' on <${el.tagName.toLowerCase()}>`
 
@@ -99,6 +123,10 @@ export const createDeclarativeEventHandler = env =>
         isSubmitEvent && resolved !== undefined && event.preventDefault()
 
         env.debug && warnPassiveReturn(env, resolved)
+
+        Array.isArray(resolved)
+          && shouldPreventDefaultOnUpdate(env, event)
+          && event.preventDefault()
 
         if (!Array.isArray(resolved)) return resolved
 
