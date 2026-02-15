@@ -23,6 +23,22 @@ Note: for `<a href>` links, if an `onclick` handler returns a vnode, Elements.js
 calls `event.preventDefault()` for unmodified left-clicks so SPAs can use real
 links without manual boilerplate.
 
+
+
+### Routing
+
+For SPAs, register a URL-change handler once:
+
+```js
+import { onNavigate } from '@pfern/elements'
+
+onNavigate(() => App())
+```
+
+With a handler registered, `a({ href: '/path' }, ...)` intercepts unmodified
+left-clicks for same-origin links and uses the History API instead of reloading
+the page.
+
 ## Usage
 
 ```js

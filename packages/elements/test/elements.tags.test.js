@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
 test('all exported element functions return valid vnodes', () => {
-  const skip = new Set(['render', 'component', 'elements', 'DEBUG', 'navigate'])
+  const skip = new Set(['render', 'component', 'elements', 'DEBUG', 'navigate', 'onNavigate', 'hasNavigateHandler'])
   for (let [tag, fn] of Object.entries(elements)) {
     if (skip.has(tag)) continue
 

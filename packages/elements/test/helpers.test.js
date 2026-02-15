@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { navigate } from '../elements.js'
+import { navigate, onNavigate } from '../elements.js'
 
 const makeEvent = name =>
   class {
@@ -122,3 +122,73 @@ test(
   globalThis.PopStateEvent = prevPopStateEvent
   }
 )
+
+
+test('onNavigate() runs callback on popstate (microtask)', async () => {
+  const prevWindow = globalThis.window
+  const prevEvent = globalThis.Event
+  const prevPopStateEvent = globalThis.PopStateEvent
+
+  const events = []
+  const historyCalls = []
+
+  globalThis.Event = makeEvent('Event')
+  globalThis.PopStateEvent = makeEvent('PopStateEvent')
+
+  const listeners = {}
+
+  globalThis.window = {
+    location: {
+      origin: 'https://example.test',
+      pathname: '/',
+      search: '',
+      hash: ''
+    },
+    history: {
+      pushState: (_state, _title, url) => {
+        historyCalls.push(['pushState', url])
+        globalThis.window.location.pathname = url.pathname
+        globalThis.window.location.search = url.search
+        globalThis.window.location.hash = url.hash
+      },
+      replaceState: (_state, _title, url) => {
+        historyCalls.push(['replaceState', url])
+        globalThis.window.location.pathname = url.pathname
+        globalThis.window.location.search = url.search
+        globalThis.window.location.hash = url.hash
+      },
+    },
+    addEventListener: (type, fn) => {
+      (listeners[type] ||= []).push(fn)
+    },
+    removeEventListener: (type, fn) => {
+      listeners[type] = (listeners[type] || []).filter(x => x !== fn)
+    },
+    dispatchEvent: e => {
+      events.push(e)
+      for (const fn of listeners[e.type] || []) fn(e)
+      return true
+    }
+  }
+
+  let calls = 0
+  const unsubscribe = onNavigate(() => { calls++ })
+
+  navigate('/next')
+  await Promise.resolve()
+
+  assert.equal(historyCalls.length, 1)
+  assert.equal(events.length, 1)
+  assert.equal(calls, 1)
+
+  unsubscribe()
+
+  navigate('/again')
+  await Promise.resolve()
+
+  assert.equal(calls, 1)
+
+  globalThis.window = prevWindow
+  globalThis.Event = prevEvent
+  globalThis.PopStateEvent = prevPopStateEvent
+})
