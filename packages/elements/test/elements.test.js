@@ -500,7 +500,33 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.window = prevWindow
   })
 
-  test('render() requires a container for non-html roots', () => {
+  
+
+  test('render(..., { replace: true }) forces a remount', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+
+    render(div({ id: 'a' }, 'one'), container)
+    const el1 = container.childNodes[0]
+
+    render(div({ id: 'b' }, 'two'), container, { replace: true })
+    const el2 = container.childNodes[0]
+
+    assert.notEqual(el2, el1)
+    assert.equal(el2.attributes.id, 'b')
+    assert.equal(el2.childNodes[0].nodeValue, 'two')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+test('render() requires a container for non-html roots', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -665,6 +691,55 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     const el = container.childNodes[0]
     assert.equal(el.innerHTML, '<b>ok</b>')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('boolean props clear attributes when false', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+
+    render(div({ hidden: true }, 'x'), container)
+    const el = container.childNodes[0]
+    assert.equal(el.attributes.hidden, '')
+
+    render(div({ hidden: false }, 'x'), container)
+    assert.equal(el.attributes.hidden, undefined)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() replaces explicit null child slots', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+
+    render(div(null), container)
+    const el = container.childNodes[0]
+    assert.equal(el.childNodes.length, 1)
+    assert.equal(el.childNodes[0].nodeType, 8)
+
+    render(div('hi'), container)
+    assert.equal(el.childNodes.length, 1)
+    assert.equal(el.childNodes[0].nodeType, 3)
+    assert.equal(el.childNodes[0].nodeValue, 'hi')
+
+    render(div(null), container)
+    assert.equal(el.childNodes.length, 1)
+    assert.equal(el.childNodes[0].nodeType, 8)
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow

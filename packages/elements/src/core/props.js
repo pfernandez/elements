@@ -160,6 +160,18 @@ export const assignProperties = (el, props, env) => {
       continue
     }
 
+    if (typeof value === 'boolean') {
+      if (key.startsWith('aria-') || key.startsWith('data-')) {
+        const str = value ? 'true' : 'false'
+        isSvg ? el.setAttributeNS(null, key, str) : el.setAttribute(key, str)
+      } else if (value) {
+        isSvg ? el.setAttributeNS(null, key, '') : el.setAttribute(key, '')
+      } else {
+        removeAttribute(el, key)
+      }
+      continue
+    }
+
     isSvg ? el.setAttributeNS(null, key, value) : el.setAttribute(key, value)
   }
 }

@@ -14,7 +14,7 @@ npm i @pfern/elements
 
 ## How Updates Work
 
-Most apps call `render()` once on page load. After that, updates happen when a
+Most apps call `render()` once on page load. You can force a full remount via `render(vtree, container, { replace: true })`. After that, updates happen when a
 DOM event handler (e.g. `onclick`, `onsubmit`) returns the next vnode: Elements.js
 replaces the closest component boundary.
 

@@ -135,12 +135,40 @@ const diffChildren = (a, b) => {
   const len = Math.max(aLen, bLen)
   /** @type {Array<[number, Object]>} */
   const patches = []
+
   for (let i = 0; i < len; i++) {
-    const patch = diffTree(a[i + 2], b[i + 2])
+    const aIndex = i + 2
+    const bIndex = i + 2
+    const aHasChild = aIndex < a.length
+    const bHasChild = bIndex < b.length
+
+    if (!aHasChild && !bHasChild) continue
+
+    const prevChild = aHasChild ? a[aIndex] : undefined
+    const nextChild = bHasChild ? b[bIndex] : undefined
+
+    // If a child position is explicitly present (even as null/undefined),
+    // renderTree() will create a placeholder comment node. Treat transitions
+    // between empty and non-empty as REPLACE so indices stay aligned.
+    let patch
+    if (!aHasChild && bHasChild) {
+      patch = { type: 'CREATE', newNode: nextChild }
+    } else if (aHasChild && !bHasChild) {
+      patch = { type: 'REMOVE' }
+    } else if (prevChild == null && nextChild == null) {
+      patch = undefined
+    } else if (prevChild == null || nextChild == null) {
+      patch = { type: 'REPLACE', newNode: nextChild }
+    } else {
+      patch = diffTree(prevChild, nextChild)
+    }
+
     patch && patches.push([i, /** @type {Object} */ (patch)])
   }
+
   return patches.length ? patches : null
 }
+
 
 const propsEnv = {
   svgNS,
@@ -275,6 +303,20 @@ const applyPatch = (parent, patch, index = 0) => {
   }
 }
 
+
+const clearChildren = el => {
+  if (!el) return
+
+  // Prefer the standard DOM API.
+  if (typeof el.firstChild !== 'undefined') {
+    while (el.firstChild) el.removeChild(el.firstChild)
+    return
+  }
+
+  // Fake DOM fallback.
+  while (el.childNodes?.length) el.removeChild(el.childNodes[0])
+}
+
 /**
  * Render a vnode into the DOM.
  *
@@ -283,7 +325,7 @@ const applyPatch = (parent, patch, index = 0) => {
  * @param {import('./types.js').ElementsVNode} vtree
  * @param {HTMLElement | null} [container]
  */
-export const render = (vtree, container = null) => {
+export const render = (vtree, container = null, { replace = false } = {}) => {
   const target =
     !container && Array.isArray(vtree) && vtree[0] === 'html'
       ? document.documentElement
@@ -293,9 +335,10 @@ export const render = (vtree, container = null) => {
     throw new Error('render() requires a container for non-html() root')
   }
 
-  const prevVNode = getVNode(target)
+  const prevVNode = replace ? null : getVNode(target)
 
   if (!prevVNode) {
+    replace && clearChildren(target)
     const dom = renderTree(vtree)
     if (target === document.documentElement) {
       if (dom !== document.documentElement) {
@@ -311,6 +354,16 @@ export const render = (vtree, container = null) => {
 
   setVNode(target, vtree)
   rootMap.set(vtree, target)
+}
+
+
+const getChildIndex = (parent, child) => {
+  const nodes = parent?.childNodes
+  if (!nodes) return -1
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i] === child) return i
+  }
+  return -1
 }
 
 /**
@@ -339,12 +392,36 @@ export const component = fn => {
       }
 
       if (canUpdateInPlace) {
-        const replacement = renderTree(
-          ['wrap', { __instance: instance }, vnode],
-          true
-        )
-        prevEl.parentNode.replaceChild(replacement, prevEl)
-        return getVNode(replacement)
+        const prevVNode = getVNode(prevEl)
+        const patch = diffTree(prevVNode, vnode)
+
+        if (!patch) {
+          setVNode(prevEl, vnode)
+          return vnode
+        }
+
+        if (patch.type === 'REPLACE') {
+          const replacement = renderTree(
+            ['wrap', { __instance: instance }, vnode],
+            true
+          )
+          prevEl.parentNode.replaceChild(replacement, prevEl)
+          return getVNode(replacement)
+        }
+
+        const parent = prevEl.parentNode
+        const index = getChildIndex(parent, prevEl)
+        if (index !== -1) applyPatch(parent, patch, index)
+
+        if (patch.type === 'REMOVE') {
+          rootMap.delete(instance)
+          return vnode
+        }
+
+        const nextEl = index === -1 ? prevEl : (parent.childNodes[index] || prevEl)
+        setVNode(nextEl, vnode)
+        rootMap.set(instance, nextEl)
+        return vnode
       }
 
       return ['wrap', { __instance: instance }, vnode]
