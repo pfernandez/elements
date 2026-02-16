@@ -12,8 +12,8 @@
  *
  */
 
-import { htmlTagNames, svgTagNames } from './tags.js'
 import { assignProperties, removeMissingProps } from './props.js'
+import { htmlTagNames, svgTagNames } from './tags.js'
 
 export * from './types.js'
 
@@ -42,9 +42,9 @@ const rootMap = new WeakMap()
 const componentRoots = new WeakMap()
 
 const getVNode = el => el?.__vnode
-const setVNode = (el, vnode) => (el.__vnode = vnode)
+const setVNode = (el, vnode) => el.__vnode = vnode
 const isRoot = el => !!el?.__root
-const setRoot = el => (el.__root = true)
+const setRoot = el => el.__root = true
 
 const isNodeEnv = () => typeof document === 'undefined'
 
@@ -52,7 +52,7 @@ let componentUpdateDepth = 0
 let currentEventRoot = null
 
 const getCurrentEventRoot = () => currentEventRoot
-const setCurrentEventRoot = el => (currentEventRoot = el)
+const setCurrentEventRoot = el => currentEventRoot = el
 
 const isObject = x =>
   typeof x === 'object'
@@ -99,9 +99,9 @@ const propsEqual = (a, b) => {
  */
 const changed = (a, b) =>
   typeof a !== typeof b
-  || (typeof a === 'string' && a !== b)
-  || (typeof a === 'number' && a !== b)
-  || (Array.isArray(a) && Array.isArray(b) && a[0] !== b[0])
+  || typeof a === 'string' && a !== b
+  || typeof a === 'number' && a !== b
+  || Array.isArray(a) && Array.isArray(b) && a[0] !== b[0]
 
 /**
  * Computes a patch object describing how to transform tree `a` into tree `b`.
@@ -173,7 +173,7 @@ const diffChildren = (a, b) => {
       patch = diffTree(prevChild, nextChild)
     }
 
-    patch && patches.push([i, /** @type {Object} */ (patch)])
+    patch && patches.push([i, /** @type {Object} */ patch])
   }
 
   return patches.length ? patches : null
@@ -236,8 +236,8 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
   else if (tag === 'head') el = document.head
   else if (tag === 'body') el = document.body
   else el = elNamespaceURI
-      ? document.createElementNS(svgNS, tag)
-      : document.createElement(tag)
+    ? document.createElementNS(svgNS, tag)
+    : document.createElement(tag)
 
   if (!el && (tag === 'head' || tag === 'body')) {
     el = document.createElement(tag)
@@ -268,7 +268,7 @@ const applyPropsUpdate = (el, prevProps, nextProps) =>
   nextProps == null
     ? undefined
     : (removeMissingProps(el, prevProps || {}, nextProps),
-      assignProperties(el, nextProps, propsEnv))
+    assignProperties(el, nextProps, propsEnv))
 
 /**
  * Applies a patch object to a DOM subtree.
@@ -427,7 +427,7 @@ export const component = fn => {
           return vnode
         }
 
-        const nextEl = index === -1 ? prevEl : (parent.childNodes[index] || prevEl)
+        const nextEl = index === -1 ? prevEl : parent.childNodes[index] || prevEl
         setVNode(nextEl, vnode)
         rootMap.set(instance, nextEl)
         return vnode
@@ -498,3 +498,4 @@ export const elements = (() => {
 
 // TODO: MathML
 // https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Element
+//

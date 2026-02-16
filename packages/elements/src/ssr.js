@@ -1,6 +1,4 @@
-/**
- * @fileoverview
- * Server-side rendering / static site generation helpers.
+/** @fileoverview Server-side rendering / static site generation helpers.
  *
  * Elements.js treats UI as a pure function tree that produces declarative
  * “vnode” arrays:
@@ -8,17 +6,17 @@
  *   ['div', { id: 'x' }, 'Hello']
  *
  * In the browser, `render()` evaluates this AST into real DOM nodes. For
- * build-time prerendering (SSG) or server-side rendering (SSR), `toHtmlString()`
- * walks the same AST and prints HTML.
+ * build-time prerendering (SSG) or server-side rendering (SSR),
+ * `toHtmlString()` walks the same AST and prints HTML.
  *
  * Design notes:
  * - This is intentionally “dumb printing”, not hydration. Event handlers and
  *   other imperative props (functions) are dropped.
- * - `innerHTML` is treated as an explicit escape hatch: it is inserted
- *   verbatim and children are ignored.
- * - Boolean attribute rules mirror DOM assignment in `core/props.js`:
- *   - `aria-*` / `data-*` booleans become `"true"` / `"false"`.
- *   - other booleans are present when true, omitted when false.
+ * - `innerHTML` is treated as an explicit escape hatch: it is inserted verbatim
+ *   and children are ignored.
+ * - Boolean attribute rules mirror DOM assignment in `core/props.js`: -
+ *   `aria-*` / `data-*` booleans become `"true"` / `"false"`.  - other booleans
+ *   are present when true, omitted when false.
  *
  * The long-term goal is that vnode arrays act as a small, Lisp-like
  * cons-structure / AST: they can be evaluated into DOM, or serialized back into
@@ -174,3 +172,4 @@ const toHtmlStringInner = vnode => {
  */
 export const toHtmlString = (vnode, { doctype = false } = {}) =>
   `${doctype ? '<!doctype html>' : ''}${toHtmlStringInner(vnode)}`
+

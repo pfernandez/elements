@@ -39,7 +39,8 @@ export default
             //     ignoreTemplateLiterals: true
             //   }
             // ],
-            'no-extra-parens': 'warn',
+            'no-extra-parens': ['warn', 'all',
+                                { allowParensAfterCommentPattern: '@type' }],
             'no-multiple-empty-lines': ['warn', { max: 2, maxEOF: 1 }],
             'no-multi-spaces': ['warn', { ignoreEOLComments: true,
                                           exceptions: { Property: false }}],

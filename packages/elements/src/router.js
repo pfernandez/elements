@@ -11,8 +11,8 @@ let installed = false
 let scheduled = false
 
 const defer = fn =>
-  typeof queueMicrotask === 'function'
-    ? queueMicrotask(fn)
+  typeof window.queueMicrotask === 'function'
+    ? window.queueMicrotask(fn)
     : Promise.resolve().then(fn)
 
 const schedule = () => {
