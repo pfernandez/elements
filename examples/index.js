@@ -2,9 +2,8 @@ import { body, h1, h2, head, header, html, link,
          main, meta, p, render, section, title }
   from '../packages/elements/elements.js'
 import { scope } from './components/scope.js'
-import { skiMathmlX3dom } from './components/ski-mathml-x3dom.js'
 import { todos } from './components/todos.js'
-import { x3dDemo } from './components/x3d-demo.js'
+import { x3dDemo } from './components/3d.js'
 
 render(
   html(
@@ -30,10 +29,5 @@ render(
              h2('X3D / X3DOM Scene'),
              p(`Create 3D scenes declaratively with simple function
                 composition.`),
-             x3dDemo()),
-           section(
-             h2('MathML + X3DOM (SKI)'),
-             p(`Render a small Content MathML tree alongside a 3D view using
-                shared node ids for cross-highlighting.`),
-             skiMathmlX3dom())))))
+             x3dDemo())))))
 
