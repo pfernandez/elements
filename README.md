@@ -2,6 +2,8 @@
 
 ### A functional, stateless UI toolkit for composing reactive web pages.
 
+<!-- BEGIN README:elements -->
+
 Elements.js borrows the simple elegance of functional UI composition from
 [React](https://react.dev/), distilled to its purest form:
 
@@ -15,13 +17,12 @@ new arguments.
 While you may choose to manage application logic with tools like
 [Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
 Elements.js keeps UI state exactly where it belongs: in the
-[DOM][https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Anatomy_of_the_DOM]
-itself.
+[DOM][dom] itself.
 
 ## Principles
 
-- **Pure data model:** UI elements are represented as are data-in, data-out
-  functions. They accept W3C standard`props`and child elements as arguments, and
+- **Pure data model:** UI elements are represented as data-in, data-out
+  functions. They accept W3C standard `props` and child elements as arguments, and
   return nested arrays.
 - **Dynamic updates:** When an event handler returns the output of a component
   element defined within its scope, the element is updated with its new
@@ -139,6 +140,8 @@ event handler.
 - If the handler returns `undefined` (or any non-vnode value), the event is
   passive and the DOM is left alone.
 - Returned vnodes are applied at the closest component boundary.
+- If you return a vnode from an `<a href>` `onclick` handler, Elements.js
+  prevents default navigation for unmodified left-clicks.
 
 Errors are not swallowed: thrown errors and rejected Promises propagate.
 
@@ -166,10 +169,52 @@ form({
 })
 ```
 
+### Routing (optional)
+
+For SPAs, register a URL-change handler once:
+
+```js
+import { onNavigate } from '@pfern/elements'
+
+onNavigate(() => App())
+```
+
+With a handler registered, `a({ href: '/path' }, ...)` intercepts unmodified
+left-clicks for same-origin links and uses the History API instead of
+reloading the page.
+
+You can also call `navigate('/path')` directly.
+
+### SSG / SSR
+
+For build-time prerendering (static site generation) or server-side rendering,
+Elements.js can serialize vnodes to HTML:
+
+```js
+import { div, html, head, body, title, toHtmlString } from '@pfern/elements'
+
+toHtmlString(div('Hello')) // => <div>Hello</div>
+
+const doc =
+  html(
+    head(title('My page')),
+    body(div('Hello')))
+
+const htmlText = toHtmlString(doc, { doctype: true })
+```
+
+Notes:
+- Event handlers (function props like `onclick`) are dropped during
+  serialization.
+- `innerHTML` is treated as an explicit escape hatch and is inserted verbatim.
+
 ### Explicit Rerenders
 
 Calling `render(vtree, container)` again is supported (diff + patch). This is
 useful for explicit rerenders (e.g. dev reload, external state updates).
+
+To force a full remount (discarding existing DOM state), pass
+`{ replace: true }`.
 
 ### Why Replacement (No Keys)
 
@@ -244,9 +289,9 @@ export const cubeScene = () =>
 
 ### Lazy Loading
 
-X3DOM is lazy-loaded the first time you call any 3D element. It loads a small
-“core” bundle first, and only loads the larger “full” bundle if you call
-a helper for a node that core doesn’t register.
+X3DOM is lazy-loaded the first time you call any helper from
+`@pfern/elements-x3dom`. For correctness and stability, it always loads the
+vendored `x3dom-full` bundle (plus `x3dom.css`).
 
 ## Types (the docs)
 
@@ -267,44 +312,6 @@ property exceptions (when the property exists on the element): `value`,
 
 Omitting a prop in a subsequent update clears it from the element.
 
-## Development
-
-This repository is a monorepo:
-
-- `@pfern/elements` lives in `packages/elements`
-- `@pfern/elements-x3dom` lives in `packages/elements-x3dom`
-
-The root `package.json` provides convenience scripts that proxy into each
-package workspace.
-
-```sh
-npm test
-npm run -s test:coverage
-npm run -s typecheck
-npm run -s build:types
-npm run -s x3dom:test
-npm run -s x3dom:test:coverage
-npm run -s x3dom:typecheck
-```
-
-### Security / `npm audit`
-
-CI fails on **high+critical** vulnerabilities in production dependencies:
-
-```sh
-npm audit --omit=dev --audit-level=high
-```
-
-CI also prints the full `npm audit` report (including dev dependencies) as a
-non-blocking log to aid triage.
-
-To refresh upstream X3DOM docs for type generation after updating vendor
-bundles (manual step; requires network access):
-
-```sh
-npm run -s fetch:x3dom-src
-```
-
 ## API
 
 ### `component(fn)`
@@ -315,6 +322,8 @@ Wrap a recursive pure function that returns a vnode.
 
 Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
 `container` is required.
+
+Pass `{ replace: true }` to force a full remount.
 
 ### `elements`
 
@@ -353,6 +362,16 @@ import { box } from '@pfern/elements-x3dom'
 box({ size: '2 2 2', solid: true })
 ```
 
+### `onNavigate(fn[, options])`
+
+Register a handler to run after `popstate` (including calls to `navigate()`).
+Use this to re-render your app on URL changes.
+
+### `toHtmlString(vnode[, options])`
+
+Serialize a vnode tree to HTML (SSG / SSR). Pass `{ doctype: true }` to emit
+`<!doctype html>`.
+
 ### `navigate(path[, options])`
 
 `navigate` updates `window.history` and dispatches a `popstate` event. It is a
@@ -361,7 +380,7 @@ tiny convenience for router-style apps.
 ### Testing Philosophy
 
 Tests run in Node and use a small in-repo fake DOM for behavioral DOM checks.
-See `test/README.md`.
+See [`packages/elements/test/README.md`](./packages/elements/test/README.md).
 
 ## License
 
@@ -369,3 +388,43 @@ MIT License
 Copyright (c) 2026 Paul Fernandez
 
 [dom]: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model
+
+<!-- END README:elements -->
+
+## Development
+
+This repository is a monorepo:
+
+- `@pfern/elements` lives in `packages/elements`
+- `@pfern/elements-x3dom` lives in `packages/elements-x3dom`
+
+The root `package.json` provides convenience scripts that proxy into each
+package workspace.
+
+```sh
+npm test
+npm run -s test:coverage
+npm run -s typecheck
+npm run -s build:types
+npm run -s x3dom:test
+npm run -s x3dom:test:coverage
+npm run -s x3dom:typecheck
+```
+
+### Security / `npm audit`
+
+CI fails on **high+critical** vulnerabilities in production dependencies:
+
+```sh
+npm audit --omit=dev --audit-level=high
+```
+
+CI also prints the full `npm audit` report (including dev dependencies) as a
+non-blocking log to aid triage.
+
+To refresh upstream X3DOM docs for type generation after updating vendor
+bundles (manual step; requires network access):
+
+```sh
+npm run -s fetch:x3dom-src
+```

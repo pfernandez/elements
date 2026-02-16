@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "sync:readmes": "node scripts/sync-readmes.js",
     "typecheck": "npm --prefix packages/elements run -s typecheck",
     "build:types": "npm --prefix packages/elements run -s build:types && npm --prefix packages/elements-x3dom run -s build:types",
     "test": "npm --prefix packages/elements test",

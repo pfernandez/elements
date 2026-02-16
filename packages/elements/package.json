@@ -1,6 +1,6 @@
 {
   "name": "@pfern/elements",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "A minimalist, pure functional declarative UI toolkit.",
   "author": "Paul Fernandez",
   "license": "MIT",
@@ -29,6 +29,7 @@
     "clean:types": "node scripts/clean-types.js",
     "build:types": "node scripts/build-types.js",
     "typecheck": "node scripts/typecheck.js",
+    "prepack": "node ../../scripts/sync-readmes.js",
     "test": "node --test test/*.test.* --test-reporter spec",
     "test:coverage": "node scripts/test-coverage.js"
   },
