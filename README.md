@@ -67,13 +67,11 @@ includes examples as well as simple URL router for page navigation.
 
 ## Example: Todos App
 ```js
-import { button, component, div,
-         form, input, li, span, ul } from '@pfern/elements'
+import { button, component, div, form, input, li, span, ul }
+  from '@pfern/elements'
 
-const demoItems = [
-  { value: 'Add my first todo', done: true },
-  { value: 'Install elements.js', done: false }
-]
+const demoItems = [{ value: 'Add my first todo', done: true },
+                   { value: 'Install elements.js', done: false }]
 
 export const todos = component(
   (items = demoItems) => {
@@ -132,6 +130,19 @@ Elements.js is designed so you typically call `render()` once at startup (see
 `examples/index.js`). After that, updates happen by returning a vnode from an
 event handler.
 
+### What is a vnode?
+
+Elements.js represents UI as plain arrays called **vnodes** (virtual nodes):
+
+```js
+['div', { class: 'box' }, 'hello', ['span', {}, 'world']]
+```
+
+- `tag`: a string tag name (or `'fragment'` for a wrapper-less group)
+- `props`: an object (attributes, events, and Elements.js hooks like `ontick`)
+- `children`: strings/numbers/vnodes (and optionally `null`/`undefined` slots)
+
+
 ### Declarative Events
 
 - Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
@@ -162,10 +173,8 @@ Elements.js will automatically call `event.preventDefault()` *only if* your
 handler returns a vnode.
 
 ```js
-form({
-  onsubmit: ({ todo: { value } }, e) =>
-    value && todos([...items, { value, done: false }])
-})
+form({ onsubmit: ({ todo: { value } }, e) =>
+       value && todos([...items, { value, done: false }]) })
 ```
 
 ### Routing (optional)
@@ -194,10 +203,9 @@ import { div, html, head, body, title, toHtmlString } from '@pfern/elements'
 
 toHtmlString(div('Hello')) // => <div>Hello</div>
 
-const doc =
-  html(
-    head(title('My page')),
-    body(div('Hello')))
+const doc = html(
+              head(title('My page')),
+              body(div('Hello')))
 
 const htmlText = toHtmlString(doc, { doctype: true })
 ```
@@ -225,10 +233,10 @@ Replacement updates keep the model simple:
 
 ## Props
 
-Elements.js accepts a single props object as the second element of a vnode:
+Element functions accept a single props object as first argument:
 
 ```js
-['div', { id: 'x', class: 'box' }, 'hello']
+div({ id: 'x', class: 'box' }, 'hello')
 ```
 
 In the DOM runtime:
@@ -302,7 +310,8 @@ The goal is for type definitions to be the canonical reference for:
 
 * HTML/SVG/X3D element helpers
 * DOM events (including the special form-event signature)
-* Elements.js-only props like `style`, `innerHTML`, and `ontick`
+* Elements.js-specific prop conventions like `ontick`, plus supported
+  prop shorthands like `style` (object) and `innerHTML` (escape hatch)
 
 Most props are assigned as attributes. A small set of keys are treated as
 property exceptions (when the property exists on the element): `value`,
@@ -427,4 +436,3 @@ bundles (manual step; requires network access):
 ```sh
 npm run -s fetch:x3dom-src
 ```
-
