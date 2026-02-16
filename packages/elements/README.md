@@ -39,6 +39,29 @@ With a handler registered, `a({ href: '/path' }, ...)` intercepts unmodified
 left-clicks for same-origin links and uses the History API instead of reloading
 the page.
 
+### SSG / SSR
+
+For build-time prerendering (static site generation) or server-side rendering,
+Elements.js can serialize vnodes to HTML:
+
+```js
+import { div, html, head, body, title, toHtmlString } from '@pfern/elements'
+
+toHtmlString(div('Hello')) // => <div>Hello</div>
+
+const doc =
+  html(
+    head(title('My page')),
+    body(div('Hello')))
+
+const htmlText = toHtmlString(doc, { doctype: true })
+```
+
+Notes:
+- Event handlers (function props like `onclick`) are dropped during
+  serialization.
+- `innerHTML` is treated as an explicit escape hatch and is inserted verbatim.
+
 ## Usage
 
 ```js

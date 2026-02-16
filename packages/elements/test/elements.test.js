@@ -146,22 +146,22 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.deepEqual(vnode, ['div', {}, [null, false, 0, '', 'x']])
   })
 
-  test('component() supports recursion and state threading', () => {
-    const Counter = component((n = 0) =>
-      div({},
-        pre(n),
-        button({ onclick: () => Counter(n + 1) }, 'inc')
-      )
-    )
+	  test('component() supports recursion and state threading', () => {
+	    const Counter = component((n = 0) =>
+	      div({},
+	        pre(n),
+	        button({ onclick: () => Counter(n + 1) }, 'inc')
+	      )
+	    )
 
-    const first = Counter(0)
-    const inner = first[2]              // unwrap from ['wrap', {}, vnode]
-    const second = inner[3][1].onclick() // invoke button's onclick
+	    const first = Counter(0)
+	    const inner = first
+	    const second = inner[3][1].onclick() // invoke button's onclick
 
-    assert.equal(inner[0], 'div')
-    assert.equal(inner[2][2], 0)        // pre(n) = 0
-    assert.equal(second[2][2][2], 1)    // pre(n) = 1 in next render
-  })
+	    assert.equal(inner[0], 'div')
+	    assert.equal(inner[2][2], 0)        // pre(n) = 0
+	    assert.equal(second[2][2], 1)       // pre(n) = 1 in next render
+	  })
 
   test('vnode return is pure (no mutation of props)', () => {
     const props = { id: 'x' }

@@ -31,6 +31,16 @@ const svgNS = 'http://www.w3.org/2000/svg'
  */
 const rootMap = new WeakMap()
 
+/**
+ * Maps component-returned vnode roots to their component instance object.
+ *
+ * This keeps the public vnode representation “pure” (no wrapper nodes) while
+ * still allowing:
+ * - event updates to replace the nearest component boundary, and
+ * - programmatic updates to patch the correct DOM subtree for an instance.
+ */
+const componentRoots = new WeakMap()
+
 const getVNode = el => el?.__vnode
 const setVNode = (el, vnode) => (el.__vnode = vnode)
 const isRoot = el => !!el?.__root
@@ -200,15 +210,10 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
     return document.createComment('Invalid vnode')
   }
 
-  const tag = node[0]
+  const componentInstance = componentRoots.get(node)
+  componentInstance && (isRoot = true)
 
-  if (tag === 'wrap') {
-    const props = node[1] || {}
-    const child = node[2]
-    const el = renderTree(child, true, namespaceURI)
-    props?.__instance && rootMap.set(props.__instance, el)
-    return el
-  }
+  const tag = node[0]
 
   if (typeof tag !== 'string') {
     console.error('Malformed vnode (non-string tag):', node)
@@ -246,6 +251,8 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
     rootMap.set(node, el)
   }
 
+  componentInstance && rootMap.set(componentInstance, el)
+
   assignProperties(el, props, propsEnv)
 
   for (let i = 2; i < node.length; i++) {
@@ -271,13 +278,13 @@ const applyPropsUpdate = (el, prevProps, nextProps) =>
  * @param {Object} patch - Patch object from diffTree
  * @param {number} [index=0] - Child index to apply update to
  */
-const applyPatch = (parent, patch, index = 0) => {
+const applyPatch = (parent, patch, index = 0, isRootBoundary = false) => {
   if (!patch) return
   const child = parent.childNodes[index]
 
   switch (patch.type) {
   case 'CREATE': {
-    const newEl = renderTree(patch.newNode)
+    const newEl = renderTree(patch.newNode, isRootBoundary)
     child ? parent.insertBefore(newEl, child) : parent.appendChild(newEl)
     break
   }
@@ -285,7 +292,7 @@ const applyPatch = (parent, patch, index = 0) => {
     if (child) parent.removeChild(child)
     break
   case 'REPLACE': {
-    const newEl = renderTree(patch.newNode)
+    const newEl = renderTree(patch.newNode, isRootBoundary)
     parent.replaceChild(newEl, child)
     break
   }
@@ -295,7 +302,7 @@ const applyPatch = (parent, patch, index = 0) => {
       if (patch.children) {
         for (let i = patch.children.length - 1; i >= 0; i--) {
           const [childIndex, childPatch] = patch.children[i]
-          applyPatch(child, childPatch, childIndex)
+          applyPatch(child, childPatch, childIndex, false)
         }
       }
     }
@@ -349,7 +356,7 @@ export const render = (vtree, container = null, { replace = false } = {}) => {
     }
   } else {
     const patch = diffTree(prevVNode, vtree)
-    applyPatch(target, patch)
+    applyPatch(target, patch, 0, true)
   }
 
   setVNode(target, vtree)
@@ -391,6 +398,11 @@ export const component = fn => {
         componentUpdateDepth--
       }
 
+      // Record the root vnode for this component instance so the renderer can
+      // treat it as a boundary without introducing wrapper nodes into the
+      // public AST.
+      Array.isArray(vnode) && componentRoots.set(vnode, instance)
+
       if (canUpdateInPlace) {
         const prevVNode = getVNode(prevEl)
         const patch = diffTree(prevVNode, vnode)
@@ -401,10 +413,7 @@ export const component = fn => {
         }
 
         if (patch.type === 'REPLACE') {
-          const replacement = renderTree(
-            ['wrap', { __instance: instance }, vnode],
-            true
-          )
+          const replacement = renderTree(vnode, true)
           prevEl.parentNode.replaceChild(replacement, prevEl)
           return getVNode(replacement)
         }
@@ -424,7 +433,7 @@ export const component = fn => {
         return vnode
       }
 
-      return ['wrap', { __instance: instance }, vnode]
+      return vnode
     } catch (err) {
       console.error('Component error:', err)
       return ['div', {}, `Error: ${err.message}`]

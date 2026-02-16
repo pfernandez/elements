@@ -34,6 +34,18 @@ export { elements } from './core/elements.js'
 export { render } from './core/elements.js'
 
 /**
+ * Serialize a vnode tree to an HTML string (SSR/SSG).
+ *
+ * This is the “stringification” counterpart to `render()`: it walks the same
+ * declarative vnode arrays and produces static HTML for build-time prerendering
+ * or server-side rendering.
+ *
+ * @param {*} vnode
+ * @returns {string}
+ */
+export { toHtmlString } from './ssr.js'
+
+/**
  * Navigate to a URL path and update the window history object.
  *
  * This dispatches a `popstate` event after updating history so router-style
