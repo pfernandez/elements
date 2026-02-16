@@ -192,3 +192,128 @@ test('onNavigate() runs callback on popstate (microtask)', async () => {
   globalThis.Event = prevEvent
   globalThis.PopStateEvent = prevPopStateEvent
 })
+
+test('onNavigate() coalesces multiple popstate events in one tick', async () => {
+  const prevWindow = globalThis.window
+  const prevEvent = globalThis.Event
+  const prevPopStateEvent = globalThis.PopStateEvent
+
+  try {
+    globalThis.Event = makeEvent('Event')
+    globalThis.PopStateEvent = makeEvent('PopStateEvent')
+
+    const listeners = {}
+    globalThis.window = {
+      location: {
+        origin: 'https://example.test',
+        pathname: '/',
+        search: '',
+        hash: ''
+      },
+      history: {
+        pushState: (_state, _title, url) => {
+          globalThis.window.location.pathname = url.pathname
+          globalThis.window.location.search = url.search
+          globalThis.window.location.hash = url.hash
+        }
+      },
+      addEventListener: (type, fn) => { (listeners[type] ||= []).push(fn) },
+      removeEventListener: () => {},
+      dispatchEvent: e => {
+        for (const fn of listeners[e.type] || []) fn(e)
+        return true
+      }
+    }
+
+    let calls = 0
+    const unsubscribe = onNavigate(() => { calls++ })
+
+    navigate('/a')
+    navigate('/b')
+    await Promise.resolve()
+
+    assert.equal(calls, 1)
+    unsubscribe()
+  } finally {
+    globalThis.window = prevWindow
+    globalThis.Event = prevEvent
+    globalThis.PopStateEvent = prevPopStateEvent
+  }
+})
+
+test('onNavigate() supports queueMicrotask and immediate option', () => {
+  const prevWindow = globalThis.window
+
+  try {
+    const q = []
+    globalThis.window = {
+      queueMicrotask: fn => q.push(fn),
+      addEventListener: () => {},
+      removeEventListener: () => {}
+    }
+
+    let calls = 0
+    const unsubscribe = onNavigate(() => { calls++ }, { immediate: true })
+
+    assert.equal(calls, 0)
+    while (q.length) q.shift()()
+    assert.equal(calls, 1)
+    unsubscribe()
+  } finally {
+    globalThis.window = prevWindow
+  }
+})
+
+test('onNavigate() unsubscribe is a no-op if handler was replaced', async () => {
+  const prevWindow = globalThis.window
+  const prevEvent = globalThis.Event
+  const prevPopStateEvent = globalThis.PopStateEvent
+
+  try {
+    globalThis.Event = makeEvent('Event')
+    globalThis.PopStateEvent = makeEvent('PopStateEvent')
+
+    const listeners = {}
+    globalThis.window = {
+      location: {
+        origin: 'https://example.test',
+        pathname: '/',
+        search: '',
+        hash: ''
+      },
+      history: {
+        pushState: (_state, _title, url) => {
+          globalThis.window.location.pathname = url.pathname
+          globalThis.window.location.search = url.search
+          globalThis.window.location.hash = url.hash
+        }
+      },
+      addEventListener: (type, fn) => { (listeners[type] ||= []).push(fn) },
+      removeEventListener: (type, fn) =>
+        (listeners[type] = (listeners[type] || []).filter(x => x !== fn)),
+      dispatchEvent: e => {
+        for (const fn of listeners[e.type] || []) fn(e)
+        return true
+      }
+    }
+
+    let aCalls = 0
+    let bCalls = 0
+
+    const unsubA = onNavigate(() => { aCalls++ })
+    const unsubB = onNavigate(() => { bCalls++ })
+
+    unsubA()
+
+    navigate('/x')
+    await Promise.resolve()
+
+    assert.equal(aCalls, 0)
+    assert.equal(bCalls, 1)
+    unsubB()
+  } finally {
+    globalThis.window = prevWindow
+    globalThis.Event = prevEvent
+    globalThis.PopStateEvent = prevPopStateEvent
+  }
+})

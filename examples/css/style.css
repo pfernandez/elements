@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * Reset & base theme
  ******************************************************************************/
@@ -9,22 +8,36 @@
  * Global
  ******************************************************************************/
 
-header {
-  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0 ,0.1);
+body {
+  display: grid;
+  /* Stretch vertically to fill window */
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+  padding: 20px;
 }
 
-h1 {
-  font-size: 150%;
-  font-weight: normal;
-  margin: 0 1em 0 1em;
-}
-
-main {
+body>main, main {
+  border-bottom: 1px solid #ddd;
   padding-top: 0;
 }
 
+body>header, header {
+  padding-bottom: 0;
+}
+
+nav {
+  display: inline-flex;
+  gap: 1em;
+  padding-bottom: 1em;
+}
+
+nav a:not(.active) {
+  text-decoration: none;
+}
+
 section {
-  padding: 1.75rem 0;
+  border-top: 1px solid #ddd;
+  padding-top: 1em;
   margin: 0;
 }
 
@@ -48,10 +61,6 @@ li > button {
   margin-left: 10px;
 }
 
-button {
-  margin-bottom: 10px;
-}
-
 /*******************************************************************************
  * Apps
  ******************************************************************************/
@@ -69,29 +78,14 @@ button {
   margin-left: 2%;
 }
 
-.todos ul {
-  display: flex;
-  flex-direction: column;
-  width: fit-content;
-  gap: 0.5em;
-  margin: 0;
-}
-
 .todos li {
   cursor: pointer;
-  margin-bottom: 0;
-}
-
-.todos li button {
-  float: right;
-  margin-bottom: 0;
 }
 
 .todos,
 .scope,
 .scope .grid > div,
-x3d,
-.ski {
+x3d {
   border: 2px dashed rgba(0, 0, 0, 0.2);
   padding: 1em;
 }

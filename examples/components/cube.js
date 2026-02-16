@@ -1,5 +1,4 @@
-import { appearance, box, material, scene,
-         shape, transform, viewpoint, x3d }
+import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
   from '../../packages/elements-x3dom/x3dom.js'
 
 /**
@@ -10,12 +9,13 @@ import { appearance, box, material, scene,
  * - Because this demo uses <arc2d> (Geometry2D), it will also trigger loading
  *   the full bundle.
  */
-export const x3dDemo = () =>
+export const cube = () =>
   x3d(
     scene(
       viewpoint({ position: '0 0 6', description: 'Default View' }),
       transform({ rotation: '0 1 0 0.5' },
-        shape(
-          appearance(
-            material({ diffuseColor: '0.2 0.6 1.0' })),
-          box()))))
+                shape(
+                  appearance(
+                    material({ diffuseColor: '0.2 0.6 1.0' })),
+                  box()))))
+

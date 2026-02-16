@@ -16,8 +16,7 @@ new arguments.
 
 While you may choose to manage application logic with tools like
 [Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
-Elements.js keeps UI state exactly where it belongs: in the
-[DOM][dom] itself.
+Elements.js keeps _UI state_ exactly where it belongs: in the [DOM][dom] itself.
 
 ## Principles
 
@@ -428,3 +427,4 @@ bundles (manual step; requires network access):
 ```sh
 npm run -s fetch:x3dom-src
 ```
+

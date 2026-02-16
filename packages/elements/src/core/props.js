@@ -99,7 +99,9 @@ export const removeMissingProps = (el, prevProps, nextProps) => {
   const keys = Object.keys(prevProps)
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    !(key in nextProps) && clearProp(el, key)
+    if (key in nextProps) continue
+
+    clearProp(el, key)
   }
 }
 
@@ -124,6 +126,10 @@ export const assignProperties = (el, props, env) => {
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
     const value = props[key]
+
+    if (key === 'className') {
+      throw new TypeError('Invalid prop: className. Use `class`.')
+    }
 
     if (key === 'ontick' && typeof value === 'function') {
       el.ontick = value

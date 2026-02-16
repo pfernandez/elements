@@ -1,11 +1,8 @@
-import { button, component, div,
-         form, input, li, span, ul }
+import { button, component, div, form, input, li, span, ul }
   from '../../packages/elements/elements.js'
 
-const demoItems = [
-  { value: 'Add my first todo', done: true },
-  { value: 'Install elements.js', done: false }
-]
+const demoItems = [{ value: 'Add my first todo', done: true },
+                   { value: 'Install elements.js', done: false }]
 
 export const todos = component(
   (items = demoItems) => {
@@ -31,3 +28,4 @@ export const todos = component(
            span({ onclick: () => toggle(item) }, item.value),
            button({ onclick: () => remove(item) }, '✕')))))
   })
+

@@ -43,3 +43,36 @@ test('toHtmlString() can emit a doctype', () => {
   assert.equal(html, '<!doctype html><div>x</div>')
 })
 
+test('toHtmlString() serializes style objects (kebab-case + CSS vars)', () => {
+  const html =
+    toHtmlString(div({
+      style: { '--x': 1, backgroundColor: 'red' }
+    }, 'x'))
+
+  assert.equal(html, '<div style="--x:1;background-color:red">x</div>')
+})
+
+test('toHtmlString() does not emit empty style attributes', () => {
+  const html = toHtmlString(div({ style: { color: null } }, 'x'))
+  assert.equal(html, '<div>x</div>')
+})
+
+test('toHtmlString() rejects className (use class)', () => {
+  assert.throws(
+    () => toHtmlString(div({ className: 'box' }, 'x')),
+    /className/
+  )
+})
+
+test('toHtmlString() rejects className even if class is present', () => {
+  assert.throws(
+    () => toHtmlString(div({ class: 'a', className: 'b' }, 'x')),
+    /className/
+  )
+})
+
+test('toHtmlString() renders fragment children without a wrapper', () => {
+  const html =
+    toHtmlString(['fragment', {}, 'a', div('b')])
+  assert.equal(html, 'a<div>b</div>')
+})

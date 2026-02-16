@@ -6,3 +6,4 @@ export const counter = component((count = 0) =>
     output(count),
     button({ onclick: () => counter(count + 1) },
            'Increment')))
+

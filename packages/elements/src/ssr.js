@@ -88,17 +88,16 @@ const shouldDropProp = (key, value) => {
 const attrsToString = props => {
   if (!isObject(props)) return ''
 
-  const normalized = props.class == null && props.className != null
-    ? { ...props, class: props.className }
-    : props
+  if (props.className != null && props.className !== false)
+    throw new TypeError('Invalid prop: className. Use `class`.')
 
-  const keys = Object.keys(normalized)
-    .filter(k => !shouldDropProp(k, normalized[k]))
+  const keys = Object.keys(props)
+    .filter(k => !shouldDropProp(k, props[k]))
     .sort()
 
   let out = ''
   for (const key of keys) {
-    const value = normalized[key]
+    const value = props[key]
     if (value == null || value === false) {
       // Preserve `aria-*` / `data-*` boolean semantics for false.
       if (typeof value === 'boolean'
@@ -172,4 +171,3 @@ const toHtmlStringInner = vnode => {
  */
 export const toHtmlString = (vnode, { doctype = false } = {}) =>
   `${doctype ? '<!doctype html>' : ''}${toHtmlStringInner(vnode)}`
-

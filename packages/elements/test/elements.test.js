@@ -126,6 +126,24 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.equal(vnode[1].class, 'hero box')
   })
 
+  test('className is invalid (use class)', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    assert.throws(
+      () => render(div({ className: 'a' }, 'x'), container),
+      /className/
+    )
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('boolean attributes are passed as true/false', () => {
     const vnode = input({ required: true, disabled: false })
     assert.deepEqual(vnode[1], { required: true, disabled: false })
