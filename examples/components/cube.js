@@ -1,5 +1,5 @@
 import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
-  from '../../packages/elements-x3dom/x3dom.js'
+  from '@pfern/elements-x3dom'
 
 /**
  * Minimal X3D/X3DOM demo.
@@ -18,4 +18,3 @@ export const cube = () =>
                   appearance(
                     material({ diffuseColor: '0.2 0.6 1.0' })),
                   box()))))
-

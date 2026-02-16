@@ -1,5 +1,5 @@
 import { a, component, div, h2, main, nav, p, section }
-  from '../../packages/elements'
+  from '@pfern/elements'
 import { cube } from './cube.js'
 import { scope } from './scope.js'
 import { todos } from './todos.js'
@@ -47,4 +47,3 @@ export const app = component((path = window.location.pathname) =>
       : path === '/scope' ? scopeDemo()
         : path === '/x3dom' ? x3domDemo()
           : home()))
-
