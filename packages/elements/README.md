@@ -77,8 +77,8 @@ render(counter(), document.body)
 
 ## Optional 3D
 
-X3DOM / X3D helpers live in `@pfern/elements-3d` to keep this package small:
+X3DOM / X3D helpers live in `@pfern/elements-x3dom` to keep this package small:
 
 ```sh
-npm i @pfern/elements @pfern/elements-3d
+npm i @pfern/elements @pfern/elements-x3dom
 ```

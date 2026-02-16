@@ -2,7 +2,7 @@
  *
  * Goals:
  * - Keep the consumer experience simple: users import node helpers from
- *   @pfern/elements-3d only.
+ *   @pfern/elements-x3dom only.
  * - Avoid loading heavy 3D code for apps that never use X3D.
  *
  * Implementation:

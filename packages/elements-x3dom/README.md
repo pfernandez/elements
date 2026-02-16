@@ -1,11 +1,11 @@
-# @pfern/elements-3d
+# @pfern/elements-x3dom
 
 X3DOM-powered X3D helpers for Elements.js.
 
 ## Install
 
 ```sh
-npm i @pfern/elements @pfern/elements-3d
+npm i @pfern/elements @pfern/elements-x3dom
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm i @pfern/elements @pfern/elements-3d
 ```js
 import { render, div } from '@pfern/elements'
 import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
-  from '@pfern/elements-3d'
+  from '@pfern/elements-x3dom'
 
 export const cubeScene = () =>
   x3d(

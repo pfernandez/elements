@@ -1,7 +1,7 @@
 # Vendored X3DOM artifacts
 
 This folder contains vendored build artifacts from the upstream X3DOM project.
-They are included so that `@pfern/elements-3d` can:
+They are included so that `@pfern/elements-x3dom` can:
 
 - Provide comprehensive X3D tag helpers (core + full node sets).
 - Lazy-load X3DOM at runtime without requiring consumers to import `x3dom`

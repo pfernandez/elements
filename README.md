@@ -50,7 +50,7 @@ npm install @pfern/elements
 ### Optional 3D / X3DOM helpers
 
 ```sh
-npm install @pfern/elements @pfern/elements-3d
+npm install @pfern/elements @pfern/elements-x3dom
 ```
 
 ### Install as a minimal starter app
@@ -218,18 +218,18 @@ runtime to be ready before ticking.
 
 ## X3D / X3DOM (experimental)
 
-The optional `@pfern/elements-3d` package includes elements for X3DOM’s
+The optional `@pfern/elements-x3dom` package includes elements for X3DOM’s
 supported X3D node set. You can import them and create 3D scenes
 declaratively:
 
 ```sh
-npm i @pfern/elements @pfern/elements-3d
+npm i @pfern/elements @pfern/elements-x3dom
 ```
 
 ### Demo: Interactive 3D Cube
 ```js
 import { appearance, box, material, scene,
-         shape, transform, viewpoint, x3d } from '@pfern/elements-3d'
+         shape, transform, viewpoint, x3d } from '@pfern/elements-x3dom'
 
 export const cubeScene = () =>
   x3d(
@@ -272,7 +272,7 @@ Omitting a prop in a subsequent update clears it from the element.
 This repository is a monorepo:
 
 - `@pfern/elements` lives in `packages/elements`
-- `@pfern/elements-3d` lives in `packages/elements-3d`
+- `@pfern/elements-x3dom` lives in `packages/elements-x3dom`
 
 The root `package.json` provides convenience scripts that proxy into each
 package workspace.
@@ -282,9 +282,9 @@ npm test
 npm run -s test:coverage
 npm run -s typecheck
 npm run -s build:types
-npm run -s 3d:test
-npm run -s 3d:test:coverage
-npm run -s 3d:typecheck
+npm run -s x3dom:test
+npm run -s x3dom:test:coverage
+npm run -s x3dom:typecheck
 ```
 
 ### Security / `npm audit`
@@ -335,10 +335,10 @@ div({ id: 'box' }, 'hello')
 svg({ width: 100 }, circle({ r: 10 }))
 ```
 
-For X3D / X3DOM nodes, use `@pfern/elements-3d`:
+For X3D / X3DOM nodes, use `@pfern/elements-x3dom`:
 
 ```js
-import { box } from '@pfern/elements-3d'
+import { box } from '@pfern/elements-x3dom'
 
 box({ size: '2 2 2', solid: true })
 ```

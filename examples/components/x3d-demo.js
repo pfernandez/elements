@@ -1,6 +1,6 @@
 import { appearance, box, material, scene,
          shape, transform, viewpoint, x3d }
-  from '../../packages/elements-3d/3d.js'
+  from '../../packages/elements-x3dom/x3dom.js'
 
 /**
  * Minimal X3D/X3DOM demo.

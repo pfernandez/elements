@@ -10,6 +10,5 @@
     "stripInternal": true,
     "outDir": "./types"
   },
-  "include": ["./env.d.ts", "./3d.js"]
+  "include": ["./env.d.ts", "./x3dom.js"]
 }
-

@@ -1,20 +1,20 @@
 {
-  "name": "@pfern/elements-3d",
+  "name": "@pfern/elements-x3dom",
   "version": "0.1.11",
   "description": "X3DOM-powered X3D helpers for Elements.js.",
   "author": "Paul Fernandez",
   "license": "MIT",
   "type": "module",
-  "types": "./types/3d.d.ts",
+  "types": "./types/x3dom.d.ts",
   "exports": {
     ".": {
-      "types": "./types/3d.d.ts",
-      "import": "./3d.js",
-      "default": "./3d.js"
+      "types": "./types/x3dom.d.ts",
+      "import": "./x3dom.js",
+      "default": "./x3dom.js"
     }
   },
   "files": [
-    "./3d.js",
+    "./x3dom.js",
     "./env.d.ts",
     "./src",
     "./vendor",
@@ -40,4 +40,3 @@
     "elements"
   ]
 }
-

@@ -3,7 +3,7 @@ import { test } from 'node:test'
 
 const loadX3DOMModule = () =>
   import(
-    `${new URL('../src/core/elements-3d.js', import.meta.url).href}`
+    `${new URL('../src/core/elements-x3dom.js', import.meta.url).href}`
       + `?t=${Math.random()}`
   )
 
