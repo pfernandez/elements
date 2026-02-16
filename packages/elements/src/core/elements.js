@@ -24,6 +24,7 @@ export const DEBUG =
     || process.env.NODE_ENV === 'development')
 
 const svgNS = 'http://www.w3.org/2000/svg'
+const mathNS = 'http://www.w3.org/1998/Math/MathML'
 
 /**
  * Maps vnode instances to their current root DOM element,
@@ -223,20 +224,35 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
   const props = node[1] || {}
   const isSpecialRootTag = tag === 'html' || tag === 'head' || tag === 'body'
 
-  const elNamespaceURI = tag === 'svg' || namespaceURI === svgNS ? svgNS : null
+  const elNamespaceURI =
+    tag === 'svg' || namespaceURI === svgNS
+      ? svgNS
+      : tag === 'math' || namespaceURI === mathNS
+        ? mathNS
+        : null
+
+  const isAnnotationXmlHtml =
+    tag === 'annotation-xml'
+    && typeof props?.encoding === 'string'
+    && /(^|\/)(xhtml\+xml|xhtml|html)(;|$)/i.test(props.encoding)
+
   const childNamespaceURI =
     tag === 'foreignObject'
       ? null
-      : tag === 'svg'
-        ? svgNS
-        : namespaceURI
+      : tag === 'annotation-xml'
+        ? isAnnotationXmlHtml ? null : namespaceURI
+        : tag === 'svg'
+          ? svgNS
+          : tag === 'math'
+            ? mathNS
+            : namespaceURI
 
   let el = null
   if (tag === 'html') el = document.documentElement
   else if (tag === 'head') el = document.head
   else if (tag === 'body') el = document.body
   else el = elNamespaceURI
-    ? document.createElementNS(svgNS, tag)
+    ? document.createElementNS(elNamespaceURI, tag)
     : document.createElement(tag)
 
   if (!el && (tag === 'head' || tag === 'body')) {
@@ -495,7 +511,3 @@ export const elements = (() => {
   for (const tag of tagNames) acc[tag] = createElementHelper(tag)
   return /** @type {import('./types.js').ElementsElementMap} */ (acc)
 })()
-
-// TODO: MathML
-// https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Element
-//

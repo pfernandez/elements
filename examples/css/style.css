@@ -90,7 +90,8 @@ button {
 .todos,
 .scope,
 .scope .grid > div,
-x3d {
+x3d,
+.ski {
   border: 2px dashed rgba(0, 0, 0, 0.2);
   padding: 1em;
 }
@@ -101,4 +102,3 @@ x3d {
   padding: 6px 16px;
   margin-bottom: 18px;
 }
-

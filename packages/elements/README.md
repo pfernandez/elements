@@ -75,6 +75,18 @@ export const counter = component((count = 0) =>
 render(counter(), document.body)
 ```
 
+## MathML (curated)
+
+The runtime supports rendering MathML tags natively (via the MathML namespace).
+A small curated helper set is available as a separate entrypoint:
+
+```js
+import { apply, ci, csymbol, math } from '@pfern/elements/mathml'
+
+math(
+  apply(csymbol({ cd: 'ski' }, 'app'), ci('f'), ci('x')))
+```
+
 ## Optional 3D
 
 X3DOM / X3D helpers live in `@pfern/elements-x3dom` to keep this package small:

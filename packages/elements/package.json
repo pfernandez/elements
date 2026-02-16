@@ -11,10 +11,16 @@
       "types": "./types/elements.d.ts",
       "import": "./elements.js",
       "default": "./elements.js"
+    },
+    "./mathml": {
+      "types": "./types/mathml.d.ts",
+      "import": "./mathml.js",
+      "default": "./mathml.js"
     }
   },
   "files": [
     "./elements.js",
+    "./mathml.js",
     "./env.d.ts",
     "./src",
     "./types"

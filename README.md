@@ -335,6 +335,16 @@ div({ id: 'box' }, 'hello')
 svg({ width: 100 }, circle({ r: 10 }))
 ```
 
+Curated MathML helpers are available as a separate entrypoint:
+
+```js
+import { apply, ci, csymbol, math } from '@pfern/elements/mathml'
+
+math(
+  apply(csymbol({ cd: 'ski' }, 'app'), ci('f'), ci('x'))
+)
+```
+
 For X3D / X3DOM nodes, use `@pfern/elements-x3dom`:
 
 ```js
