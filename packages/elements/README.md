@@ -193,6 +193,11 @@ reloading the page.
 
 You can also call `navigate('/path')` directly.
 
+Elements.js also intercepts unmodified left-clicks on plain `<a href>` links in
+the document (e.g. links emitted by Markdown rendered via `innerHTML`) while a
+navigation handler is registered. To opt out for a specific link, add
+`data-elements-native`.
+
 ### SSG / SSR
 
 For build-time prerendering (static site generation) or server-side rendering,
