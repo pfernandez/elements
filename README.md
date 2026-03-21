@@ -350,6 +350,12 @@ Omitting a prop in a subsequent update clears it from the element.
 
 Wrap a recursive pure function that returns a vnode.
 
+### `memoComponent(fn)`
+
+Like `component(fn)`, but reuses the previous vnode when called again with the
+same argument tuple (`Object.is` per slot). This is useful when you want
+reference identity to preserve subtree structure across parent rerenders.
+
 ### `render(vnode[, container])`
 
 Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
