@@ -116,6 +116,7 @@ const changed = (a, b) =>
  * @returns {Object} - Patch object with type and content
  */
 const diffTree = (a, b) => {
+  if (a === b) return
   if (a == null) return { type: 'CREATE', newNode: b }
   if (b == null) return { type: 'REMOVE' }
   if (changed(a, b)) return { type: 'REPLACE', newNode: b }

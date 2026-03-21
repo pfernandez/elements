@@ -592,6 +592,37 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
+  test('render() skips identical vnode references without traversing them', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const shared = div({ id: 'shared' }, 'same')
+    const container = document.createElement('div')
+
+    render(div({}, shared), container)
+
+    const sharedEl = container.childNodes[0].childNodes[0]
+    const attrCount = sharedEl.__setAttributeCount
+
+    Object.defineProperty(
+      shared,
+      0,
+      { configurable: true,
+        get: () => { throw new Error('should not traverse identical vnode') } }
+    )
+
+    assert.doesNotThrow(() => render(div({}, shared), container))
+    assert.equal(container.childNodes[0].childNodes[0], sharedEl)
+    assert.equal(sharedEl.__setAttributeCount, attrCount)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('component() renders an error vnode when it throws', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
