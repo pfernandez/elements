@@ -9,7 +9,8 @@ Elements.js borrows the simple elegance of functional UI composition from
 
 - No JSX.
 - No hooks.
-- Optional keys (when you need stable identity in lists).
+- Stable vnode references carry identity.
+- Optional keys (when you need explicit sibling identity).
 - No virtual DOM heuristics.
 
 Components are pure functions; updates are just calling the function again with
@@ -232,9 +233,13 @@ Replacement updates keep the model simple:
 - Identity is the closest component boundary.
 - The DOM remains the single source of truth for UI state.
 
-When you do need stable identity across inserts/removals/reorders (e.g. a list
-of rows with uncontrolled inputs, canvases, or 3D scenes), you can provide a
-`key` prop on sibling vnodes:
+Within a stable position, reusing the same vnode reference means “this subtree
+is unchanged.” Across sibling reorders, Elements.js now prefers preserved vnode
+references first, then explicit `key`s, then positional fallback.
+
+When you rebuild fresh sibling vnodes every render and still need stable
+identity across inserts/removals/reorders (e.g. a list of rows with
+uncontrolled inputs, canvases, or 3D scenes), provide a `key` prop:
 
 ```js
 ul(...items.map(item =>

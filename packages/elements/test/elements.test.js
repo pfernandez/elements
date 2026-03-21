@@ -1439,6 +1439,36 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
+  test('render() preserves unkeyed child identity across reorders when references are reused', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const a = div({ id: 'a' }, 'a')
+    const b = div({ id: 'b' }, 'b')
+    const c = div({ id: 'c' }, 'c')
+    const container = document.createElement('div')
+    const view = items => div({}, ...items)
+
+    render(view([a, b, c]), container)
+    const root = container.childNodes[0]
+    const aEl = root.childNodes[0]
+    const bEl = root.childNodes[1]
+    const cEl = root.childNodes[2]
+
+    render(view([c, b, a]), container)
+    const nextRoot = container.childNodes[0]
+    assert.equal(nextRoot.childNodes[0], cEl)
+    assert.equal(nextRoot.childNodes[1], bEl)
+    assert.equal(nextRoot.childNodes[2], aEl)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('render() inserts keyed children without remounting others', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window

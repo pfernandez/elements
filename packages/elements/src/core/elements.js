@@ -158,6 +158,34 @@ const hasDuplicateKeys = children => {
   return false
 }
 
+const isReferenceChild = child =>
+  isObject(child)
+
+const hasDuplicateRefs = children => {
+  const seen = new Set()
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (!isReferenceChild(child)) continue
+    if (seen.has(child)) return true
+    seen.add(child)
+  }
+  return false
+}
+
+const hasMovedRefs = (prevChildren, nextChildren) => {
+  if (hasDuplicateRefs(prevChildren) || hasDuplicateRefs(nextChildren)) return false
+
+  for (let i = 0; i < nextChildren.length; i++) {
+    const child = nextChildren[i]
+    if (!isReferenceChild(child)) continue
+
+    const prevIndex = prevChildren.indexOf(child)
+    if (prevIndex !== -1 && prevIndex !== i) return true
+  }
+
+  return false
+}
+
 /**
  * Compares the children of two vnodes and returns patch list.
  *
@@ -208,12 +236,22 @@ const diffChildrenByIndex = (a, b) => {
 const diffChildren = (a, b) => {
   const prevChildren = a.slice(2)
   const nextChildren = b.slice(2)
-  const keyed =
+  const canMatchByKey =
     prevChildren.some(hasKeyProp)
     || nextChildren.some(hasKeyProp)
+      ? !hasDuplicateKeys(prevChildren) && !hasDuplicateKeys(nextChildren)
+      : false
+  const canMatchByReference = !hasDuplicateRefs(prevChildren)
+    && !hasDuplicateRefs(nextChildren)
+  const movedByReference =
+    canMatchByReference && hasMovedRefs(prevChildren, nextChildren)
 
-  return keyed && !hasDuplicateKeys(prevChildren) && !hasDuplicateKeys(nextChildren)
-    ? { keyed: true, prevChildren, nextChildren }
+  return canMatchByKey || movedByReference
+    ? { reconcile: true,
+        prevChildren,
+        nextChildren,
+        matchByKey: canMatchByKey,
+        matchByReference: canMatchByReference }
     : diffChildrenByIndex(a, b)
 }
 
@@ -353,10 +391,8 @@ const applyPatch = (parent, patch, index = 0, isRootBoundary = false) => {
       if (child) {
         applyPropsUpdate(child, patch.prevProps, patch.props)
         if (patch.children) {
-          if (patch.children.keyed) {
-            reconcileKeyedChildren(child,
-                                   patch.children.prevChildren,
-                                   patch.children.nextChildren)
+          if (patch.children.reconcile) {
+            reconcileChildren(child, patch.children)
           } else {
             for (let i = patch.children.length - 1; i >= 0; i--) {
               const [childIndex, childPatch] = patch.children[i]
@@ -374,40 +410,75 @@ const childKey = (child, index) =>
     ? `$${String(child[1].key)}`
     : `#${index}`
 
-const reconcileKeyedChildren = (parent, prevChildren, nextChildren) => {
-  /** @type {Map<string, { vnode: any, node: any }>} */
-  const entries = new Map()
+const reconcileChildren = (
+  parent,
+  { prevChildren, nextChildren, matchByKey, matchByReference }
+) => {
+  /** @type {Array<{ vnode: any, node: any }>} */
+  const entries = prevChildren.map((vnode, index) =>
+    ({ vnode, node: parent.childNodes[index] }))
+  /** @type {Map<any, number>} */
+  const refs = new Map()
+  /** @type {Map<string, number>} */
+  const keys = new Map()
+
   for (let i = 0; i < prevChildren.length; i++) {
     const vnode = prevChildren[i]
-    entries.set(childKey(vnode, i), { vnode, node: parent.childNodes[i] })
+    matchByReference && isReferenceChild(vnode) && refs.set(vnode, i)
+    matchByKey && keys.set(childKey(vnode, i), i)
   }
 
   const used = new Set()
+  const matches = Array(nextChildren.length).fill(-1)
+
   for (let i = 0; i < nextChildren.length; i++) {
     const nextVNode = nextChildren[i]
-    const key = childKey(nextVNode, i)
-    const entry = entries.get(key)
+    if (!matchByReference || !isReferenceChild(nextVNode)) continue
+    const index = refs.get(nextVNode)
+    if (index == null || used.has(index)) continue
 
-    if (entry) {
-      used.add(key)
+    matches[i] = index
+    used.add(index)
+  }
 
-      const atIndex = parent.childNodes[i]
-      entry.node !== atIndex && parent.insertBefore(entry.node, atIndex || null)
+  for (let i = 0; i < nextChildren.length; i++) {
+    const nextVNode = nextChildren[i]
+    if (matches[i] !== -1 || !matchByKey || !hasKeyProp(nextVNode)) continue
+    const index = keys.get(childKey(nextVNode, i))
+    if (index == null || used.has(index)) continue
 
-      const patch = diffTree(entry.vnode, nextVNode)
-      patch && applyPatch(parent, patch, i, false)
+    matches[i] = index
+    used.add(index)
+  }
 
-      entry.node = parent.childNodes[i]
-      entry.vnode = nextVNode
-    } else {
+  for (let i = 0; i < nextChildren.length; i++) {
+    if (matches[i] !== -1 || used.has(i) || i >= prevChildren.length) continue
+    matches[i] = i
+    used.add(i)
+  }
+
+  for (let i = 0; i < nextChildren.length; i++) {
+    const nextVNode = nextChildren[i]
+    const index = matches[i]
+
+    if (index === -1) {
       const el = renderTree(nextVNode, false)
       const atIndex = parent.childNodes[i]
       atIndex ? parent.insertBefore(el, atIndex) : parent.appendChild(el)
+      continue
     }
+
+    const entry = entries[index]
+    const atIndex = parent.childNodes[i]
+    entry.node !== atIndex && parent.insertBefore(entry.node, atIndex || null)
+
+    const patch = diffTree(entry.vnode, nextVNode)
+    patch && applyPatch(parent, patch, i, false)
   }
 
-  for (const [key, { node }] of entries) {
-    if (used.has(key)) continue
+  for (let i = 0; i < entries.length; i++) {
+    if (used.has(i)) continue
+    const { node } = entries[i]
     node?.parentNode === parent && parent.removeChild(node)
   }
 }
