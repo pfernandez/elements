@@ -129,8 +129,7 @@ export const removeMissingProps = (el, prevProps, nextProps) => {
  *   svgNS: string,
  *   debug: boolean,
  *   isRoot: (el: any) => boolean,
- *   renderTree: (node: any, isRoot?: boolean, namespaceURI?: string | null) =>
- *     any,
+ *   updateBoundary: (el: any, vnode: any) => any,
  *   getCurrentEventRoot: () => any,
  *   setCurrentEventRoot: (el: any) => void
  * }} env
@@ -170,7 +169,7 @@ export const assignProperties = (el, props, env) => {
         key,
         handler: value,
         isRoot: env.isRoot,
-        renderTree: env.renderTree,
+        updateBoundary: env.updateBoundary,
         getCurrentEventRoot: env.getCurrentEventRoot,
         setCurrentEventRoot: env.setCurrentEventRoot,
         debug: env.debug

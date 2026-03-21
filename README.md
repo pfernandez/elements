@@ -26,8 +26,8 @@ Elements.js keeps _UI state_ exactly where it belongs: in the [DOM][dom] itself.
   functions. They accept W3C standard `props` and child elements as arguments, and
   return nested arrays.
 - **Dynamic updates:** When an event handler returns the output of a component
-  element defined within its scope, the element is updated with its new
-  arguments.
+  element defined within its scope, the nearest boundary is patched with its
+  new arguments.
 - **Imperative boundary, functional surface:** DOM mutation is abstracted away,
   keeping the authoring experience functional and composable.
 
@@ -148,10 +148,10 @@ Elements.js represents UI as plain arrays called **vnodes** (virtual nodes):
 ### Declarative Events
 
 - Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
-  array to trigger a replacement.
+  array to trigger a boundary update.
 - If the handler returns `undefined` (or any non-vnode value), the event is
   passive and the DOM is left alone.
-- Returned vnodes are applied at the closest component boundary.
+- Returned vnodes patch the closest component boundary.
 - If you return a vnode from an `<a href>` `onclick` handler, Elements.js
   prevents default navigation for unmodified left-clicks.
 
@@ -225,9 +225,9 @@ useful for explicit rerenders (e.g. dev reload, external state updates).
 To force a full remount (discarding existing DOM state), pass
 `{ replace: true }`.
 
-### Why Replacement (and Optional Keys)
+### Why Boundary Updates (and Optional Keys)
 
-Replacement updates keep the model simple:
+Boundary updates keep the model simple:
 
 - By default, you never have to maintain key stability.
 - Identity is the closest component boundary.

@@ -8,7 +8,7 @@
  *   dialects.
  * - No internal mutable state required: DOM itself is the substrate for state.
  * - No JSX, optional keys, no reconciler heuristics — just pure structure +
- *   replacement-style updates.
+ *   surgical boundary updates.
  *
  */
 
@@ -27,8 +27,7 @@ const svgNS = 'http://www.w3.org/2000/svg'
 const mathNS = 'http://www.w3.org/1998/Math/MathML'
 
 /**
- * Maps vnode instances to their current root DOM element,
- * allowing accurate replacement when the same vnode is re-invoked.
+ * Maps vnode instances to their current root DOM element.
  */
 const rootMap = new WeakMap()
 
@@ -264,7 +263,7 @@ const propsEnv = {
   svgNS,
   debug: DEBUG,
   isRoot,
-  renderTree: null,
+  updateBoundary: null,
   getCurrentEventRoot,
   setCurrentEventRoot
 }
@@ -357,13 +356,25 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
   return el
 }
 
-propsEnv.renderTree = renderTree
-
 const applyPropsUpdate = (el, prevProps, nextProps) =>
   nextProps == null
     ? undefined
     : (removeMissingProps(el, prevProps || {}, nextProps),
       assignProperties(el, nextProps, propsEnv))
+
+const applyChildPatches = (parent, patches) => {
+  for (let i = patches.length - 1; i >= 0; i--) {
+    const [childIndex, childPatch] = patches[i]
+    childPatch.type === 'REMOVE'
+      && applyPatch(parent, childPatch, childIndex, false)
+  }
+
+  for (let i = 0; i < patches.length; i++) {
+    const [childIndex, childPatch] = patches[i]
+    childPatch.type !== 'REMOVE'
+      && applyPatch(parent, childPatch, childIndex, false)
+  }
+}
 
 /**
  * Applies a patch object to a DOM subtree.
@@ -398,10 +409,7 @@ const applyPatch = (parent, patch, index = 0, isRootBoundary = false) => {
           if (patch.children.reconcile) {
             reconcileChildren(child, patch.children)
           } else {
-            for (let i = patch.children.length - 1; i >= 0; i--) {
-              const [childIndex, childPatch] = patch.children[i]
-              applyPatch(child, childPatch, childIndex, false)
-            }
+            applyChildPatches(child, patch.children)
           }
         }
       }
@@ -501,6 +509,53 @@ const clearChildren = el => {
   while (el.childNodes?.length) el.removeChild(el.childNodes[0])
 }
 
+const getBoundaryInstance = vnode =>
+  Array.isArray(vnode) ? componentRoots.get(vnode) : null
+
+const syncBoundaryRoot = (el, prevVNode, nextVNode) => {
+  const prevInstance = getBoundaryInstance(prevVNode)
+  const nextInstance = getBoundaryInstance(nextVNode)
+
+  prevInstance && prevInstance !== nextInstance && rootMap.delete(prevInstance)
+  nextInstance && rootMap.set(nextInstance, el)
+  setVNode(el, nextVNode)
+  return el
+}
+
+const updateBoundary = (el, nextVNode) => {
+  const parent = el?.parentNode
+  const prevVNode = getVNode(el)
+
+  if (!parent || !prevVNode) return el
+
+  const patch = diffTree(prevVNode, nextVNode)
+  if (!patch) return syncBoundaryRoot(el, prevVNode, nextVNode)
+
+  if (patch.type === 'REPLACE') {
+    const prevInstance = getBoundaryInstance(prevVNode)
+    const nextInstance = getBoundaryInstance(nextVNode)
+    const replacement = renderTree(nextVNode, true)
+    parent.replaceChild(replacement, el)
+    prevInstance && prevInstance !== nextInstance && rootMap.delete(prevInstance)
+    return replacement
+  }
+
+  if (patch.type === 'REMOVE') {
+    const prevInstance = getBoundaryInstance(prevVNode)
+    prevInstance && rootMap.delete(prevInstance)
+    parent.removeChild(el)
+    return null
+  }
+
+  const index = getChildIndex(parent, el)
+  if (index === -1) return el
+
+  applyPatch(parent, patch, index)
+  return syncBoundaryRoot(parent.childNodes[index] || el, prevVNode, nextVNode)
+}
+
+propsEnv.updateBoundary = updateBoundary
+
 /**
  * Render a vnode into the DOM.
  *
@@ -581,32 +636,8 @@ export const component = fn => {
       Array.isArray(vnode) && componentRoots.set(vnode, instance)
 
       if (canUpdateInPlace) {
-        const prevVNode = getVNode(prevEl)
-        const patch = diffTree(prevVNode, vnode)
-
-        if (!patch) {
-          setVNode(prevEl, vnode)
-          return vnode
-        }
-
-        if (patch.type === 'REPLACE') {
-          const replacement = renderTree(vnode, true)
-          prevEl.parentNode.replaceChild(replacement, prevEl)
-          return getVNode(replacement)
-        }
-
-        const parent = prevEl.parentNode
-        const index = getChildIndex(parent, prevEl)
-        if (index !== -1) applyPatch(parent, patch, index)
-
-        if (patch.type === 'REMOVE') {
-          rootMap.delete(instance)
-          return vnode
-        }
-
-        const nextEl = index === -1 ? prevEl : parent.childNodes[index] || prevEl
-        setVNode(nextEl, vnode)
-        rootMap.set(instance, nextEl)
+        const nextEl = updateBoundary(prevEl, vnode)
+        !nextEl && rootMap.delete(instance)
         return vnode
       }
 

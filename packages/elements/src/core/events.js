@@ -3,7 +3,7 @@
  *
  * Elements.js treats DOM events as a place to *declare* the next UI tree:
  * if an event handler returns a vnode, the closest component boundary is
- * replaced with the rendered result.
+ * patched to that result.
  */
 
 export const isEventProp = (key, value) =>
@@ -90,8 +90,7 @@ const warnPassiveReturn = (env, resolved) =>
  *   key: string,
  *   handler: Function,
  *   isRoot: (el: any) => boolean,
- *   renderTree:
- *     (node: any, isRoot?: boolean, namespaceURI?: string | null) => any,
+ *   updateBoundary: (el: any, vnode: any) => any,
  *   getCurrentEventRoot: () => any,
  *   setCurrentEventRoot: (el: any) => void,
  *   debug: boolean
@@ -130,11 +129,7 @@ export const createDeclarativeEventHandler = env =>
 
         if (!Array.isArray(resolved)) return resolved
 
-        const parent = eventRoot.parentNode
-        if (!parent) return resolved
-
-        const replacement = env.renderTree(resolved, true)
-        parent.replaceChild(replacement, eventRoot)
+        env.updateBoundary(eventRoot, resolved)
         return resolved
       }
 

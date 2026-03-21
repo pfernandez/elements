@@ -1,5 +1,5 @@
 import { a, body, button, component, div, form, head, html, input,
-  memoComponent, output, pre, render, svg, title } from '../elements.js'
+  memoComponent, output, pre, render, span, svg, title } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
@@ -914,7 +914,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('event handler update replaces closest component boundary', async () => {
+  test('event handler update patches closest component boundary', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -955,6 +955,7 @@ test('render() requires a container for non-html roots', () => {
 
     assert.equal(sentinel2.attributes.id, 'sentinel')
     assert.equal(sentinel2.childNodes[0].nodeValue, 'outer')
+    assert.equal(innerRoot2, innerRoot)
     assert.equal(innerRoot2.childNodes[0].childNodes[0].nodeValue, '1')
 
     globalThis.document = prevDocument
@@ -985,8 +986,9 @@ test('render() requires a container for non-html roots', () => {
     assert.equal(root.childNodes[0].childNodes[0].nodeValue, '0')
 
     await root.childNodes[1].onclick({})
-    const updated =
-      container.childNodes[0].childNodes[0].childNodes[0].nodeValue
+    const nextRoot = container.childNodes[0]
+    const updated = nextRoot.childNodes[0].childNodes[0].nodeValue
+    assert.equal(nextRoot, root)
     assert.equal(updated, '1')
 
     globalThis.document = prevDocument
@@ -1128,6 +1130,36 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
+  test('render() preserves child order when a wrapper span is removed', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+
+    render(
+      span({ class: 'focus' },
+        span('(', 'a', ' ', 'b', ')')),
+      container
+    )
+
+    const root = container.childNodes[0]
+
+    render(span('(', 'a', ' ', 'b', ')'), container)
+
+    assert.equal(container.childNodes[0], root)
+    assert.equal(
+      root.childNodes.map(node => node.nodeValue).join(''),
+      '(a b)'
+    )
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('render() updates number text nodes', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
@@ -1203,7 +1235,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('non-vnode event return is passive (no replacement)', async () => {
+  test('non-vnode event return is passive (no update)', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 

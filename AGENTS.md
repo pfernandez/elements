@@ -8,7 +8,7 @@ necessary imperative DOM boundary with care.
 
 - **Single page-load mount:** typical apps call `render()` once at startup.
 - **Declarative updates via events:** event handlers may return a vnode to
-  replace the closest component boundary (replacement-based updates).
+  patch the closest component boundary.
 - **Explicit tick hook:** `ontick` is a hook (not a DOM event). It runs once per
   animation frame, waits for connection/readiness, and must be synchronous.
 - **Attribute-first props:** most props are assigned via `setAttribute`. A small

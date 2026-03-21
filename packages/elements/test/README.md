@@ -10,7 +10,7 @@ they still verify the *behavioral contract* that users rely on.
 ## What We Test
 
 - **Vnode shape:** exported tag helpers return `[tag, props, ...children]`.
-- **Declarative events:** returning a vnode from an event handler replaces the
+- **Declarative events:** returning a vnode from an event handler patches the
   closest component boundary; passive returns do nothing.
 - **Form handler signature:** `onsubmit`, `oninput`, `onchange` receive
   `(arg, event)` where `onsubmit` gets `event.target.elements` and

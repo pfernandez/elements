@@ -7,7 +7,7 @@
 export { DEBUG } from './core/elements.js'
 
 /**
- * Wrap a recursive pure function so it participates in replacement updates.
+ * Wrap a recursive pure function so it participates in boundary updates.
  *
  * Call the returned function again with new arguments to compute the next UI.
  *
@@ -40,7 +40,7 @@ export { elements } from './core/elements.js'
  * Render a vnode into the DOM.
  *
  * This is typically called once on page load. After that, events that return
- * vnodes perform replacement updates automatically.
+ * vnodes patch the nearest boundary automatically.
  *
  * @param {any[]} vtree
  * @param {HTMLElement | null} [container]
