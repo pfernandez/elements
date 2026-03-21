@@ -73,17 +73,17 @@ const warnPassiveReturn = (env, resolved) =>
         + 'div({}, ...)'
     )
     : !Array.isArray(resolved)
-      ? console.warn(
-        `${describeListener(env)} returned "${resolved}".\n`
+        ? console.warn(
+          `${describeListener(env)} returned "${resolved}".\n`
           + 'If you intended a UI update, return a vnode array like: '
           + 'div({}, ...).\n'
           + 'Otherwise, return undefined (or nothing) for native event '
           + 'listener behavior.'
-      )
-      : undefined
+        )
+        : undefined
 
 /**
- * Wrap an event handler so it can return a vnode to trigger an update.
+* Wrap an event handler so it can return a vnode to trigger an update.
  *
  * @param {{
  *   el: any,

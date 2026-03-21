@@ -8,7 +8,8 @@ Elements.js borrows the simple elegance of functional UI composition from
 [React](https://react.dev/), distilled to its purest form:
 
 - No JSX.
-- No hooks or keys.
+- No hooks.
+- Optional keys (when you need stable identity in lists).
 - No virtual DOM heuristics.
 
 Components are pure functions; updates are just calling the function again with
@@ -223,13 +224,25 @@ useful for explicit rerenders (e.g. dev reload, external state updates).
 To force a full remount (discarding existing DOM state), pass
 `{ replace: true }`.
 
-### Why Replacement (No Keys)
+### Why Replacement (and Optional Keys)
 
 Replacement updates keep the model simple:
 
-- You never have to maintain key stability.
+- By default, you never have to maintain key stability.
 - Identity is the closest component boundary.
 - The DOM remains the single source of truth for UI state.
+
+When you do need stable identity across inserts/removals/reorders (e.g. a list
+of rows with uncontrolled inputs, canvases, or 3D scenes), you can provide a
+`key` prop on sibling vnodes:
+
+```js
+ul(...items.map(item =>
+  li({ key: item.id }, item.label)))
+```
+
+Keys must be unique among siblings. The `key` prop is reserved for
+reconciliation and is not assigned to the DOM as an attribute.
 
 ## Props
 
@@ -244,7 +257,11 @@ In the DOM runtime:
 - Most props are assigned via `setAttribute`.
 - A small set of keys are treated as property exceptions when the property
   exists on the element.
+- `key` is reserved for reconciliation and is ignored by the DOM runtime.
 - Omitting a prop in a subsequent update clears it from the element.
+- `style` objects are applied as patches: keys removed from the next `style`
+  object are cleared from the element (React-like behavior). Use `null` to
+  clear the entire style prop, or `null` values to remove individual style keys.
 
 This keeps updates symmetric and predictable.
 
@@ -317,6 +334,8 @@ Most props are assigned as attributes. A small set of keys are treated as
 property exceptions (when the property exists on the element): `value`,
 `checked`, `selected`, `disabled`, `multiple`, `muted`, `volume`,
 `currentTime`, `playbackRate`, `open`, `indeterminate`.
+
+`key` is reserved for reconciliation and is not assigned as an attribute.
 
 Omitting a prop in a subsequent update clears it from the element.
 

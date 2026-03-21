@@ -1362,4 +1362,133 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
     }
   )
+
+  test('render() does not assign key as an attribute', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    render(div({ key: 'k', id: 'x' }, 'hi'), container)
+    assert.equal(container.childNodes[0].attributes.key, undefined)
+    assert.equal(container.childNodes[0].attributes.id, 'x')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() preserves keyed child identity across reorders', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    const view = items =>
+      div({}, ...items.map(x => div({ key: x, id: x }, x)))
+
+    render(view(['a', 'b', 'c']), container)
+    const root = container.childNodes[0]
+    const a = root.childNodes[0]
+    const b = root.childNodes[1]
+    const c = root.childNodes[2]
+
+    render(view(['c', 'b', 'a']), container)
+    const nextRoot = container.childNodes[0]
+    assert.equal(nextRoot.childNodes[0], c)
+    assert.equal(nextRoot.childNodes[1], b)
+    assert.equal(nextRoot.childNodes[2], a)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() inserts keyed children without remounting others', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    const view = items =>
+      div({}, ...items.map(x => div({ key: x, id: x }, x)))
+
+    render(view(['a', 'c']), container)
+    const root = container.childNodes[0]
+    const a = root.childNodes[0]
+    const c = root.childNodes[1]
+
+    render(view(['a', 'b', 'c']), container)
+    const nextRoot = container.childNodes[0]
+    assert.equal(nextRoot.childNodes[0], a)
+    assert.equal(nextRoot.childNodes[2], c)
+    assert.equal(nextRoot.childNodes[1].attributes.id, 'b')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() clears removed style keys (React-like)', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    render(div({ style: { marginTop: '8px', color: 'red' } }, 'x'), container)
+    assert.equal(container.childNodes[0].style.marginTop, '8px')
+    assert.equal(container.childNodes[0].style.color, 'red')
+
+    render(div({ style: { color: 'blue' } }, 'x'), container)
+    assert.equal(container.childNodes[0].style.marginTop, '')
+    assert.equal(container.childNodes[0].style.color, 'blue')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() supports null style values to remove keys', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    render(div({ style: { marginTop: '8px' } }, 'x'), container)
+    render(div({ style: { marginTop: null } }, 'x'), container)
+    assert.equal(container.childNodes[0].style.marginTop, '')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
+  test('render() supports class: null to clear class attribute', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    render(div({ class: 'x y' }, 'x'), container)
+    assert.equal(container.childNodes[0].attributes.class, 'x y')
+
+    render(div({ class: null }, 'x'), container)
+    assert.equal(container.childNodes[0].attributes.class, undefined)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
 })

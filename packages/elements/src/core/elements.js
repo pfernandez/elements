@@ -7,8 +7,8 @@
  * - Directly composable into a symbolic tree compatible with Lisp-like
  *   dialects.
  * - No internal mutable state required: DOM itself is the substrate for state.
- * - No JSX, no keys, no reconciler heuristics — just pure structure +
- *   replacement.
+ * - No JSX, optional keys, no reconciler heuristics — just pure structure +
+ *   replacement-style updates.
  *
  */
 
@@ -59,6 +59,9 @@ const isObject = x =>
   typeof x === 'object'
   && x !== null
 
+const propKeys = props =>
+  Object.keys(props).filter(k => k !== 'key')
+
 const shallowObjectEqual = (a, b) => {
   if (a === b) return true
   if (!isObject(a) || !isObject(b)) return false
@@ -75,8 +78,8 @@ const shallowObjectEqual = (a, b) => {
 const propsEqual = (a, b) => {
   if (a === b) return true
   if (!isObject(a) || !isObject(b)) return false
-  const aKeys = Object.keys(a)
-  const bKeys = Object.keys(b)
+  const aKeys = propKeys(a)
+  const bKeys = propKeys(b)
   if (aKeys.length !== bKeys.length) return false
   for (let i = 0; i < aKeys.length; i++) {
     const key = aKeys[i]
@@ -126,11 +129,32 @@ const diffTree = (a, b) => {
   return !propsChanged && !children
     ? undefined
     : {
-      type: 'UPDATE',
-      prevProps: propsChanged ? prevProps : null,
-      props: propsChanged ? nextProps : null,
-      children
-    }
+        type: 'UPDATE',
+        prevProps: propsChanged ? prevProps : null,
+        props: propsChanged ? nextProps : null,
+        children
+      }
+}
+
+/**
+ * @param {any} node
+ * @returns {boolean}
+ */
+const hasKeyProp = node =>
+  Array.isArray(node)
+  && isObject(node[1])
+  && node[1].key != null
+
+const hasDuplicateKeys = children => {
+  const seen = new Set()
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (!hasKeyProp(child)) continue
+    const key = String(child[1].key)
+    if (seen.has(key)) return true
+    seen.add(key)
+  }
+  return false
 }
 
 /**
@@ -140,7 +164,7 @@ const diffTree = (a, b) => {
  * @param {any[]} b - New vnode
  * @returns {Array<[number, Object]> | null} patches - Sparse patch list
  */
-const diffChildren = (a, b) => {
+const diffChildrenByIndex = (a, b) => {
   const aLen = Math.max(0, a.length - 2)
   const bLen = Math.max(0, b.length - 2)
   const len = Math.max(aLen, bLen)
@@ -178,6 +202,18 @@ const diffChildren = (a, b) => {
   }
 
   return patches.length ? patches : null
+}
+
+const diffChildren = (a, b) => {
+  const prevChildren = a.slice(2)
+  const nextChildren = b.slice(2)
+  const keyed =
+    prevChildren.some(hasKeyProp)
+    || nextChildren.some(hasKeyProp)
+
+  return keyed && !hasDuplicateKeys(prevChildren) && !hasDuplicateKeys(nextChildren)
+    ? { keyed: true, prevChildren, nextChildren }
+    : diffChildrenByIndex(a, b)
 }
 
 
@@ -284,7 +320,7 @@ const applyPropsUpdate = (el, prevProps, nextProps) =>
   nextProps == null
     ? undefined
     : (removeMissingProps(el, prevProps || {}, nextProps),
-    assignProperties(el, nextProps, propsEnv))
+      assignProperties(el, nextProps, propsEnv))
 
 /**
  * Applies a patch object to a DOM subtree.
@@ -299,30 +335,79 @@ const applyPatch = (parent, patch, index = 0, isRootBoundary = false) => {
   const child = parent.childNodes[index]
 
   switch (patch.type) {
-  case 'CREATE': {
-    const newEl = renderTree(patch.newNode, isRootBoundary)
-    child ? parent.insertBefore(newEl, child) : parent.appendChild(newEl)
-    break
-  }
-  case 'REMOVE':
-    if (child) parent.removeChild(child)
-    break
-  case 'REPLACE': {
-    const newEl = renderTree(patch.newNode, isRootBoundary)
-    parent.replaceChild(newEl, child)
-    break
-  }
-  case 'UPDATE':
-    if (child) {
-      applyPropsUpdate(child, patch.prevProps, patch.props)
-      if (patch.children) {
-        for (let i = patch.children.length - 1; i >= 0; i--) {
-          const [childIndex, childPatch] = patch.children[i]
-          applyPatch(child, childPatch, childIndex, false)
+    case 'CREATE': {
+      const newEl = renderTree(patch.newNode, isRootBoundary)
+      child ? parent.insertBefore(newEl, child) : parent.appendChild(newEl)
+      break
+    }
+    case 'REMOVE':
+      if (child) parent.removeChild(child)
+      break
+    case 'REPLACE': {
+      const newEl = renderTree(patch.newNode, isRootBoundary)
+      parent.replaceChild(newEl, child)
+      break
+    }
+    case 'UPDATE':
+      if (child) {
+        applyPropsUpdate(child, patch.prevProps, patch.props)
+        if (patch.children) {
+          if (patch.children.keyed) {
+            reconcileKeyedChildren(child,
+                                   patch.children.prevChildren,
+                                   patch.children.nextChildren)
+          } else {
+            for (let i = patch.children.length - 1; i >= 0; i--) {
+              const [childIndex, childPatch] = patch.children[i]
+              applyPatch(child, childPatch, childIndex, false)
+            }
+          }
         }
       }
+      break
+  }
+}
+
+const childKey = (child, index) =>
+  hasKeyProp(child)
+    ? `$${String(child[1].key)}`
+    : `#${index}`
+
+const reconcileKeyedChildren = (parent, prevChildren, nextChildren) => {
+  /** @type {Map<string, { vnode: any, node: any }>} */
+  const entries = new Map()
+  for (let i = 0; i < prevChildren.length; i++) {
+    const vnode = prevChildren[i]
+    entries.set(childKey(vnode, i), { vnode, node: parent.childNodes[i] })
+  }
+
+  const used = new Set()
+  for (let i = 0; i < nextChildren.length; i++) {
+    const nextVNode = nextChildren[i]
+    const key = childKey(nextVNode, i)
+    const entry = entries.get(key)
+
+    if (entry) {
+      used.add(key)
+
+      const atIndex = parent.childNodes[i]
+      entry.node !== atIndex && parent.insertBefore(entry.node, atIndex || null)
+
+      const patch = diffTree(entry.vnode, nextVNode)
+      patch && applyPatch(parent, patch, i, false)
+
+      entry.node = parent.childNodes[i]
+      entry.vnode = nextVNode
+    } else {
+      const el = renderTree(nextVNode, false)
+      const atIndex = parent.childNodes[i]
+      atIndex ? parent.insertBefore(el, atIndex) : parent.appendChild(el)
     }
-    break
+  }
+
+  for (const [key, { node }] of entries) {
+    if (used.has(key)) continue
+    node?.parentNode === parent && parent.removeChild(node)
   }
 }
 

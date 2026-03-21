@@ -96,9 +96,24 @@ const clearProp = (el, key) =>
  * @param {Record<string, any>} nextProps
  */
 export const removeMissingProps = (el, prevProps, nextProps) => {
+  const prevStyle = prevProps?.style
+  const nextStyle = nextProps?.style
+  if (isObject(prevStyle) && isObject(nextStyle) && el?.style) {
+    const keys = Object.keys(prevStyle)
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      if (key in nextStyle) continue
+
+      key.startsWith('--')
+        ? el.style.removeProperty(key)
+        : el.style[key] = ''
+    }
+  }
+
   const keys = Object.keys(prevProps)
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
+    if (key === 'key') continue
     if (key in nextProps) continue
 
     clearProp(el, key)
@@ -127,8 +142,15 @@ export const assignProperties = (el, props, env) => {
     const key = keys[i]
     const value = props[key]
 
+    if (key === 'key') continue
+
     if (key === 'className') {
       throw new TypeError('Invalid prop: className. Use `class`.')
+    }
+
+    if (key === 'class' && value == null) {
+      removeAttribute(el, 'class')
+      continue
     }
 
     if (key === 'ontick' && typeof value === 'function') {
@@ -156,9 +178,32 @@ export const assignProperties = (el, props, env) => {
       continue
     }
 
-    if (key === 'style' && isObject(value)) {
-      Object.assign(el.style, value)
-      continue
+    if (key === 'style') {
+      if (value == null) {
+        clearStyle(el)
+        continue
+      }
+
+      if (isObject(value) && el?.style) {
+        const styleKeys = Object.keys(value)
+        for (let i = 0; i < styleKeys.length; i++) {
+          const styleKey = styleKeys[i]
+          const styleValue = value[styleKey]
+
+          if (styleValue == null) {
+            styleKey.startsWith('--')
+              ? el.style.removeProperty(styleKey)
+              : el.style[styleKey] = ''
+            continue
+          }
+
+          styleKey.startsWith('--')
+            ? el.style.setProperty(styleKey, String(styleValue))
+            : el.style[styleKey] = styleValue
+        }
+
+        continue
+      }
     }
 
     if (key === 'innerHTML') {

@@ -59,13 +59,23 @@ export const createFakeDom = () => {
     }
   }
 
+  class FakeStyle {
+    setProperty(key, value) {
+      this[String(key)] = String(value)
+    }
+
+    removeProperty(key) {
+      delete this[String(key)]
+    }
+  }
+
   class FakeElement extends FakeNode {
     constructor(tagName, namespaceURI = null) {
       super(1, String(tagName).toUpperCase())
       this.tagName = String(tagName).toUpperCase()
       this.namespaceURI = namespaceURI
       this.attributes = {}
-      this.style = {}
+      this.style = new FakeStyle()
       this.innerHTML = ''
       this.value = ''
       this.checked = false
