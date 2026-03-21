@@ -1,5 +1,5 @@
 import { a, body, button, component, div, form, head, html, input,
-  memoComponent, output, pre, render, span, svg, title } from '../elements.js'
+  output, pre, render, span, svg, title } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
@@ -180,17 +180,6 @@ describe('Elements.js - Pure Data Contracts', () => {
 	    assert.equal(inner[2][2], 0)        // pre(n) = 0
 	    assert.equal(second[2][2], 1)       // pre(n) = 1 in next render
 	  })
-
-  test('memoComponent() reuses the same vnode for identical arguments', () => {
-    const Counter = memoComponent((n = 0) => div(output(n)))
-
-    const first = Counter(0)
-    const second = Counter(0)
-    const third = Counter(1)
-
-    assert.equal(first, second)
-    assert.notEqual(second, third)
-  })
 
   test('vnode return is pure (no mutation of props)', () => {
     const props = { id: 'x' }
@@ -598,39 +587,6 @@ test('render() requires a container for non-html roots', () => {
     render(div({}, Counter(1)), container)
     assert.equal(container.childNodes[0].childNodes.length, 1)
     assert.equal(getCountText(), '1')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
-  })
-
-  test('memoComponent() preserves subtree identity across explicit rerenders', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
-    const Counter = memoComponent((n = 0) =>
-      div({ id: 'counter' }, output(n))
-    )
-
-    const container = document.createElement('div')
-    render(div({}, Counter(0)), container)
-
-    const counterEl = container.childNodes[0].childNodes[0]
-    const attrCount = counterEl.__setAttributeCount
-
-    render(div({}, Counter(0)), container)
-    assert.equal(container.childNodes[0].childNodes[0], counterEl)
-    assert.equal(counterEl.__setAttributeCount, attrCount)
-
-    render(div({}, Counter(1)), container)
-    assert.equal(container.childNodes[0].childNodes[0], counterEl)
-    assert.equal(
-      counterEl.childNodes[0].childNodes[0].nodeValue,
-      '1'
-    )
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow

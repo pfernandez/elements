@@ -92,10 +92,6 @@ const propsEqual = (a, b) => {
   return true
 }
 
-const argsEqual = (a, b) =>
-  a.length === b.length
-  && a.every((value, index) => Object.is(value, b[index]))
-
 /**
  * Determines whether two nodes have changed enough to require replacement.
  * Compares type, string value, or element tag.
@@ -646,34 +642,6 @@ export const component = fn => {
       console.error('Component error:', err)
       return ['div', {}, `Error: ${err.message}`]
     }
-  }
-}
-
-/**
- * Wrap a pure function component and memoize its most recent argument tuple.
- *
- * When called again with the same arguments (`Object.is` per slot), the
- * previous vnode is returned by reference instead of re-running the component.
- *
- * This is useful when you want reference identity to carry semantic
- * “unchangedness” through parent rerenders without changing `component()`
- * globally.
- *
- * @template {any[]} Args
- * @param {(...args: Args) => import('./types.js').ElementsVNode} fn
- * @returns {(...args: Args) => import('./types.js').ElementsVNode}
- */
-export const memoComponent = fn => {
-  const renderNext = component(fn)
-  let prevArgs = null
-  let prevVNode = null
-
-  return (...args) => {
-    if (prevArgs && prevVNode && argsEqual(prevArgs, args)) return prevVNode
-
-    prevArgs = args
-    prevVNode = renderNext(...args)
-    return prevVNode
   }
 }
 

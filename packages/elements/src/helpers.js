@@ -18,20 +18,6 @@ export { DEBUG } from './core/elements.js'
 export { component } from './core/elements.js'
 
 /**
- * Like `component(fn)`, but memoizes the most recent argument tuple.
- *
- * When called again with the same arguments (`Object.is` per slot), it returns
- * the previous vnode by reference. This is useful when you want parent
- * rerenders to preserve subtree identity without manually reusing vnode
- * objects.
- *
- * @template {any[]} Args
- * @param {(...args: Args) => any[]} fn
- * @returns {(...args: Args) => any[]}
- */
-export { memoComponent } from './core/elements.js'
-
-/**
  * A map of all HTML/SVG tag helpers (plus `fragment`).
  */
 export { elements } from './core/elements.js'

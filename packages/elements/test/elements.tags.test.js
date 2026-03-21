@@ -6,7 +6,6 @@ test('all exported element functions return valid vnodes', () => {
   const skip = new Set([
     'render',
     'component',
-    'memoComponent',
     'elements',
     'DEBUG',
     'navigate',
