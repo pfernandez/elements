@@ -1528,6 +1528,35 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
+  test('render() does not fall back to index when a keyed child changes identity', () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+
+    const container = document.createElement('div')
+    const view = key => div({},
+      div({ key: 'controls', id: 'controls' }, 'controls'),
+      div({ key, id: key }, key))
+
+    render(view('a'), container)
+    const root = container.childNodes[0]
+    const controls = root.childNodes[0]
+    const scene = root.childNodes[1]
+
+    render(view('b'), container)
+    const nextRoot = container.childNodes[0]
+    assert.equal(nextRoot.childNodes[0], controls)
+    assert.notEqual(nextRoot.childNodes[1], scene)
+    assert.equal(nextRoot.childNodes[1].attributes.id, 'b')
+    assert.equal(nextRoot.childNodes[1].childNodes[0].nodeValue, 'b')
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('render() clears removed style keys (React-like)', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window

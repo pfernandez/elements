@@ -460,7 +460,12 @@ const reconcileChildren = (
   }
 
   for (let i = 0; i < nextChildren.length; i++) {
+    const nextVNode = nextChildren[i]
+    const prevVNode = prevChildren[i]
+
     if (matches[i] !== -1 || used.has(i) || i >= prevChildren.length) continue
+    if (matchByKey && (hasKeyProp(nextVNode) || hasKeyProp(prevVNode))) continue
+
     matches[i] = i
     used.add(i)
   }
