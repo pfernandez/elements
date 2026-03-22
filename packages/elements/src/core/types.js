@@ -260,6 +260,7 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  * `indeterminate`.
  *
  * @typedef {{
+ *   key?: string | number,
  *   style?: ElementsStyleObject,
  *   innerHTML?: string,
  *   ontick?: ElementsOnTick,
