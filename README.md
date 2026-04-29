@@ -9,22 +9,16 @@ Elements.js borrows the simple elegance of functional UI composition from
 
 - No JSX.
 - No hooks.
-- Stable vnode references carry identity.
-- Optional keys (when you need explicit sibling identity).
 - No virtual DOM heuristics.
 
 Components are pure functions; updates are just calling the function again with
-new arguments.
-
-While you may choose to manage application logic with tools like
-[Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
-Elements.js keeps _UI state_ exactly where it belongs: in the [DOM][dom] itself.
+new arguments; the canonical UI state is the [DOM][dom] itself.
 
 ## Principles
 
 - **Pure data model:** UI elements are represented as data-in, data-out
-  functions. They accept W3C standard `props` and child elements as arguments, and
-  return nested arrays.
+  functions. They accept W3C standard `props` and child element functions as
+  arguments, and return nested arrays.
 - **Dynamic updates:** When an event handler returns the output of a component
   element defined within its scope, the nearest boundary is patched with its
   new arguments.
