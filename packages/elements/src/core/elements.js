@@ -296,7 +296,6 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
   }
 
   const props = node[1] || {}
-  const isSpecialRootTag = tag === 'html' || tag === 'head' || tag === 'body'
 
   const elNamespaceURI =
     tag === 'svg' || namespaceURI === svgNS
@@ -336,7 +335,7 @@ const renderTree = (node, isRoot = true, namespaceURI = null) => {
 
   setVNode(el, node)
 
-  if (isRoot && !isSpecialRootTag) {
+  if (isRoot) {
     setRoot(el)
     rootMap.set(node, el)
   }

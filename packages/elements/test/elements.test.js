@@ -487,6 +487,24 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.window = prevWindow
   })
 
+  test('events run within a rendered html root', async () => {
+    const prevDocument = globalThis.document
+    const prevWindow = globalThis.window
+
+    const { document } = createFakeDom()
+    globalThis.document = document
+    globalThis.window = makeWindow()
+    let calls = 0
+
+    render(html(body(button({ onclick: () => { calls++ } }, 'go'))))
+    await document.body.childNodes[0].onclick({})
+
+    assert.equal(calls, 1)
+
+    globalThis.document = prevDocument
+    globalThis.window = prevWindow
+  })
+
   test('render() creates head/body if document is missing them', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
