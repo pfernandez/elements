@@ -26,6 +26,7 @@
     "gen:x3d:types": "node scripts/generate-x3d.js --types",
     "fetch:x3dom-src": "node scripts/fetch-x3dom-src.js",
     "build:types": "node scripts/build-types.js",
+    "prepack": "npm run -s build:types",
     "typecheck": "node scripts/typecheck.js",
     "test": "node --test test/*.test.* --test-reporter spec",
     "test:coverage": "node scripts/test-coverage.js"

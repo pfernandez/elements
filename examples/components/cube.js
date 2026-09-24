@@ -5,9 +5,8 @@ import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
  * Minimal X3D/X3DOM demo.
  *
  * Notes:
- * - The first render will lazy-load the small core X3DOM bundle.
- * - Because this demo uses <arc2d> (Geometry2D), it will also trigger loading
- *   the full bundle.
+ * - Calling a 3D helper lazy-loads the full X3DOM bundle and its stylesheet.
+ * - Other examples do not load the 3D runtime.
  */
 export const cube = () =>
   x3d(

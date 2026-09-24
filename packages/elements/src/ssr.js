@@ -23,6 +23,8 @@
  * markup, or translated into other equivalent encodings.
  */
 
+import { attributeValue, validateProps } from './core/attributes.js'
+
 const voidTags = new Set([
   'area',
   'base',
@@ -76,54 +78,32 @@ const styleToString = style => {
     .join(';')
 }
 
-const shouldDropProp = (key, value) => {
-  if (key == null) return true
-  if (key === 'innerHTML') return true
-  if (String(key).startsWith('__')) return true
-  if (typeof value === 'function') return true
-  if (key === 'ontick') return true
-  return false
-}
+const shouldDropProp = (key, value) =>
+  key === 'key'
+  || key === 'innerHTML'
+  || key === 'ontick'
+  || key.startsWith('__')
+  || typeof value === 'function'
+
+const attribute = (key, value) =>
+  value == null ? ''
+    : value === '' ? ` ${key}`
+      : ` ${key}="${escapeAttr(value)}"`
 
 const attrsToString = props => {
   if (!isObject(props)) return ''
 
-  if (props.className != null && props.className !== false)
-    throw new TypeError('Invalid prop: className. Use `class`.')
+  validateProps(props)
 
   const keys = Object.keys(props)
     .filter(k => !shouldDropProp(k, props[k]))
     .sort()
 
-  let out = ''
-  for (const key of keys) {
-    const value = props[key]
-    if (value == null || value === false) {
-      // Preserve `aria-*` / `data-*` boolean semantics for false.
-      if (typeof value === 'boolean'
-        && (key.startsWith('aria-') || key.startsWith('data-')))
-        out += ` ${key}="false"`
-      continue
-    }
-
-    if (key === 'style' && isObject(value)) {
-      const cssText = styleToString(value)
-      cssText && (out += ` style="${escapeAttr(cssText)}"`)
-      continue
-    }
-
-    if (typeof value === 'boolean') {
-      if (key.startsWith('aria-') || key.startsWith('data-')) {
-        out += ` ${key}="${value ? 'true' : 'false'}"`
-      } else if (value) {
-        out += ` ${key}`
-      }
-      continue
-    }
-
-    out += ` ${key}="${escapeAttr(value)}"`
-  }
-  return out
+  return keys.map(key =>
+    attribute(key,
+              key === 'style' && isObject(props[key])
+                ? styleToString(props[key]) || null
+                : attributeValue(key, props[key]))).join('')
 }
 
 const toHtmlStringInner = vnode => {

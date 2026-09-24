@@ -1,6 +1,4 @@
 import { elements } from './core/elements.js'
-import { navigate } from './helpers.js'
-import { hasNavigateHandler } from './router.js'
 
 /**
  * HTML tag helpers.
@@ -10,40 +8,6 @@ import { hasNavigateHandler } from './router.js'
  * documentation (JS-first, no TS required at runtime).
  */
 
-
-const isPlainLeftClick = event =>
-  event?.button === 0
-  && !event?.defaultPrevented
-  && !event?.metaKey
-  && !event?.ctrlKey
-  && !event?.shiftKey
-  && !event?.altKey
-
-const isRoutableHref = href => {
-  if (typeof href !== 'string') return false
-  if (!href) return false
-  if (href.startsWith('#')) return false
-  if (typeof window === 'undefined') return false
-
-  let url
-  try { url = new URL(href, window.location.origin) }
-  catch { return false }
-
-  if (url.origin !== window.location.origin) return false
-
-  // Avoid intercepting obvious non-router navigations.
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
-
-  return true
-}
-
-const shouldInterceptLink = (props, event) =>
-  hasNavigateHandler()
-  && isPlainLeftClick(event)
-  && event?.cancelable !== false
-  && !props?.download
-  && (!props?.target || props.target === '_self')
-  && isRoutableHref(props?.href)
 
 /**
  * <html>
@@ -358,34 +322,7 @@ export const ul = elements.ul
  * https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a
  *
  */
-export const a = (...args) => {
-  const vnode = elements.a(...args)
-  const props = vnode[1] || {}
-
-  if (!hasNavigateHandler() || !props.href) return vnode
-
-  const userOnclick = props.onclick
-
-  return [
-    vnode[0],
-    {
-      ...props,
-      onclick: event => {
-        const result = typeof userOnclick === 'function'
-          ? userOnclick(event)
-          : undefined
-
-        if (Array.isArray(result)) return result
-        if (!shouldInterceptLink(props, event)) return result
-
-        event.preventDefault()
-        navigate(props.href)
-        return result
-      }
-    },
-    ...vnode.slice(2)
-  ]
-}
+export const a = elements.a
 
 /**
  * <abbr>

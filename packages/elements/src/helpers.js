@@ -1,19 +1,21 @@
 /**
- * Enable additional debug warnings.
+ * Environment-derived flag for application diagnostics.
  *
  * Set `process.env.ELEMENTSJS_DEBUG=true` (or `NODE_ENV=development`) to enable
- * warnings for common mistakes like passive event handler returns.
+ * this flag. Passive event returns are valid and do not produce warnings.
  */
 export { DEBUG } from './core/elements.js'
 
 /**
- * Wrap a recursive pure function so it participates in boundary updates.
+ * Define a recursive component using `component((...args) => vnode)`.
  *
- * Call the returned function again with new arguments to compute the next UI.
+ * Calls construct values without updating the DOM. Returning one from an event
+ * updates that component wherever it is rendered. Use separate component
+ * definitions for independent state. Source arrays remain unchanged.
  *
- * @template {any[]} Args
- * @param {(...args: Args) => any[]} fn
- * @returns {(...args: Args) => any[]}
+ * @example
+ * const counter = component((n = 0) =>
+ *   button({ onclick: () => counter(n + 1) }, n))
  */
 export { component } from './core/elements.js'
 
@@ -26,10 +28,14 @@ export { elements } from './core/elements.js'
  * Render a vnode into the DOM.
  *
  * This is typically called once on page load. After that, events that return
- * vnodes patch the nearest boundary automatically.
+ * component vnodes update that component automatically; plain vnodes patch
+ * the nearest boundary.
  *
- * @param {any[]} vtree
- * @param {HTMLElement | null} [container]
+ * `html`, `head`, and `body` roots may omit the container. Fragments have no
+ * wrapper element. Use `{ replace: true }` to remount an ordinary container.
+ *
+ * @param {import('./core/types.js').ElementsVNode} vtree
+ * @param {Element | null} [container]
  */
 export { render } from './core/elements.js'
 
@@ -44,30 +50,3 @@ export { render } from './core/elements.js'
  * @returns {string}
  */
 export { toHtmlString } from './ssr.js'
-
-/**
- * Navigate to a URL path and update the window history object.
- *
- * This dispatches a `popstate` event after updating history so router-style
- * apps can react without additional plumbing.
- *
- * @param {string} [path]
- * @param {{ replace?: boolean }} [options]
- */
-export const navigate = (path, { replace = false } = {}) => {
-  if (typeof window === 'undefined') return
-
-  const url = new URL(path, window.location.origin)
-  const isSame =
-    url.pathname === window.location.pathname
-    && url.search === window.location.search
-    && url.hash === window.location.hash
-
-  if (isSame) return
-
-  const fn = replace ? 'replaceState' : 'pushState'
-  window.history[fn]({}, '', url)
-
-  try { window.dispatchEvent(new PopStateEvent('popstate')) }
-  catch { window.dispatchEvent(new Event('popstate')) }
-}

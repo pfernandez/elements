@@ -13,6 +13,8 @@
     "typecheck": "npm --prefix packages/elements run -s typecheck",
     "build:types": "npm --prefix packages/elements run -s build:types && npm --prefix packages/elements-x3dom run -s build:types",
     "test": "npm --prefix packages/elements test",
+    "test:browser": "node scripts/test-browser.js",
+    "test:packages": "node scripts/test-packages.js",
     "test:coverage": "npm --prefix packages/elements run -s test:coverage",
     "x3dom:typecheck": "npm --prefix packages/elements-x3dom run -s typecheck",
     "x3dom:build:types": "npm --prefix packages/elements-x3dom run -s build:types",

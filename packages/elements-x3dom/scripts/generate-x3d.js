@@ -210,8 +210,8 @@ const writeX3DEntrypointTypes = () => {
   fs.writeFileSync(
     outPath,
     [
-      "export * from './src/x3d-base.d.ts';",
-      "export * from './src/x3d.d.ts';",
+      "export * from './src/x3d-base.js';",
+      "export * from './src/x3d.js';",
       ''
     ].join('\n')
   )

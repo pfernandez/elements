@@ -9,6 +9,7 @@ export const createFakeDom = () => {
 
     appendChild(child) {
       if (child == null) return child
+      child.parentNode?.removeChild(child)
       this.childNodes.push(child)
       child.parentNode = this
       return child
@@ -17,6 +18,8 @@ export const createFakeDom = () => {
     insertBefore(next, ref) {
       if (next == null) return next
       if (!ref) return this.appendChild(next)
+      if (next === ref) return next
+      next.parentNode?.removeChild(next)
       const index = this.childNodes.indexOf(ref)
       if (index === -1) throw new Error('insertBefore: reference child not found')
       this.childNodes.splice(index, 0, next)
@@ -25,6 +28,8 @@ export const createFakeDom = () => {
     }
 
     replaceChild(next, prev) {
+      if (next === prev) return prev
+      next.parentNode?.removeChild(next)
       const index = this.childNodes.indexOf(prev)
       if (index === -1)
         throw new Error('replaceChild: previous child not found')
@@ -41,13 +46,25 @@ export const createFakeDom = () => {
       child.parentNode = null
       return child
     }
+
+    get firstChild() { return this.childNodes[0] || null }
+    get lastChild() { return this.childNodes.at(-1) || null }
+    get nextSibling() {
+      return this.parentNode?.childNodes[this.parentNode.childNodes.indexOf(this) + 1] || null
+    }
+
+    get textContent() {
+      return this.nodeType === 3 || this.nodeType === 8
+        ? this.nodeValue
+        : this.childNodes.filter(child => child.nodeType !== 8)
+          .map(child => child.textContent).join('')
+    }
   }
 
   class FakeText extends FakeNode {
     constructor(text) {
       super(3, '#text')
       this.nodeValue = String(text)
-      this.textContent = this.nodeValue
     }
   }
 
@@ -55,7 +72,6 @@ export const createFakeDom = () => {
     constructor(text) {
       super(8, '#comment')
       this.nodeValue = String(text)
-      this.textContent = this.nodeValue
     }
   }
 
@@ -108,15 +124,32 @@ export const createFakeDom = () => {
     removeAttribute(key) {
       delete this.attributes[String(key)]
     }
+
+    getAttribute(key) { return this.attributes[String(key)] ?? null }
+    hasAttribute(key) { return Object.hasOwn(this.attributes, String(key)) }
+    closest(selector) {
+      return (selector === 'a[href]' ? this.tagName === 'A' && this.hasAttribute('href')
+        : this.tagName.toLowerCase() === selector)
+        ? this : this.parentNode?.closest?.(selector) || null
+    }
+
+    get innerHTML() { return this._innerHTML || '' }
+    set innerHTML(value) {
+      this.childNodes.forEach(child => { child.parentNode = null })
+      this.childNodes = []
+      this._innerHTML = String(value)
+    }
   }
 
-  class FakeDocument {
+  class FakeDocument extends FakeNode {
     constructor() {
+      super(9, '#document')
       this.documentElement = new FakeElement('html')
       this.head = new FakeElement('head')
       this.body = new FakeElement('body')
       this.documentElement.appendChild(this.head)
       this.documentElement.appendChild(this.body)
+      this.appendChild(this.documentElement)
     }
 
     createElement(tag) {
@@ -135,9 +168,6 @@ export const createFakeDom = () => {
       return new FakeComment(text)
     }
 
-    replaceChild(next, prev) {
-      return this.documentElement.replaceChild(next, prev)
-    }
   }
 
   const document = new FakeDocument()

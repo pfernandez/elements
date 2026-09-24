@@ -10,6 +10,7 @@
 
 import { createDeclarativeEventHandler, isEventProp } from './events.js'
 import { startTickLoop, stopTickLoop } from './tick.js'
+import { attributeValue, validateProps } from './attributes.js'
 
 const isObject = x =>
   typeof x === 'object'
@@ -70,7 +71,7 @@ const clearEventProp = (el, key) =>
   el[key] = null
 
 const clearPropertyException = (el, key) =>
-  key in propertyExceptions && key in el
+  Object.hasOwn(propertyExceptions, key) && key in el
     ? (el[propertyExceptions[key]] = propertyExceptionDefaults[key], undefined)
     : undefined
 
@@ -81,7 +82,8 @@ const clearProp = (el, key) =>
   key === 'ontick' ? clearTick(el)
     : key === 'style' ? clearStyle(el)
       : key === 'innerHTML' ? clearInnerHTML(el)
-        : key in propertyExceptions ? clearPropertyException(el, key)
+        : Object.hasOwn(propertyExceptions, key) && key in el
+          ? clearPropertyException(el, key)
           : key.startsWith('on') ? clearEventProp(el, key)
             : removeAttribute(el, key)
 
@@ -98,6 +100,7 @@ const clearProp = (el, key) =>
 export const removeMissingProps = (el, prevProps, nextProps) => {
   const prevStyle = prevProps?.style
   const nextStyle = nextProps?.style
+  typeof prevStyle === 'string' && isObject(nextStyle) && clearStyle(el)
   if (isObject(prevStyle) && isObject(nextStyle) && el?.style) {
     const keys = Object.keys(prevStyle)
     for (let i = 0; i < keys.length; i++) {
@@ -127,14 +130,11 @@ export const removeMissingProps = (el, prevProps, nextProps) => {
  * @param {Record<string, any>} props
  * @param {{
  *   svgNS: string,
- *   debug: boolean,
- *   isRoot: (el: any) => boolean,
- *   updateBoundary: (el: any, vnode: any) => any,
- *   getCurrentEventRoot: () => any,
- *   setCurrentEventRoot: (el: any) => void
+ *   resume: (vnode: any) => void
  * }} env
  */
 export const assignProperties = (el, props, env) => {
+  validateProps(props)
   const isSvg = el.namespaceURI === env.svgNS
   const keys = Object.keys(props)
   for (let i = 0; i < keys.length; i++) {
@@ -143,12 +143,8 @@ export const assignProperties = (el, props, env) => {
 
     if (key === 'key') continue
 
-    if (key === 'className') {
-      throw new TypeError('Invalid prop: className. Use `class`.')
-    }
-
-    if (key === 'class' && value == null) {
-      removeAttribute(el, 'class')
+    if (value == null) {
+      clearProp(el, key)
       continue
     }
 
@@ -158,7 +154,7 @@ export const assignProperties = (el, props, env) => {
       continue
     }
 
-    if (key in propertyExceptions && key in el) {
+    if (Object.hasOwn(propertyExceptions, key) && key in el) {
       el[propertyExceptions[key]] = value
       continue
     }
@@ -168,21 +164,12 @@ export const assignProperties = (el, props, env) => {
         el,
         key,
         handler: value,
-        isRoot: env.isRoot,
-        updateBoundary: env.updateBoundary,
-        getCurrentEventRoot: env.getCurrentEventRoot,
-        setCurrentEventRoot: env.setCurrentEventRoot,
-        debug: env.debug
+        resume: env.resume
       })
       continue
     }
 
     if (key === 'style') {
-      if (value == null) {
-        clearStyle(el)
-        continue
-      }
-
       if (isObject(value) && el?.style) {
         const styleKeys = Object.keys(value)
         for (let i = 0; i < styleKeys.length; i++) {
@@ -210,18 +197,9 @@ export const assignProperties = (el, props, env) => {
       continue
     }
 
-    if (typeof value === 'boolean') {
-      if (key.startsWith('aria-') || key.startsWith('data-')) {
-        const str = value ? 'true' : 'false'
-        isSvg ? el.setAttributeNS(null, key, str) : el.setAttribute(key, str)
-      } else if (value) {
-        isSvg ? el.setAttributeNS(null, key, '') : el.setAttribute(key, '')
-      } else {
-        removeAttribute(el, key)
-      }
-      continue
-    }
-
-    isSvg ? el.setAttributeNS(null, key, value) : el.setAttribute(key, value)
+    const text = attributeValue(key, value)
+    text == null ? removeAttribute(el, key)
+      : isSvg ? el.setAttributeNS(null, key, text)
+        : el.setAttribute(key, text)
   }
 }

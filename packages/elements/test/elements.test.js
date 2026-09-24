@@ -188,7 +188,7 @@ describe('Elements.js - Pure Data Contracts', () => {
   })
 
   test(
-    'multiple component mounts update independently from events',
+    'multiple projections of one definition update together from events',
     async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
@@ -219,11 +219,11 @@ describe('Elements.js - Pure Data Contracts', () => {
 
     await click(first)
     assert.equal(getCountText(getCounterRoot(0)), '1')
-    assert.equal(getCountText(getCounterRoot(1)), '0')
+    assert.equal(getCountText(getCounterRoot(1)), '1')
 
     await click(getCounterRoot(1))
-    assert.equal(getCountText(getCounterRoot(0)), '1')
-    assert.equal(getCountText(getCounterRoot(1)), '1')
+    assert.equal(getCountText(getCounterRoot(0)), '2')
+    assert.equal(getCountText(getCounterRoot(1)), '2')
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
@@ -579,7 +579,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('component() can update in-place outside event updates', () => {
+  test('render() explicitly selects a newly constructed component value', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -641,7 +641,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('component() renders an error vnode when it throws', () => {
+  test('component() propagates errors to its caller', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
     const prevConsoleError = console.error
@@ -653,12 +653,7 @@ test('render() requires a container for non-html roots', () => {
 
     const Broken = component(() => { throw new Error('boom') })
 
-    const container = document.createElement('div')
-    render(div({}, Broken()), container)
-
-    const msg =
-      container.childNodes[0].childNodes[0].childNodes[0].nodeValue
-    assert.equal(msg, 'Error: boom')
+    assert.throws(() => Broken(), /boom/)
 
     console.error = prevConsoleError
     globalThis.document = prevDocument
@@ -678,24 +673,24 @@ test('render() requires a container for non-html roots', () => {
     const empty = document.createElement('div')
     render([], empty)
     assert.equal(empty.childNodes[0].nodeType, 8)
-    assert.equal(empty.childNodes[0].nodeValue, 'Empty vnode')
+    assert.equal(empty.childNodes[0].nodeValue, '')
 
     const malformed = document.createElement('div')
     render({ not: 'a vnode' }, malformed)
     assert.equal(malformed.childNodes[0].nodeType, 8)
-    assert.equal(malformed.childNodes[0].nodeValue, 'Invalid vnode')
+    assert.equal(malformed.childNodes[0].nodeValue, '')
 
     const nonStringTag = document.createElement('div')
     render([123, {}, 'x'], nonStringTag)
     assert.equal(nonStringTag.childNodes[0].nodeType, 8)
-    assert.equal(nonStringTag.childNodes[0].nodeValue, 'Invalid vnode')
+    assert.equal(nonStringTag.childNodes[0].nodeValue, '')
 
     console.error = prevConsoleError
     globalThis.document = prevDocument
     globalThis.window = prevWindow
   })
 
-  test('debug warns on passive event returns', async () => {
+  test('passive event returns are valid and do not warn', async () => {
     const prevWarn = console.warn
     const warns = []
     console.warn = (...args) => warns.push(args.join(' '))
@@ -704,11 +699,7 @@ test('render() requires a container for non-html roots', () => {
       el: { tagName: 'DIV' },
       key: 'onclick',
       handler: () => undefined,
-      isRoot: () => true,
-      renderTree: () => null,
-      getCurrentEventRoot: () => null,
-      setCurrentEventRoot: () => {},
-      debug: true
+      resume: () => { throw new Error('passive return must not resume') }
     }
 
     const h1 = createDeclarativeEventHandler(env)
@@ -718,9 +709,7 @@ test('render() requires a container for non-html roots', () => {
     const h2 = createDeclarativeEventHandler(env)
     await h2({})
 
-    assert.equal(warns.length, 2)
-    assert.ok(warns[0].includes('returned nothing'))
-    assert.ok(warns[1].includes('returned "ok"'))
+    assert.equal(warns.length, 0)
 
     console.warn = prevWarn
   })
@@ -970,7 +959,7 @@ test('render() requires a container for non-html roots', () => {
   })
 
   test(
-    'async form handlers preventDefault only when returning a vnode',
+    'async form handlers claim submission before their result is known',
     async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
@@ -1009,14 +998,14 @@ test('render() requires a container for non-html roots', () => {
     render(Passive(), container2)
     await container2.childNodes[0].onsubmit(event)
 
-    assert.equal(prevented, 1)
+    assert.equal(prevented, 2)
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
     }
   )
 
-  test('oninput passes event.target.value (not elements)', () => {
+  test('oninput passes the native target and original event', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -1026,7 +1015,7 @@ test('render() requires a container for non-html roots', () => {
 
     const container = document.createElement('div')
 
-    let gotValue
+    let gotTarget, gotEvent
     let prevented = 0
 
     const App = component((value = '') =>
@@ -1034,7 +1023,8 @@ test('render() requires a container for non-html roots', () => {
         input({
           type: 'range',
           value,
-          oninput: next => (gotValue = next, App(next))
+          oninput: (target, event) =>
+            (gotTarget = target, gotEvent = event, App(target.value))
         })
       )
     )
@@ -1042,12 +1032,16 @@ test('render() requires a container for non-html roots', () => {
     render(App('0.1'), container)
     const inputEl = container.childNodes[0].childNodes[0]
 
-    inputEl.oninput({
-      target: { value: '0.2' },
+    inputEl.value = '0.2'
+    const event = {
+      target: inputEl,
       preventDefault: () => { prevented++ }
-    })
+    }
+    inputEl.oninput(event)
 
-    assert.equal(gotValue, '0.2')
+    assert.equal(gotTarget, inputEl)
+    assert.equal(gotEvent, event)
+    assert.equal(inputEl.value, '0.2')
     assert.equal(prevented, 0)
 
     globalThis.document = prevDocument
@@ -1062,7 +1056,7 @@ test('render() requires a container for non-html roots', () => {
 
     const { document } = createFakeDom()
     globalThis.document = document
-    globalThis.window = makeWindow()
+    globalThis.window = undefined
 
     let prevented = 0
 

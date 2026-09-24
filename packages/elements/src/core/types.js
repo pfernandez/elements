@@ -12,7 +12,7 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * Inline style object applied via `Object.assign(el.style, style)`.
+ * Inline style values; custom properties use CSSStyleDeclaration.setProperty.
  *
  * @typedef {Partial<CSSStyleDeclaration> & Record<string, string | number>}
  *   ElementsStyleObject
@@ -59,8 +59,14 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * If an event handler returns a vnode array, the UI updates by replacing the
- * nearest component boundary. Otherwise the event is treated as passive.
+ * A component vnode return selects that definition's observation in every
+ * projection. A plain vnode updates the event's nearest component origin.
+ * Component calls only construct values; events select their continuations.
+ * Passive synchronous values do not cancel native behavior. Returning a vnode
+ * or Promise claims form submission/link navigation before dispatch completes;
+ * a Promise's eventual vnode selects its destination in completion order.
+ * Eligible same-origin links also record their URL and observations for
+ * Back/Forward. Modified clicks and native-link opt-outs remain native.
  *
  * @typedef {ElementsVNode | void | null | false | '' | 0} ElementsEventResult
  * @typedef {ElementsEventResult | Promise<ElementsEventResult>}
@@ -75,12 +81,24 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * Form event handlers receive `(elements, event)`.
+ * Submit handlers receive the native form controls and the original event.
  *
  * @template {Event} FormEvt
  * @callback ElementsFormEventHandler
  * @param {any} elements
  * @param {FormEvt} event
+ * @returns {ElementsMaybeAsyncEventResult}
+ */
+
+/**
+ * Input/change handlers receive `(target, event)`. The target is the native
+ * event target: destructure `{ value }`, `{ checked }`, or other properties
+ * appropriate to the control. The original event remains the second argument.
+ *
+ * @template {Event} InputEvt
+ * @callback ElementsInputEventHandler
+ * @param {any} target
+ * @param {InputEvt} event
  * @returns {ElementsMaybeAsyncEventResult}
  */
 
@@ -245,9 +263,9 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  *   [K in keyof GlobalEventHandlersEventMap as `on${K}`]?:
  *     ElementsEventHandler<GlobalEventHandlersEventMap[K]>
  * }, 'oninput' | 'onsubmit' | 'onchange'> & {
- *   oninput?: ElementsFormEventHandler<InputEvent | Event>,
+ *   oninput?: ElementsInputEventHandler<InputEvent | Event>,
  *   onsubmit?: ElementsFormEventHandler<SubmitEvent | Event>,
- *   onchange?: ElementsFormEventHandler<Event>
+ *   onchange?: ElementsInputEventHandler<Event>
  * }} ElementsEventProps
  */
 
@@ -261,7 +279,7 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  *
  * @typedef {{
  *   key?: string | number,
- *   style?: ElementsStyleObject,
+ *   style?: ElementsStyleObject | string,
  *   innerHTML?: string,
  *   ontick?: ElementsOnTick,
  *   value?: string | number,

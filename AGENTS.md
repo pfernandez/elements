@@ -7,8 +7,13 @@ necessary imperative DOM boundary with care.
 ### Design Invariants
 
 - **Single page-load mount:** typical apps call `render()` once at startup.
-- **Declarative updates via events:** event handlers may return a vnode to
-  patch the closest component boundary.
+- **Declarative updates via events:** component calls are pure; returned
+  component vnodes select their definition's observation across all projections.
+  Plain vnode returns patch the closest component boundary. Independent state
+  requires separate component definitions.
+- **Links select continuations:** an eligible same-origin link's vnode return
+  updates its target and records its URL; Back/Forward restores observations.
+  No navigation registration is required for these links.
 - **Explicit tick hook:** `ontick` is a hook (not a DOM event). It runs once per
   animation frame, waits for connection/readiness, and must be synchronous.
 - **Attribute-first props:** most props are assigned via `setAttribute`. A small

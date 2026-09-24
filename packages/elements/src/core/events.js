@@ -1,138 +1,51 @@
-/**
- * Declarative DOM event wrappers.
- *
- * Elements.js treats DOM events as a place to *declare* the next UI tree:
- * if an event handler returns a vnode, the closest component boundary is
- * patched to that result.
- */
+import { linkOf, isPlainClick, navigationURL } from './navigation.js'
+import { visit } from './history.js'
 
+/** Events select continuations; merely constructing a vnode has no effects. */
 export const isEventProp = (key, value) =>
   key.startsWith('on') && typeof value === 'function'
 
-export const isFormEventProp = key => /^(oninput|onsubmit|onchange)$/.test(key)
-export const isSubmitEventProp = key => key === 'onsubmit'
-export const isValueEventProp = key => /^(oninput|onchange)$/.test(key)
+const isThenable = value =>
+  value != null && typeof value.then === 'function'
 
-export const getNearestRoot = (el, isRoot) =>
-  !el || isRoot(el) ? el : getNearestRoot(el.parentNode, isRoot)
-
-const isThenable = x =>
-  !!x
-  && (typeof x === 'object' || typeof x === 'function')
-  && typeof x.then === 'function'
-
-
-const getHref = el =>
-  typeof el?.getAttribute === 'function'
-    ? el.getAttribute('href')
-    : el?.attributes?.href ?? el?.href
-
-const isPlainLeftClick = event =>
-  event?.button == null
-    ? false
-    : event.button === 0
-      && !event.defaultPrevented
-      && !event.metaKey
-      && !event.ctrlKey
-      && !event.shiftKey
-      && !event.altKey
-
-const shouldPreventDefaultOnUpdate = (env, event) =>
-  env.key === 'onclick'
-  && env.el?.tagName?.toLowerCase?.() === 'a'
-  && !!getHref(env.el)
-  && event?.cancelable !== false
-  && typeof event?.preventDefault === 'function'
-  && isPlainLeftClick(event)
-
-const describeListener = ({ el, key }) =>
-  `Listener '${key}' on <${el.tagName.toLowerCase()}>`
-
-const withEventRoot = (env, eventRoot, fn) => {
-  const prevEventRoot = env.getCurrentEventRoot()
-  const restoreEventRoot = () => env.setCurrentEventRoot(prevEventRoot)
-  env.setCurrentEventRoot(eventRoot)
-
-  let result
-  try { result = fn() }
-  catch (err) { restoreEventRoot(); throw err }
-
-  return !isThenable(result)
-    ? (restoreEventRoot(), result)
-    : result.then(
-      value => (restoreEventRoot(), value),
-      err => { restoreEventRoot(); throw err }
-    )
-}
-
-const warnPassiveReturn = (env, resolved) =>
-  resolved === undefined
-    ? console.warn(
-      `${describeListener(env)} returned nothing.\n`
-        + 'If you intended a UI update, return a vnode array like: '
-        + 'div({}, ...)'
-    )
-    : !Array.isArray(resolved)
-        ? console.warn(
-          `${describeListener(env)} returned "${resolved}".\n`
-          + 'If you intended a UI update, return a vnode array like: '
-          + 'div({}, ...).\n'
-          + 'Otherwise, return undefined (or nothing) for native event '
-          + 'listener behavior.'
-        )
-        : undefined
+const eventArgument = (key, event) =>
+  key === 'onsubmit' ? event?.target?.elements || null
+    : event?.target
 
 /**
-* Wrap an event handler so it can return a vnode to trigger an update.
+ * A vnode return selects its component, or the owner for a plain vnode.
+ * Eligible links also record their URL and observations for Back/Forward.
+ * A Promise claims it synchronously, before native dispatch completes; its
+ * eventual vnode selects its component (or the owner for a plain vnode).
+ * Passive synchronous values do not
+ * cancel default behavior (including false). Explicit preventDefault works too.
  *
- * @param {{
- *   el: any,
- *   key: string,
- *   handler: Function,
- *   isRoot: (el: any) => boolean,
- *   updateBoundary: (el: any, vnode: any) => any,
- *   getCurrentEventRoot: () => any,
- *   setCurrentEventRoot: (el: any) => void,
- *   debug: boolean
- * }} env
+ * @param {{ el: any, key: string, handler: Function,
+ *   resume: (vnode: any) => void }} env
  */
-export const createDeclarativeEventHandler = env =>
-  (...args) => {
-    const eventRoot = getNearestRoot(env.el, env.isRoot)
-    if (!eventRoot) return
+export const createDeclarativeEventHandler = ({ el, key, handler, resume }) =>
+  event => {
+    const anchor = key === 'onclick' && linkOf(el)
+    const url = anchor && navigationURL(anchor, event)
+    // Without a browser (e.g. a DOM test), link returns still claim navigation.
+    const claimLink = anchor && (url
+      || typeof window === 'undefined' && isPlainClick(event))
+    const claimDefault = key === 'onsubmit' || claimLink
+    // Native gestures still reach user handlers, but their returned values must
+    // not also advance this document while the browser follows the link.
+    const nativeLink = anchor && !claimLink
+    const result = /^(oninput|onsubmit|onchange)$/.test(key)
+      ? handler.call(el, eventArgument(key, event), event)
+      : handler.call(el, event)
+    const pending = isThenable(result)
+    const claimed = pending || Array.isArray(result)
+    claimed && claimDefault
+      && event?.cancelable !== false && event?.preventDefault?.()
 
-    return withEventRoot(env, eventRoot, () => {
-      const event = args[0]
-      const isFormEvent = isFormEventProp(env.key)
-      const isSubmitEvent = isSubmitEventProp(env.key)
-      const isValueEvent = isValueEventProp(env.key)
+    const settle = vnode =>
+      Array.isArray(vnode) && !nativeLink
+        ? (url ? visit(url, () => resume(vnode)) : resume(vnode), vnode)
+        : undefined
 
-      const arg =
-        isSubmitEvent
-          ? event?.target?.elements || null
-          : isValueEvent
-            ? event?.target?.value
-            : null
-
-      const result = isFormEvent
-        ? env.handler.call(env.el, arg, event)
-        : env.handler.call(env.el, event)
-
-      const handleResult = resolved => {
-        isSubmitEvent && resolved !== undefined && event.preventDefault()
-
-        env.debug && warnPassiveReturn(env, resolved)
-
-        Array.isArray(resolved)
-          && shouldPreventDefaultOnUpdate(env, event)
-          && event.preventDefault()
-
-        if (!Array.isArray(resolved)) return resolved
-
-        env.updateBoundary(eventRoot, resolved)
-        return resolved
-      }
-
-      return isThenable(result) ? result.then(handleResult) : handleResult(result)
-    })
+    return pending ? Promise.resolve(result).then(settle) : settle(result)
   }

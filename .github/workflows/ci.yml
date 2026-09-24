@@ -28,6 +28,12 @@ jobs:
       - name: Test (coverage)
         run: npm run -s test:coverage
 
+      - name: Test (browser)
+        run: npm run -s test:browser
+
+      - name: Test packed consumers
+        run: npm run -s test:packages
+
       - name: Typecheck (3d)
         run: npm run -s 3d:typecheck
 

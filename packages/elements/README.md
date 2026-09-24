@@ -2,34 +2,27 @@
 
 # @pfern/elements
 
-A functional, stateless UI toolkit for composing reactive web pages.
+A functional, recursive UI toolkit for composing reactive web pages.
 
 Elements.js borrows the simple elegance of functional UI composition from
 [React](https://react.dev/), distilled to its purest form:
 
 - No JSX.
-- No hooks.
-- Stable vnode references carry identity.
-- Optional keys (when you need explicit sibling identity).
-- No virtual DOM heuristics.
+- No React-style hooks.
+- Keys are optional; updates rely on identity and position
 
 Components are pure functions; updates are just calling the function again with
-new arguments.
-
-While you may choose to manage application logic with tools like
-[Redux](https://redux.js.org/) or [Zustand](https://github.com/pmndrs/zustand),
-Elements.js keeps _UI state_ exactly where it belongs: in the [DOM][dom] itself.
+new arguments from an event handler like `onclick`.
 
 ## Principles
 
 - **Pure data model:** UI elements are represented as data-in, data-out
-  functions. They accept W3C standard `props` and child elements as arguments, and
-  return nested arrays.
-- **Dynamic updates:** When an event handler returns the output of a component
-  element defined within its scope, the nearest boundary is patched with its
-  new arguments.
-- **Imperative boundary, functional surface:** DOM mutation is abstracted away,
-  keeping the authoring experience functional and composable.
+  functions. They accept W3C standard properties and child elements as
+  arguments, and return plain nested arrays (vdom).
+- **Dynamic updates:** When an event handler returns the vdom array from a
+  `component` element, that element is updated wherever it is rendered.
+- **Imperative boundary, functional interface:** DOM mutation is abstracted
+  away, keeping the authoring experience functional and composable.
 
 ### Example: Recursive counter
 ```js
@@ -64,8 +57,7 @@ npm install
 
 Source code for the examples on this page can be found in the
 [examples/](https://github.com/pfernandez/elements/tree/main/examples) directory of this repository, which are hosted as a live
-demo [here](https://pfernandez.github.io/elements). The starter app also
-includes examples as well as simple URL router for page navigation.
+demo [here](https://pfernandez.github.io/elements).
 
 ## Example: Todos App
 ```js
@@ -149,18 +141,18 @@ Elements.js represents UI as plain arrays called **vnodes** (virtual nodes):
 
 - Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
   array to trigger a boundary update.
-- If the handler returns `undefined` (or any non-vnode value), the event is
-  passive and the DOM is left alone.
-- Returned vnodes patch the closest component boundary.
-- If you return a vnode from an `<a href>` `onclick` handler, Elements.js
-  prevents default navigation for unmodified left-clicks.
+- Plain vnode returns update the handler’s nearest component boundary.
+- Synchronous non-vnode returns are passive. Promises may resolve to vnodes;
+  returning a Promise prevents submission or eligible link navigation
+  immediately.
+- On unmodified same-origin link clicks, returning a vnode prevents native
+  navigation and updates the targeted component and URL.
 
 Errors are not swallowed: thrown errors and rejected Promises propagate.
 
 ### Form Events
 
-For `onsubmit`, `oninput`, and `onchange`, Elements.js provides a special
-signature:
+For `onsubmit`, Elements.js provides a special signature:
 
 ```js
 (event.target.elements, event)
@@ -168,32 +160,27 @@ signature:
 
 That is, your handler receives:
 
-1. `elements`: the HTML form’s named inputs
+1. `elements`: the HTML form’s named input elements containing their values
 2. `event`: the original DOM event object
 
-Elements.js will automatically call `event.preventDefault()` *only if* your
-handler returns a vnode.
+Elements.js prevents submission when the handler returns a vnode or Promise.
 
 ```js
 form({ onsubmit: ({ todo: { value } }, e) =>
        value && todos([...items, { value, done: false }]) })
 ```
 
-### Routing (optional)
-
-For SPAs, register a URL-change handler once:
+`oninput` and `onchange` receive `(event.target, event)`, so you can destructure
+`value` directly:
 
 ```js
-import { onNavigate } from '@pfern/elements'
-
-onNavigate(() => App())
+const greeting = component((name = '') =>
+  div(input({ value: name, oninput: ({ value }) => greeting(value) }),
+      output(`Hello, ${name}!`)))
 ```
 
-With a handler registered, `a({ href: '/path' }, ...)` intercepts unmodified
-left-clicks for same-origin links and uses the History API instead of
-reloading the page.
-
-You can also call `navigate('/path')` directly.
+For checkboxes, use `({ checked })` instead. The original event remains the
+second argument.
 
 ### SSG / SSR
 
@@ -227,19 +214,14 @@ To force a full remount (discarding existing DOM state), pass
 
 ### Why Boundary Updates (and Optional Keys)
 
-Boundary updates keep the model simple:
+Component definitions identify shared state; retained vnode references identify
+reusable descriptions. Across sibling reorders, Elements.js prefers preserved
+vnode references first, then explicit `key`s, then unique unkeyed component
+definitions, then positional fallback.
 
-- By default, you never have to maintain key stability.
-- Identity is the closest component boundary.
-- The DOM remains the single source of truth for UI state.
-
-Within a stable position, reusing the same vnode reference means “this subtree
-is unchanged.” Across sibling reorders, Elements.js now prefers preserved vnode
-references first, then explicit `key`s, then positional fallback.
-
-When you rebuild fresh sibling vnodes every render and still need stable
-identity across inserts/removals/reorders (e.g. a list of rows with
-uncontrolled inputs, canvases, or 3D scenes), provide a `key` prop:
+If you rebuild fresh anonymous sibling vnodes every render and need stable
+identity across inserts/removals/reorders (e.g. a list of rows with uncontrolled
+inputs, canvases, or 3D scenes), you can provide a `key` prop:
 
 ```js
 ul(...items.map(item =>
@@ -348,7 +330,9 @@ Omitting a prop in a subsequent update clears it from the element.
 
 ### `component(fn)`
 
-Wrap a recursive pure function that returns a vnode.
+Wrap a recursive pure function that returns a vnode. Calls alone do not update
+the DOM; returning the result from an event updates that component wherever it
+is rendered. Use separate component definitions for independent state.
 
 ### `render(vnode[, container])`
 
@@ -394,20 +378,21 @@ import { box } from '@pfern/elements-x3dom'
 box({ size: '2 2 2', solid: true })
 ```
 
-### `onNavigate(fn[, options])`
+### Links
 
-Register a handler to run after `popstate` (including calls to `navigate()`).
-Use this to re-render your app on URL changes.
+Return a component from a same-origin link's click handler to update it and the URL:
+
+```js
+a({ href: '/about', onclick: () => page('/about') }, 'About')
+```
+
+No registration or extra `render()` call. Back/Forward restores previous views;
+modified clicks remain native.
 
 ### `toHtmlString(vnode[, options])`
 
 Serialize a vnode tree to HTML (SSG / SSR). Pass `{ doctype: true }` to emit
 `<!doctype html>`.
-
-### `navigate(path[, options])`
-
-`navigate` updates `window.history` and dispatches a `popstate` event. It is a
-tiny convenience for router-style apps.
 
 ### Testing Philosophy
 

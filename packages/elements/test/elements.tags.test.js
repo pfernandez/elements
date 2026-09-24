@@ -8,9 +8,6 @@ test('all exported element functions return valid vnodes', () => {
     'component',
     'elements',
     'DEBUG',
-    'navigate',
-    'onNavigate',
-    'hasNavigateHandler',
     'toHtmlString'
   ])
   for (let [tag, fn] of Object.entries(elements)) {
@@ -29,4 +26,9 @@ test('all exported element functions return valid vnodes', () => {
     assert.equal(vnode[0], tag, `${tag} vnode tag should be "${tag}"`)
     assert.deepEqual(vnode[1], { id: 'x' }, `${tag} props should match input`)
   }
+})
+
+test('the public API does not expose the removed URL-first router', () => {
+  for (const name of ['navigate', 'onNavigate', 'hasNavigateHandler'])
+    assert.equal(name in elements, false)
 })

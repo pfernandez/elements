@@ -1,9 +1,11 @@
 import { button, component, div, output }
-  from '../../packages/elements/elements.js'
+  from '@pfern/elements'
 
-export const counter = component((count = 0) =>
-  div(
-    output(count),
-    button({ onclick: () => counter(count + 1) },
-           'Increment')))
-
+export const createCounter = () => {
+  const counter = component((count = 0) =>
+    div(
+      output(count),
+      button({ onclick: () => counter(count + 1) },
+             'Increment')))
+  return counter
+}

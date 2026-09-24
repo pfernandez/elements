@@ -76,3 +76,8 @@ test('toHtmlString() renders fragment children without a wrapper', () => {
     toHtmlString(['fragment', {}, 'a', div('b')])
   assert.equal(html, 'a<div>b</div>')
 })
+
+test('toHtmlString() omits reconciliation keys and preserves enumerated booleans', () => {
+  assert.equal(toHtmlString(div({ key: 'identity', draggable: true, spellcheck: false })),
+               '<div draggable="true" spellcheck="false"></div>')
+})

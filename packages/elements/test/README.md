@@ -10,13 +10,13 @@ they still verify the *behavioral contract* that users rely on.
 ## What We Test
 
 - **Vnode shape:** exported tag helpers return `[tag, props, ...children]`.
-- **Declarative events:** returning a vnode from an event handler patches the
-  closest component boundary; passive returns do nothing.
+- **Declarative events:** a component vnode updates that component's projections;
+  a plain vnode updates the closest boundary. Synchronous passive returns do nothing.
 - **Form handler signature:** `onsubmit`, `oninput`, `onchange` receive
   `(arg, event)` where `onsubmit` gets `event.target.elements` and
-  `oninput`/`onchange` get `event.target.value`; `onsubmit` calls
-  `preventDefault()` when returning a vnode, and `<a href>` `onclick` handlers
-  that return a vnode prevent default navigation for unmodified left-clicks.
+  `oninput`/`onchange` get `event.target`; `onsubmit` calls `preventDefault()`
+  when returning a vnode or Promise. Eligible link handlers also record the URL
+  when their result is a vnode.
 - **`render()` behavior:** initial mount, diff+patch updates, prop updates and
   removals, and child add/remove behavior.
 - **`ontick`:** readiness gating, stop-on-throw, and stop-on-Promise.

@@ -29,7 +29,7 @@
     "clean:types": "node scripts/clean-types.js",
     "build:types": "node scripts/build-types.js",
     "typecheck": "node scripts/typecheck.js",
-    "prepack": "node ../../scripts/sync-readmes.js",
+    "prepack": "npm run -s build:types",
     "test": "node --test test/*.test.* --test-reporter spec",
     "test:coverage": "node scripts/test-coverage.js"
   },

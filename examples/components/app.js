@@ -5,7 +5,8 @@ import { scope } from './scope.js'
 import { todos } from './todos.js'
 
 const link = (path, label, active) =>
-  a({ href: path, class: active ? 'active' : '' }, label)
+  a({ href: path, onclick: () => app(path),
+      class: active ? 'active' : '' }, label)
 
 const navbar = path =>
   nav(
@@ -18,7 +19,7 @@ const home = () =>
   section(
     h2('Home'),
     div(`This template shows the built-in page navigation, a todos app,
-         independent counters to demonstate component scope, and a basic X3DOM
+         independent counters to demonstrate component scope, and a basic X3DOM
          animation.`))
 
 const todosDemo = () =>
@@ -30,9 +31,8 @@ const todosDemo = () =>
 const scopeDemo = () =>
   section(
     h2('Component Scope'),
-    p(`Reloading a parent component also reloads its children. Child
-       components have separate scope, even when defined with the same
-       names.`),
+    p(`Reset selects fresh observations of two separately defined counters.
+       Each definition has its own identity; its projections share state.`),
     scope())
 
 const x3domDemo = () => section(
