@@ -2,406 +2,328 @@
 
 # @pfern/elements
 
-A functional, recursive UI toolkit for composing reactive web pages.
+Describe a state. Return the next observation. Let the DOM follow.
 
-Elements.js borrows the simple elegance of functional UI composition from
-[React](https://react.dev/), distilled to its purest form:
+Elements.js is a small functional UI library for JavaScript. Ordinary functions
+build the interface, and event handlers return what comes next. No JSX or hooks
+are needed.
 
-- No JSX.
-- No React-style hooks.
-- Keys are optional; updates rely on identity and position
+## Start with state
 
-Components are pure functions; updates are just calling the function again with
-new arguments from an event handler like `onclick`.
+A counter needs one piece of state: its count. A function can describe what the
+user sees at that count and what clicking a button will do:
 
-## Principles
-
-- **Pure data model:** UI elements are represented as data-in, data-out
-  functions. They accept W3C standard properties and child elements as
-  arguments, and return plain nested arrays (vdom).
-- **Dynamic updates:** When an event handler returns the vdom array from a
-  `component` element, that element is updated wherever it is rendered.
-- **Imperative boundary, functional interface:** DOM mutation is abstracted
-  away, keeping the authoring experience functional and composable.
-
-### Example: Recursive counter
 ```js
-import { button, component, div, output } from '@pfern/elements'
+import { button, observe, div, output, render } from '@pfern/elements'
 
-export const counter = component((count = 0) =>
+const counter = observe((count = 0) =>
   div(
     output(count),
     button({ onclick: () => counter(count + 1) },
            'Increment')))
+
+render(counter(), document.body)
 ```
 
-## Quick Start
+The first call describes a counter at zero. Clicking **Increment** returns a
+new description of the same counter at one. Elements selects that description
+and updates the DOM. The new handler carries the new count, ready for the next
+click.
 
-### Install as a dependency
-```sh
-npm install @pfern/elements
-```
+This is a **state transition**: the counter goes from one state to the next.
+You normally call `render()` once, when the page loads. Event returns drive
+subsequent transitions.
 
-### Optional 3D / X3DOM helpers
+## Observing a state
 
-```sh
-npm install @pfern/elements @pfern/elements-x3dom
-```
+`observe` gives a pure state function a stable identity. The resulting
+**state observer** is what we call a component. It takes state as arguments and
+returns an **observation**: a description of the interface, including the event
+handlers available in that state.
 
-### Install as a minimal starter app
-```sh
-npx @pfern/create-elements my-app
-cd my-app
-npm install
-```
+In the counter above:
 
-Source code for the examples on this page can be found in the
-[examples/](https://github.com/pfernandez/elements/tree/main/examples) directory of this repository, which are hosted as a live
-demo [here](https://pfernandez.github.io/elements).
+- `count` is the state.
+- The returned `div(...)` describes its observation.
+- `() => counter(count + 1)` describes how to continue after a click.
+- `observe` gives these successive observations one stable identity.
 
-## Example: Todos App
-```js
-import { button, component, div, form, input, li, span, ul }
-  from '@pfern/elements'
+The observer is recursive: its handlers can call the same component with new
+arguments. Each event continues the calculation. You can write this using
+ordinary functions and closures; there is no separate state setter.
 
-const demoItems = [{ value: 'Add my first todo', done: true },
-                   { value: 'Install elements.js', done: false }]
-
-export const todos = component(
-  (items = demoItems) => {
-    const add = ({ todo: { value } }) =>
-      value && todos([...items, { value, done: false }])
-
-    const remove = item =>
-      todos(items.filter(i => i !== item))
-
-    const toggle = item =>
-      todos(items.map(i => i === item ? { ...i, done: !item.done } : i))
-
-    return (
-      div({ class: 'todos' },
-          form({ onsubmit: add },
-               input({ name: 'todo', placeholder: 'What needs doing?' }),
-               button({ type: 'submit' }, 'Add')),
-
-          ul(...items.map(item =>
-            li({ style:
-                { 'text-decoration': item.done ? 'line-through' : 'none' } },
-               span({ onclick: () => toggle(item) }, item.value),
-               button({ onclick: () => remove(item) }, '✕'))))))
-  })
-```
-
-## Root Rendering Shortcut
-
-If you use `html`, `head`, or `body` as the top-level tag, `render()` will
-automatically mount into the corresponding document element—no need to pass a
-container.
+Calling a component only constructs an observation. **Returning it from an
+event handler selects it.** This distinction matters:
 
 ```js
-import { body, h1, h2, head, header, html,
-         link, main, meta, render, section, title } from '@pfern/elements'
-import { todos } from './components/todos.js'
-
-render(
-  html(
-    head(
-      title('Elements.js'),
-      meta({ name: 'viewport',
-             content: 'width=device-width, initial-scale=1.0' }),
-      link({ rel: 'stylesheet', href: 'css/style.css' })),
-    body(
-      header(h1('Elements.js Demo')),
-      main(
-        section(
-          h2('Todos'),
-          todos())))))
+onclick: () => counter(10)       // Select the counter at ten.
+onclick: () => { counter(10) }   // Construct a value, then discard it.
 ```
 
-## How Updates Work
+A handler can also return another component's observation, so a child or sibling
+can select the next state of a different component.
 
-Elements.js is designed so you typically call `render()` once at startup (see
-`examples/index.js`). After that, updates happen by returning a vnode from an
-event handler.
+## Descriptions are data
 
-### What is a vnode?
-
-Elements.js represents UI as plain arrays called **vnodes** (virtual nodes):
+Tag helpers return plain nested arrays, called **vnodes** (virtual nodes):
 
 ```js
-['div', { class: 'box' }, 'hello', ['span', {}, 'world']]
+div({ class: 'message' }, 'Hello')
+// ['div', { class: 'message' }, 'Hello']
 ```
 
-- `tag`: a string tag name (or `'fragment'` for a wrapper-less group)
-- `props`: an object (attributes, events, and Elements.js hooks like `ontick`)
-- `children`: strings/numbers/vnodes (and optionally `null`/`undefined` slots)
-
-
-### Declarative Events
-
-- Any event handler (e.g. `onclick`, `onsubmit`, `oninput`) may return a vnode
-  array to trigger a boundary update.
-- Plain vnode returns update the handler’s nearest component boundary.
-- Synchronous non-vnode returns are passive. Promises may resolve to vnodes;
-  returning a Promise prevents submission or eligible link navigation
-  immediately.
-- On unmodified same-origin link clicks, returning a vnode prevents native
-  navigation and updates the targeted component and URL.
-
-Errors are not swallowed: thrown errors and rejected Promises propagate.
-
-### Form Events
-
-For `onsubmit`, Elements.js provides a special signature:
+The first item is the tag, the second holds attributes and event handlers, and
+the rest are children. Compose helpers to build larger descriptions:
 
 ```js
-(event.target.elements, event)
+div(
+  output('Ready'),
+  button({ onclick: () => counter(0) }, 'Reset counter'))
 ```
 
-That is, your handler receives:
+A component adds identity to a description. Elements keeps its current
+observation and updates the DOM wherever that component is mounted. Each
+mounted occurrence is a **projection** of the same component.
 
-1. `elements`: the HTML form’s named input elements containing their values
-2. `event`: the original DOM event object
+## Shared and independent state
 
-Elements.js prevents submission when the handler returns a vnode or Promise.
+All projections of one component definition share its current observation:
 
 ```js
-form({ onsubmit: ({ todo: { value } }, e) =>
-       value && todos([...items, { value, done: false }]) })
+const initial = counter()
+render(div(initial, initial), document.body)
 ```
 
-`oninput` and `onchange` receive `(event.target, event)`, so you can destructure
-`value` directly:
+Click either counter and both update. For independent state, create separate
+component definitions. A factory makes that convenient:
 
 ```js
-const greeting = component((name = '') =>
-  div(input({ value: name, oninput: ({ value }) => greeting(value) }),
-      output(`Hello, ${name}!`)))
+const createCounter = () => {
+  const counter = observe((count = 0) =>
+    button({ onclick: () => counter(count + 1) }, count))
+  return counter
+}
+
+const left = createCounter()
+const right = createCounter()
+
+render(div(left(), right()), document.body)
 ```
 
-For checkboxes, use `({ checked })` instead. The original event remains the
-second argument.
+A fresh component call selects its observation when first mounted. Reusing an
+already mounted vnode preserves the component's current observation. Keep a
+child's vnode when a parent transition should preserve its state; use a fresh
+call such as `counter(0)` when it should reset. Returning a component vnode from
+an event explicitly selects its observation, even if it was used before.
 
-### SSG / SSR
+## State and the DOM
 
-For build-time prerendering (static site generation) or server-side rendering,
-Elements.js can serialize vnodes to HTML:
+Elements keeps the selected observation and patches its DOM projections to
+match. The source arrays remain unchanged.
 
-```js
-import { div, html, head, body, title, toHtmlString } from '@pfern/elements'
+Existing DOM nodes are reused where possible. This lets native state, such as
+focus or an input's edited value, survive updates where those nodes and
+properties are preserved. Each projection has its own DOM nodes and native
+state, even when the component observation is shared.
 
-toHtmlString(div('Hello')) // => <div>Hello</div>
+Across sibling reorders, matching prefers retained vnode references, then
+explicit `key`s, then unique unkeyed component definitions, then position.
+Repeated projections of one definition need retained references or keys to
+distinguish them across reorders.
 
-const doc = html(
-              head(title('My page')),
-              body(div('Hello')))
-
-const htmlText = toHtmlString(doc, { doctype: true })
-```
-
-Notes:
-- Event handlers (function props like `onclick`) are dropped during
-  serialization.
-- `innerHTML` is treated as an explicit escape hatch and is inserted verbatim.
-
-### Explicit Rerenders
-
-Calling `render(vtree, container)` again is supported (diff + patch). This is
-useful for explicit rerenders (e.g. dev reload, external state updates).
-
-To force a full remount (discarding existing DOM state), pass
-`{ replace: true }`.
-
-### Why Boundary Updates (and Optional Keys)
-
-Component definitions identify shared state; retained vnode references identify
-reusable descriptions. Across sibling reorders, Elements.js prefers preserved
-vnode references first, then explicit `key`s, then unique unkeyed component
-definitions, then positional fallback.
-
-If you rebuild fresh anonymous sibling vnodes every render and need stable
-identity across inserts/removals/reorders (e.g. a list of rows with uncontrolled
-inputs, canvases, or 3D scenes), you can provide a `key` prop:
+For fresh list items whose identity should survive insertion or removal, use a
+key that is unique among siblings:
 
 ```js
 ul(...items.map(item =>
   li({ key: item.id }, item.label)))
 ```
 
-Keys must be unique among siblings. The `key` prop is reserved for
-reconciliation and is not assigned to the DOM as an attribute.
+`key` is used for matching and is never assigned to the DOM.
 
-## Props
-
-Element functions accept a single props object as first argument:
-
-```js
-div({ id: 'x', class: 'box' }, 'hello')
-```
-
-In the DOM runtime:
-
-- Most props are assigned via `setAttribute`.
-- A small set of keys are treated as property exceptions when the property
-  exists on the element.
-- `key` is reserved for reconciliation and is ignored by the DOM runtime.
-- Omitting a prop in a subsequent update clears it from the element.
-- `style` objects are applied as patches: keys removed from the next `style`
-  object are cleared from the element (React-like behavior). Use `null` to
-  clear the entire style prop, or `null` values to remove individual style keys.
-
-This keeps updates symmetric and predictable.
-
-## `ontick` (animation hook)
-
-`ontick` is a hook (not a DOM event) that runs once per animation frame. It can
-thread context across frames:
-
-```js
-transform({
-  ontick: (el, ctx = { rotation: 0 }, dt) => {
-    el.setAttribute('rotation', `0 1 1 ${ctx.rotation}`)
-    return { ...ctx, rotation: ctx.rotation + 0.001 * dt }
-  }
-})
-```
-
-`ontick` must be synchronous. If it throws (or returns a Promise), ticking
-stops, and the error is not swallowed.
-
-If the element is inside an `<x3d>` scene, Elements.js waits for the X3DOM
-runtime to be ready before ticking.
-
-## X3D / X3DOM (experimental)
-
-The optional `@pfern/elements-x3dom` package includes elements for X3DOM’s
-supported X3D node set. You can import them and create 3D scenes
-declaratively:
+## Install
 
 ```sh
-npm i @pfern/elements @pfern/elements-x3dom
+npm install @pfern/elements
 ```
 
-### Demo: Interactive 3D Cube
-```js
-import { appearance, box, material, scene,
-         shape, transform, viewpoint, x3d } from '@pfern/elements-x3dom'
+Explore the [live demo](https://pfernandez.github.io/elements), its
+[examples](https://github.com/pfernandez/elements/tree/main/examples), and the longer article on
+[recursive state observers](https://github.com/pfernandez/elements/blob/main/examples/content/introduction.md).
 
-export const cubeScene = () =>
-  x3d(
-    scene(
-      viewpoint({ position: '0 0 6', description: 'Default View' }),
-      transform({ rotation: '0 1 0 0.5' },
-        shape(
-          appearance(
-            material({ diffuseColor: '0.2 0.6 1.0' })),
-          box()))))
-```
+## Events and forms
 
-### Lazy Loading
+Any DOM event handler can return a vnode. A component vnode selects that
+component's observation wherever it is mounted. A plain vnode updates the
+handler's nearest component boundary (or the render root outside a component).
 
-X3DOM is lazy-loaded the first time you call any helper from
-`@pfern/elements-x3dom`. For correctness and stability, it always loads the
-vendored `x3dom-full` bundle (plus `x3dom.css`).
-
-## Types (the docs)
-
-Elements.js is JS-first: TypeScript is not required at runtime. This package
-ships `.d.ts` files so editors like VSCode can provide rich inline docs and
-autocomplete.
-
-The goal is for type definitions to be the canonical reference for:
-
-* HTML/SVG/X3D element helpers
-* DOM events (including the special form-event signature)
-* Elements.js-specific prop conventions like `ontick`, plus supported
-  prop shorthands like `style` (object) and `innerHTML` (escape hatch)
-
-Most props are assigned as attributes. A small set of keys are treated as
-property exceptions (when the property exists on the element): `value`,
-`checked`, `selected`, `disabled`, `multiple`, `muted`, `volume`,
-`currentTime`, `playbackRate`, `open`, `indeterminate`.
-
-`key` is reserved for reconciliation and is not assigned as an attribute.
-
-Omitting a prop in a subsequent update clears it from the element.
-
-## API
-
-### `component(fn)`
-
-Wrap a recursive pure function that returns a vnode. Calls alone do not update
-the DOM; returning the result from an event updates that component wherever it
-is rendered. Use separate component definitions for independent state.
-
-### `render(vnode[, container])`
-
-Render a vnode into the DOM. If `vnode[0]` is `html`, `head`, or `body`, no
-`container` is required.
-
-Pass `{ replace: true }` to force a full remount.
-
-### `elements`
-
-All tag helpers are also exported in a map for dynamic use:
+`oninput` and `onchange` receive `(event.target, event)`. Destructure the native
+control's `value` or `checked` property:
 
 ```js
-import { elements } from '@pfern/elements'
-
-const { div, button } = elements
+const greeting = observe((name = '') =>
+  div(
+    input({ value: name, oninput: ({ value }) => greeting(value) }),
+    output(`Hello, ${name}!`)))
 ```
 
-### DOM Elements
-
-Every HTML and SVG tag is available as a function:
+`onsubmit` receives `(event.target.elements, event)`, giving access to the form's
+named controls:
 
 ```js
-div({ id: 'box' }, 'hello')
-svg({ width: 100 }, circle({ r: 10 }))
+const todos = observe((items = []) =>
+  div(
+    form({ onsubmit: ({ todo: { value } }) =>
+           todos([...items, value]) },
+         input({ name: 'todo', required: true }),
+         button({ type: 'submit' }, 'Add')),
+    ul(...items.map(item => li(item)))))
 ```
 
-Curated MathML helpers are available as a separate entrypoint:
+Import the tag helpers you use from `@pfern/elements`. Other event handlers
+receive the original DOM event as their first argument.
 
-```js
-import { apply, ci, csymbol, math } from '@pfern/elements/mathml'
+Handlers may return Promises that resolve to vnodes. Returning a vnode or a
+Promise prevents native form submission or eligible link navigation;
+Promises claim that behavior immediately, before they settle. Their returned
+observations are selected in completion order. Synchronous non-vnode returns
+leave native behavior alone. Errors propagate.
 
-math(
-  apply(csymbol({ cd: 'ski' }, 'app'), ci('f'), ci('x'))
-)
-```
+## Links and history
 
-For X3D / X3DOM nodes, use `@pfern/elements-x3dom`:
-
-```js
-import { box } from '@pfern/elements-x3dom'
-
-box({ size: '2 2 2', solid: true })
-```
-
-### Links
-
-Return a component from a same-origin link's click handler to update it and the URL:
+An ordinary same-origin link can return the next observation of a page component:
 
 ```js
 a({ href: '/about', onclick: () => page('/about') }, 'About')
 ```
 
-No registration or extra `render()` call. Back/Forward restores previous views;
-modified clicks remain native.
+For an eligible unmodified click, Elements selects the observation and records
+the URL. Back and Forward restore previous observations. Modified clicks and
+links with native-navigation opt-outs, such as `download`, retain native
+behavior. No navigation registration is required.
+
+History stores observations, including their handlers. It does not snapshot
+DOM nodes or serialize closures for restoration after a reload.
+
+## API
+
+### `observe(describe)`
+
+Create a state observer with a stable identity. `describe(...args)` must return
+a vnode array. Calling the returned observer constructs an observation;
+returning that observation from an event selects it. Each call to `observe`
+establishes a separate identity for independent state.
+
+### `render(vnode[, container[, options]])`
+
+Mount an observation into the DOM, normally once at startup. When the root tag
+is `html`, `head`, or `body`, the container can be omitted:
+
+```js
+render(body(counter()))
+```
+
+Calling `render` again is supported for explicit updates. To discard an ordinary
+container's mounted DOM and mount again, use
+`render(vnode, container, { replace: true })`.
+
+### Tag helpers and `elements`
+
+HTML and SVG tags are exported as functions and through the `elements` map:
+
+```js
+import { div, elements } from '@pfern/elements'
+
+const { button, fragment } = elements
+```
+
+`fragment(...)` groups children without adding a wrapper element. Curated MathML
+helpers are available from `@pfern/elements/mathml`.
+
+### Props
+
+The optional first argument to a tag helper is a props object:
+
+```js
+div({ class: 'message', style: { color: 'green' } }, 'Ready')
+```
+
+Most props are assigned as attributes. These explicit exceptions are assigned
+as DOM properties when present on the element: `value`, `checked`, `selected`,
+`disabled`, `multiple`, `muted`, `volume`, `currentTime`, `playbackRate`, `open`,
+and `indeterminate`.
+
+Omitting a previously supplied prop clears it. Style objects are patched:
+removed properties are cleared, and `null` removes a style property or the
+whole style. DOM assignment errors propagate to the caller.
+
+### `ontick`
+
+`ontick` is an animation hook, called once per animation frame when the element
+is connected and ready. It receives `(element, context, dtMs)` and returns the
+context for the next frame:
+
+```js
+transform({
+  ontick: (el, angle = 0, dt) => {
+    const next = angle + 0.001 * dt
+    el.setAttribute('rotation', `0 1 0 ${next}`)
+    return next
+  }
+})
+```
+
+This return value carries animation context; it does not select a component
+observation. The hook must be synchronous. Throwing or returning a Promise
+stops ticking and propagates an error. X3DOM elements wait for scene readiness.
 
 ### `toHtmlString(vnode[, options])`
 
-Serialize a vnode tree to HTML (SSG / SSR). Pass `{ doctype: true }` to emit
-`<!doctype html>`.
+Serialize a description as HTML for server rendering or static generation:
 
-### Testing Philosophy
+```js
+import { div, toHtmlString } from '@pfern/elements'
 
-Tests run in Node and use a small in-repo fake DOM for behavioral DOM checks.
-See [`packages/elements/test/README.md`](https://github.com/pfernandez/elements/blob/main/packages/elements/test/README.md).
+toHtmlString(div('Hello')) // '<div>Hello</div>'
+```
+
+Use `{ doctype: true }` for a document. Event handlers are omitted from the
+HTML. `innerHTML` inserts its value verbatim.
+
+## Optional X3DOM helpers
+
+```sh
+npm install @pfern/elements-x3dom
+```
+
+Import 3D helpers from the separate package:
+
+```js
+import { appearance, box, material, scene, shape, x3d }
+  from '@pfern/elements-x3dom'
+
+const cube = () =>
+  x3d(
+    scene(
+      shape(
+        appearance(material({ diffuseColor: '0.2 0.6 1' })),
+        box())))
+```
+
+The first helper call loads the vendored X3DOM runtime and stylesheet in the
+browser. See the [X3DOM package](https://github.com/pfernandez/elements/blob/main/packages/elements-x3dom/README.md) and
+[animation example](https://github.com/pfernandez/elements/blob/main/examples/components/tick.js).
+
+## Types and testing
+
+Elements is JS-first. Generated `.d.ts` files provide completion and API
+documentation in editors; TypeScript is optional. Strict TypeScript users may
+need an explicit return type on recursive observers to break circular inference.
+
+Node tests exercise the data and event contracts. Real-browser checks cover DOM
+identity, native state, namespaces, asynchronous events, and history. See the
+[testing guide](https://github.com/pfernandez/elements/blob/main/packages/elements/test/README.md).
 
 ## License
 
-MIT License
-Copyright (c) 2026 Paul Fernandez
-
-[dom]: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model
+MIT License. Copyright (c) 2026 Paul Fernandez.

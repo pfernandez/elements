@@ -1,4 +1,4 @@
-import { a, body, button, component, div, form, head, html, input,
+import { a, body, button, observe, div, form, head, html, input,
   output, pre, render, span, svg, title } from '../elements.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -164,8 +164,8 @@ describe('Elements.js - Pure Data Contracts', () => {
     assert.deepEqual(vnode, ['div', {}, [null, false, 0, '', 'x']])
   })
 
-	  test('component() supports recursion and state threading', () => {
-	    const Counter = component((n = 0) =>
+	  test('observe() supports recursion and state threading', () => {
+	    const Counter = observe((n = 0) =>
 	      div({},
 	        pre(n),
 	        button({ onclick: () => Counter(n + 1) }, 'inc')
@@ -197,7 +197,7 @@ describe('Elements.js - Pure Data Contracts', () => {
     globalThis.document = document
     globalThis.window = makeWindow()
 
-    const Counter = component((n = 0) =>
+    const Counter = observe((n = 0) =>
       div({},
         output(n),
         button({ onclick: () => Counter(n + 1) }, 'inc')
@@ -587,7 +587,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.document = document
     globalThis.window = makeWindow()
 
-    const Counter = component((n = 0) =>
+    const Counter = observe((n = 0) =>
       div(output(n))
     )
 
@@ -641,7 +641,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('component() propagates errors to its caller', () => {
+  test('observe() propagates errors to its caller', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
     const prevConsoleError = console.error
@@ -651,7 +651,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = makeWindow()
     console.error = () => {}
 
-    const Broken = component(() => { throw new Error('boom') })
+    const Broken = observe(() => { throw new Error('boom') })
 
     assert.throws(() => Broken(), /boom/)
 
@@ -885,14 +885,14 @@ test('render() requires a container for non-html roots', () => {
     globalThis.document = document
     globalThis.window = makeWindow()
 
-    const Inner = component((n = 0) =>
+    const Inner = observe((n = 0) =>
       div({},
         output(n),
         button({ onclick: () => Inner(n + 1) }, 'inc')
       )
     )
 
-    const Outer = component(() =>
+    const Outer = observe(() =>
       div({},
         div({ id: 'sentinel' }, 'outer'),
         Inner(0)
@@ -933,7 +933,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.document = document
     globalThis.window = makeWindow()
 
-    const AsyncCounter = component((n = 0) =>
+    const AsyncCounter = observe((n = 0) =>
       div({},
         output(n),
         button({
@@ -976,7 +976,7 @@ test('render() requires a container for non-html roots', () => {
       target: { elements: { todo: { value: 'x' } } }
     }
 
-    const App = component((n = 0) =>
+    const App = observe((n = 0) =>
       form({
         onsubmit: async ({ todo: { value } }) =>
           value ? Promise.resolve(App(n + 1)) : undefined
@@ -988,7 +988,7 @@ test('render() requires a container for non-html roots', () => {
 
     assert.equal(prevented, 1)
 
-    const Passive = component(() =>
+    const Passive = observe(() =>
       form({ onsubmit: async () => Promise.resolve(undefined) },
         input({ name: 'todo' }),
         button({ type: 'submit' }, 'go'))
@@ -1018,7 +1018,7 @@ test('render() requires a container for non-html roots', () => {
     let gotTarget, gotEvent
     let prevented = 0
 
-    const App = component((value = '') =>
+    const App = observe((value = '') =>
       div({},
         input({
           type: 'range',
@@ -1407,30 +1407,30 @@ test('render() requires a container for non-html roots', () => {
 
     const container = document.createElement('div')
 
-    const view = items =>
+    const describeState = items =>
       div({}, ...items.map(x => div({ id: x }, x)))
 
     const labels = () =>
       container.childNodes[0].childNodes
         .map(child => child.attributes.id)
 
-    render(view(['a', 'b', 'c']), container)
+    render(describeState(['a', 'b', 'c']), container)
     assert.deepEqual(labels(), ['a', 'b', 'c'])
 
     // remove middle
-    render(view(['a', 'c']), container)
+    render(describeState(['a', 'c']), container)
     assert.deepEqual(labels(), ['a', 'c'])
 
     // insert at head
-    render(view(['x', 'a', 'c']), container)
+    render(describeState(['x', 'a', 'c']), container)
     assert.deepEqual(labels(), ['x', 'a', 'c'])
 
     // insert in middle and tail
-    render(view(['x', 'a', 'y', 'c', 'z']), container)
+    render(describeState(['x', 'a', 'y', 'c', 'z']), container)
     assert.deepEqual(labels(), ['x', 'a', 'y', 'c', 'z'])
 
     // remove head and tail
-    render(view(['a', 'y', 'c']), container)
+    render(describeState(['a', 'y', 'c']), container)
     assert.deepEqual(labels(), ['a', 'y', 'c'])
 
     globalThis.document = prevDocument
@@ -1464,16 +1464,16 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = makeWindow()
 
     const container = document.createElement('div')
-    const view = items =>
+    const describeState = items =>
       div({}, ...items.map(x => div({ key: x, id: x }, x)))
 
-    render(view(['a', 'b', 'c']), container)
+    render(describeState(['a', 'b', 'c']), container)
     const root = container.childNodes[0]
     const a = root.childNodes[0]
     const b = root.childNodes[1]
     const c = root.childNodes[2]
 
-    render(view(['c', 'b', 'a']), container)
+    render(describeState(['c', 'b', 'a']), container)
     const nextRoot = container.childNodes[0]
     assert.equal(nextRoot.childNodes[0], c)
     assert.equal(nextRoot.childNodes[1], b)
@@ -1495,15 +1495,15 @@ test('render() requires a container for non-html roots', () => {
     const b = div({ id: 'b' }, 'b')
     const c = div({ id: 'c' }, 'c')
     const container = document.createElement('div')
-    const view = items => div({}, ...items)
+    const describeState = items => div({}, ...items)
 
-    render(view([a, b, c]), container)
+    render(describeState([a, b, c]), container)
     const root = container.childNodes[0]
     const aEl = root.childNodes[0]
     const bEl = root.childNodes[1]
     const cEl = root.childNodes[2]
 
-    render(view([c, b, a]), container)
+    render(describeState([c, b, a]), container)
     const nextRoot = container.childNodes[0]
     assert.equal(nextRoot.childNodes[0], cEl)
     assert.equal(nextRoot.childNodes[1], bEl)
@@ -1522,15 +1522,15 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = makeWindow()
 
     const container = document.createElement('div')
-    const view = items =>
+    const describeState = items =>
       div({}, ...items.map(x => div({ key: x, id: x }, x)))
 
-    render(view(['a', 'c']), container)
+    render(describeState(['a', 'c']), container)
     const root = container.childNodes[0]
     const a = root.childNodes[0]
     const c = root.childNodes[1]
 
-    render(view(['a', 'b', 'c']), container)
+    render(describeState(['a', 'b', 'c']), container)
     const nextRoot = container.childNodes[0]
     assert.equal(nextRoot.childNodes[0], a)
     assert.equal(nextRoot.childNodes[2], c)
@@ -1549,16 +1549,16 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = makeWindow()
 
     const container = document.createElement('div')
-    const view = key => div({},
+    const describeState = key => div({},
       div({ key: 'controls', id: 'controls' }, 'controls'),
       div({ key, id: key }, key))
 
-    render(view('a'), container)
+    render(describeState('a'), container)
     const root = container.childNodes[0]
     const controls = root.childNodes[0]
     const scene = root.childNodes[1]
 
-    render(view('b'), container)
+    render(describeState('b'), container)
     const nextRoot = container.childNodes[0]
     assert.equal(nextRoot.childNodes[0], controls)
     assert.notEqual(nextRoot.childNodes[1], scene)

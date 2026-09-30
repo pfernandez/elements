@@ -1,4 +1,4 @@
-import { a, code, component, div, h2, h3, main, nav, p, pre, section }
+import { a, code, observe, div, h2, h3, main, nav, p, pre, section }
   from '@pfern/elements'
 import { cube } from './cube.js'
 import { tick } from './tick.js'
@@ -25,7 +25,8 @@ const home = () =>
     h2('Home'),
     div(`This template shows the built-in page navigation, a todos app,
          independent counters to demonstrate component scope, and a basic X3DOM
-         animation. The Writing page demonstrates prose loaded from Markdown.`))
+         animation. The Writing page explains components as recursive state
+         observers, with prose loaded from Markdown.`))
 
 const writing = () => section(markdown(introduction))
 
@@ -52,7 +53,7 @@ const x3domDemo = () => section(
     + 'Return the next angle to carry it into the following frame.'),
   pre(code(tickSource)))
 
-export const app = component((path = window.location.pathname) =>
+export const app = observe((path = window.location.pathname) =>
   main(
     navbar(path),
     path === '/todos' ? todosDemo()

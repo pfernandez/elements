@@ -1,10 +1,10 @@
-import { button, component, div, form, input, li, span, ul }
+import { button, observe, div, form, input, li, span, ul }
   from '@pfern/elements'
 
 const demoItems = [{ value: 'Add my first todo', done: true },
                    { value: 'Install elements.js', done: false }]
 
-export const todos = component(
+export const todos = observe(
   (items = demoItems) => {
     const add = ({ todo: { value }}) =>
       value && todos([...items, { value, done: false }])

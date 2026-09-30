@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { a, button, component, div, render } from '../elements.js'
+import { a, button, observe, div, render } from '../elements.js'
 import { click, withBrowser } from './fake-browser.js'
 
 const mount = vnode => {
@@ -12,8 +12,8 @@ const mount = vnode => {
 
 test('sidebar links target page projections without registration or rerendering the shell', () =>
   withBrowser(({ history, location }) => {
-    const page = component(path => div(path))
-    const sidebar = component(() => a({ href: '/about', onclick: () => page('about') }, 'About'))
+    const page = observe(path => div(path))
+    const sidebar = observe(() => a({ href: '/about', onclick: () => page('about') }, 'About'))
     const host = mount(div(sidebar(), page('home'), page('home')))
     const root = host.firstChild, link = root.firstChild
     const event = click(link).event
@@ -33,8 +33,8 @@ test('sidebar links target page projections without registration or rerendering 
 
 test('history retains local state on departure and restores nested observations', () =>
   withBrowser(({ history }) => {
-    const counter = component((n = 0) => button({ onclick: () => counter(n + 1) }, n))
-    const page = component(path => path === 'home' ? div('home', counter()) : div('about'))
+    const counter = observe((n = 0) => button({ onclick: () => counter(n + 1) }, n))
+    const page = observe(path => path === 'home' ? div('home', counter()) : div('about'))
     const host = mount(div(
       a({ href: '/about', onclick: () => page('about') }, 'About'), page('home')))
     click(host.firstChild.childNodes[1].childNodes[1])
@@ -51,7 +51,7 @@ test('history retains local state on departure and restores nested observations'
 
 test('successive links to different component identities restore a coherent observation', () =>
   withBrowser(({ history }) => {
-    const left = component(n => div(n)), right = component(n => div(n))
+    const left = observe(n => div(n)), right = observe(n => div(n))
     const host = mount(div(
       a({ href: '/left', onclick: () => left(1) }, 'L'),
       a({ href: '/right', onclick: () => right(2) }, 'R'), left(0), right(0)))
@@ -66,7 +66,7 @@ test('successive links to different component identities restore a coherent obse
 
 test('same-URL selection avoids duplicate entries and a new branch drops forward history', () =>
   withBrowser(({ history, location }) => {
-    const page = component(n => div(n))
+    const page = observe(n => div(n))
     const host = mount(div(
       a({ href: '/one', onclick: () => page(1) }, 'one'),
       a({ href: '/two', onclick: () => page(2) }, 'two'), page(0)))
@@ -89,7 +89,7 @@ test('async links cancel immediately but select URL and observation only on a vn
   withBrowser(async ({ history, location }) => {
     let resolve
     const pending = new Promise(done => { resolve = done })
-    const page = component(n => div(n))
+    const page = observe(n => div(n))
     const host = mount(div(a({ href: '/later', onclick: () => pending }, 'later'), page(0)))
     const { event, result } = click(host.firstChild.firstChild)
     assert.equal(event.defaultPrevented, true)
@@ -114,7 +114,7 @@ test('async links cancel immediately but select URL and observation only on a vn
 
 test('native link gestures neither select continuations nor claim history', () =>
   withBrowser(({ history }) => {
-    const page = component(n => div(n))
+    const page = observe(n => div(n))
     const host = mount(page(0))
     const check = (props, event = {}) => {
       const link = mount(a({ href: '/next', onclick: () => page(1), ...props }, 'next'))
@@ -130,7 +130,7 @@ test('native link gestures neither select continuations nor claim history', () =
 
 test('native destinations, passive links and opt-outs do not record observations', () =>
   withBrowser(({ history }) => {
-    const page = component(n => div(n))
+    const page = observe(n => div(n))
     const host = mount(page(0))
     let calls = 0
     ;[{ target: '_blank' }, { download: '' }, { 'data-elements-native': '' },

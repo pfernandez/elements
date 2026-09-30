@@ -27,10 +27,10 @@ try {
   run(process.execPath, [path.join(root, 'node_modules/typescript/bin/tsc'),
                          '--noEmit', '--strict', '--module', 'nodenext', '--target', 'es2022', 'index.ts'], scratch)
   run(process.execPath, ['--input-type=module', '-e',
-                         'import { component, div, toHtmlString } from \'@pfern/elements\'; '
+                         'import { observe, div, toHtmlString } from \'@pfern/elements\'; '
     + 'import { math, mi } from \'@pfern/elements/mathml\'; '
     + 'import { box } from \'@pfern/elements-x3dom\'; '
-    + 'if (toHtmlString(component(() => div(math(mi(\'x\')), box()))()) !== '
+    + 'if (toHtmlString(observe(() => div(math(mi(\'x\')), box()))()) !== '
     + '\'<div><math><mi>x</mi></math><box></box></div>\') throw Error(\'Packed runtime mismatch\')'], scratch)
   console.log('Both packed packages pass strict consumer typechecking and runtime imports.')
 } catch (error) {

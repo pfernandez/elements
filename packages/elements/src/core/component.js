@@ -10,7 +10,8 @@ const notify = origin =>
   Array.from(origin.listeners).forEach(listener =>
     origin.listeners.has(listener) && listener(origin.current))
 
-export const observe = (origin, next) => {
+// Selection advances the origin; its mounted projections follow the change.
+export const select = (origin, next) => {
   if (origin.current !== next) {
     origin.current = next
     notify(origin)
@@ -23,7 +24,7 @@ export const present = vnode => {
   const source = sourceOf(vnode)
   if (source && !presented.has(vnode)) {
     presented.add(vnode)
-    observe(source.origin, source.observation)
+    select(source.origin, source.observation)
   }
 }
 
@@ -33,7 +34,7 @@ export const resume = (vnode, owner = null) => {
   const source = sourceOf(vnode)
   const origin = source?.origin || owner
   source && presented.add(vnode)
-  origin && observe(origin, source?.observation ?? vnode)
+  origin && select(origin, source?.observation ?? vnode)
 }
 
 export const subscribe = (origin, listener, document) => {
@@ -62,17 +63,23 @@ export const restore = observations => {
 }
 
 /**
- * Infer the whole view before extracting its arguments, so default parameters
- * keep their types instead of being contextually widened to any.
- * @template View
- * @typedef {View extends (...args: infer Args) => import('./types.js').ElementsVNode
- *   ? (...args: Args) => import('./types.js').ElementsVNode : never} ComponentView
+ * Infer the whole observer before extracting its arguments, so default
+ * parameters keep their types instead of being contextually widened to any.
+ * @template Observer
+ * @typedef {Observer extends (...args: infer Args) => import('./types.js').ElementsVNode
+ *   ? (...args: Args) => import('./types.js').ElementsVNode : never} StateObserver
  */
 
 /**
- * Give a recursive pure view one stable component identity.
+ * Create a state observer with one stable component identity.
  *
- * Calls construct vnodes without updating the DOM. Returning one from an event
+ * The observer takes state as arguments and returns an observation: a vnode
+ * describing the interface and its event handlers. Handlers can return another
+ * observation of the same component with new arguments, forming a recursive
+ * sequence of state transitions. Mounted DOM projections follow each selection.
+ *
+ * Calls to the returned observer construct vnodes without updating the DOM.
+ * Returning one from an event
  * selects that component's next observation, even from a sibling or child.
  * Plain vnode returns update the event's closest boundary. Promises may resolve
  * to either kind of continuation; errors propagate to the caller.
@@ -83,24 +90,24 @@ export const restore = observations => {
  * projected vnode preserves current state. Source arrays are never rewritten.
  * Unkeyed sibling boundaries follow their definition through reordering when
  * that definition occurs once on each side. Repeated projections need retained
- * vnode references to distinguish them; otherwise they remain positional.
+ * vnode references or keys to distinguish them; otherwise they remain positional.
  * Strict TypeScript consumers may need an explicit return type on a recursive
- * view to break circular inference; JavaScript needs no annotation.
+ * observer to break circular inference; JavaScript needs no annotation.
  *
  * @example
- * const counter = component((n = 0) =>
+ * const counter = observe((n = 0) =>
  *   button({ onclick: () => counter(n + 1) }, n))
  *
- * @template {Function} View
- * @param {View} view
- * @returns {ComponentView<View>}
+ * @template {Function} Observer
+ * @param {Observer} describe Describe a state and its available interactions.
+ * @returns {StateObserver<Observer>}
  */
-export const component = view => {
+export const observe = describe => {
   const origin = createOrigin(undefined)
-  return /** @type {ComponentView<View>} */ ((...args) => {
-    const result = view(...args)
+  return /** @type {StateObserver<Observer>} */ ((...args) => {
+    const result = describe(...args)
     if (!Array.isArray(result))
-      throw new TypeError('A component must return a vnode array.')
+      throw new TypeError('A state observer must return a vnode array.')
     const source = sourceOf(result)
     const observation = source?.origin === origin ? source.observation : result
 

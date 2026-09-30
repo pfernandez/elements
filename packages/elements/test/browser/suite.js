@@ -1,4 +1,4 @@
-import { a, body, button, component, div, elements, form, head, html, input,
+import { a, body, button, observe, div, elements, form, head, html, input,
          option, output, render, select, span, svg, title,
          toHtmlString } from '../../elements.js'
 import { annotationXml, math, mi } from '../../mathml.js'
@@ -42,10 +42,10 @@ test('SVG and MathML insertions retain their namespace', () => {
 })
 
 test('select value is applied after options exist', () => {
-  const view = values => select({ value: 'b' }, ...values.map(value => option({ value }, value)))
-  const host = mount(view(['a', 'b']))
+  const describeState = values => select({ value: 'b' }, ...values.map(value => option({ value }, value)))
+  const host = mount(describeState(['a', 'b']))
   equal(host.firstChild.value, 'b')
-  render(view(['c', 'b']), host)
+  render(describeState(['c', 'b']), host)
   equal(host.firstChild.value, 'b')
 })
 
@@ -89,7 +89,7 @@ test('reference reordering preserves controls, focus and native state', () => {
 })
 
 test('an editable counter preserves its anonymous input, focus and caret during typing', () => {
-  const counter = component((count = 0) =>
+  const counter = observe((count = 0) =>
     div(input({ value: String(count), oninput: ({ value }) => counter(Number(value)) }),
         output(count),
         button({ onclick: () => counter(count + 1) }, 'increment')))
@@ -113,12 +113,12 @@ test('an editable counter preserves its anonymous input, focus and caret during 
 
 test('fresh component calls reorder through events without remounting their controls', () => {
   const createRow = name => {
-    const row = component((count = 0) =>
+    const row = observe((count = 0) =>
       div(input(), button({ onclick: () => row(count + 1) }, `${name}: ${count}`)))
     return row
   }
   const alice = createRow('Alice'), bob = createRow('Bob')
-  const list = component((reversed = false) =>
+  const list = observe((reversed = false) =>
     div(button({ onclick: () => list(!reversed) }, 'reverse'),
         ...(reversed ? [bob(), alice()] : [alice(), bob()])))
   const host = mount(list())
@@ -138,7 +138,7 @@ test('fresh component calls reorder through events without remounting their cont
 })
 
 test('prebuilt graph-style observations update every projection without changing sources', () => {
-  const observer = component(observation => observation)
+  const observer = observe(observation => observation)
   const a = Object.freeze(observer(
     div(input(), button({ onclick: () => b }, 'A'))))
   const b = Object.freeze(observer(
@@ -183,7 +183,7 @@ test('form handlers receive native controls while input and change receive targe
 })
 
 test('input targets support terse value and checked destructuring', () => {
-  const greeting = component((name = '') =>
+  const greeting = observe((name = '') =>
     div(input({ value: name, oninput: ({ value }) => greeting(value) }),
         output(`Hello, ${name}!`)))
   const host = mount(greeting())
@@ -192,7 +192,7 @@ test('input targets support terse value and checked destructuring', () => {
   field.dispatchEvent(new Event('input', { bubbles: true }))
   equal(host.querySelector('output').textContent, 'Hello, Paul!')
   assert(host.querySelector('input') === field)
-  const toggle = component((enabled = false) =>
+  const toggle = observe((enabled = false) =>
     div(input({ type: 'checkbox', checked: enabled,
                 onchange: ({ checked }) => toggle(checked) }),
         output(String(enabled))))
@@ -247,10 +247,10 @@ test('link updates respect native opt-outs and relative paths', () => {
 })
 
 test('event recursion shares one definition while separate definitions stay independent', () => {
-  const fib = component((a = 0, b = 1) =>
+  const fib = observe((a = 0, b = 1) =>
     button({ onclick: () => fib(b, a + b) }, a))
   const source = fib()
-  const other = component(() => button('0'))
+  const other = observe(() => button('0'))
   const host = mount(div(source, fib(), other()))
   const buttons = () => [...host.querySelectorAll('button')]
   buttons()[0].click()
@@ -264,9 +264,9 @@ test('event recursion shares one definition while separate definitions stay inde
 })
 
 test('parent and child continuations retain current observations and local scope', () => {
-  const child = component((n = 0) => div(
+  const child = observe((n = 0) => div(
     output(n), button({ onclick: () => child(n + 1) }, 'child')))
-  const parent = component((n = 0, inner = child()) =>
+  const parent = observe((n = 0, inner = child()) =>
     div(output(n), inner,
         button({ onclick: () => parent(n + 1, inner) }, 'outer'),
         button({ onclick: () => parent(10) }, 'reset')))
@@ -281,7 +281,7 @@ test('parent and child continuations retain current observations and local scope
 test('static observations form a reusable finite cycle', () => {
   const a = Object.freeze(button({ onclick: () => b }, 'A'))
   const b = Object.freeze(button({ onclick: () => a }, 'B'))
-  const source = component(() => a)()
+  const source = observe(() => a)()
   const host = mount(div(source, source))
   const original = host.firstChild.firstChild
   Array.from({ length: 10 }).forEach((_, index) => {
@@ -292,7 +292,7 @@ test('static observations form a reusable finite cycle', () => {
 })
 
 test('fragments are DOM ranges, including shared component projections', () => {
-  const group = component((n = 0) => elements.fragment(
+  const group = observe((n = 0) => elements.fragment(
     span(n), button({ onclick: () => group(n + 1) }, 'next')))
   const source = group()
   const host = mount(div(source, input(), source))
@@ -306,19 +306,19 @@ test('fragments are DOM ranges, including shared component projections', () => {
 
 test('namespace integration changes recreate affected descendants', () => {
   const source = div('text')
-  const view = encoding => math(annotationXml({ encoding }, source))
-  const host = mount(view('text/html'))
+  const describeState = encoding => math(annotationXml({ encoding }, source))
+  const host = mount(describeState('text/html'))
   equal(host.querySelector('div').namespaceURI, 'http://www.w3.org/1999/xhtml')
-  render(view('application/xml'), host)
+  render(describeState('application/xml'), host)
   equal(host.querySelector('div').namespaceURI, 'http://www.w3.org/1998/Math/MathML')
-  render(view('text/html'), host)
+  render(describeState('text/html'), host)
   equal(host.querySelector('div').namespaceURI, 'http://www.w3.org/1999/xhtml')
 })
 
 test('replacing a wrapper safely selects its shared child with a different root tag', () => {
-  const child = component(tag => tag('child'))
-  const wrapper = component(() => child(div))
-  const app = component((direct = false) =>
+  const child = observe(tag => tag('child'))
+  const wrapper = observe(() => child(div))
+  const app = observe((direct = false) =>
     div(button({ onclick: () => app(true) }, 'switch'),
         direct ? child(span) : wrapper()))
   const host = mount(app()), other = mount(child(div))
@@ -332,11 +332,11 @@ test('replacing a wrapper safely selects its shared child with a different root 
 })
 
 test('namespace replacement retires a shared projection before selecting its new root', () => {
-  const child = component(tag => tag('child'))
-  const view = (encoding, source) => math(annotationXml({ encoding }, source))
-  const host = mount(view('text/html', child(div)))
+  const child = observe(tag => tag('child'))
+  const describeState = (encoding, source) => math(annotationXml({ encoding }, source))
+  const host = mount(describeState('text/html', child(div)))
   const other = mount(child(div))
-  render(view('application/xml', child(span)), host)
+  render(describeState('application/xml', child(span)), host)
   const node = host.querySelector('annotation-xml').firstChild
   equal(node.localName, 'span')
   equal(node.namespaceURI, 'http://www.w3.org/1998/Math/MathML')
@@ -359,12 +359,12 @@ test('events on an anchor descendant record navigation before replacing themselv
 test('overlapping async continuations complete independently', async () => {
   const waits = []
   const create = () => {
-    const view = component((n = 0) =>
+    const describeState = observe((n = 0) =>
       button({ onclick: async () => {
         await new Promise(resolve => waits.push(resolve))
-        return view(n + 1)
+        return describeState(n + 1)
       } }, n))
-    return view
+    return describeState
   }
   const host = mount(div(create()(), create()(10)))
   const buttons = [...host.querySelectorAll('button')]
@@ -380,9 +380,9 @@ test('overlapping async continuations complete independently', async () => {
 
 test('sidebar links update only their named page and restore real browser history', async () => {
   history.replaceState({ application: 'kept' }, '', '/initial')
-  const count = component((n = 0) => button({ onclick: () => count(n + 1) }, n))
-  const page = component(path => div(path, count()))
-  const sidebar = component(() => div(
+  const count = observe((n = 0) => button({ onclick: () => count(n + 1) }, n))
+  const page = observe(path => div(path, count()))
+  const sidebar = observe(() => div(
     a({ href: '/one?tab=2', onclick: () => page('one') }, 'one'),
     a({ href: '/two', onclick: () => page('two') }, 'two')))
   const host = mount(div(sidebar(), page('initial')))
@@ -412,7 +412,7 @@ test('sidebar links update only their named page and restore real browser histor
 })
 
 test('modified link clicks leave the current component and native default untouched', () => {
-  const page = component(n => div(n))
+  const page = observe(n => div(n))
   const host = mount(div(a({ href: '/elsewhere', onclick: () => page(1) }, 'link'), page(0)))
   const initial = location.href
   let prevented
@@ -430,7 +430,7 @@ test('a document base target keeps continuation links native', () => {
   const base = document.createElement('base')
   base.target = '_blank'
   document.head.append(base)
-  const page = component(n => div(n))
+  const page = observe(n => div(n))
   const host = mount(div(a({ href: '/native', onclick: () => page(1) }, 'link'), page(0)))
   let prevented
   window.addEventListener('click', event => {
@@ -466,9 +466,9 @@ test('the demo Markdown helper renders independent prose and leaves HTML inert',
 
 // Document mounting runs last so it can exercise the actual head/body nodes.
 test('document roots update the actual root and support head/body shortcuts', () => {
-  const view = name => html({ lang: name }, head(title(name)), body(div(name)))
-  render(view('first'))
-  render(view('second'))
+  const describeState = name => html({ lang: name }, head(title(name)), body(div(name)))
+  render(describeState('first'))
+  render(describeState('second'))
   equal(document.documentElement.lang, 'second')
   equal(document.head.getAttribute('lang'), null)
   equal(document.title, 'second')
@@ -481,7 +481,7 @@ test('document roots update the actual root and support head/body shortcuts', ()
 
 test('document adoption rebinds retained handlers without resetting inputs or child origins', () => {
   let next
-  const child = component(() => button({ onclick: () => span('local') }, 'child'))
+  const child = observe(() => button({ onclick: () => span('local') }, 'child'))
   const source = child()
   const field = input()
   const control = button({ onclick: () => next }, 'next')
@@ -538,15 +538,17 @@ test('the demo navigates and its counters and todos continue through events', as
 
   document.querySelector('a[href="/writing"]').click()
   equal(location.pathname, '/writing')
-  equal(document.querySelector('.markdown h2').textContent, 'Writing with Elements')
-  assert(document.querySelector('.markdown pre code').textContent.includes('A small idea'))
+  equal(document.querySelector('.markdown h2').textContent,
+        'A component as a recursive state observer')
+  assert(document.querySelector('.markdown pre code').textContent.includes('const describe = count'))
   assert(document.querySelector('.markdown').textContent.includes('examples/content/introduction.md'))
   assert(document.querySelector('a[href="/writing"]').classList.contains('active'))
   await traverse(-1)
   equal(location.pathname, '/scope')
   equal(counters(), ['0', '0'])
   await traverse(1)
-  equal(document.querySelector('.markdown h2').textContent, 'Writing with Elements')
+  equal(document.querySelector('.markdown h2').textContent,
+        'A component as a recursive state observer')
 })
 
 test('the ontick demo carries frame state, waits for readiness and stops on navigation', () => {

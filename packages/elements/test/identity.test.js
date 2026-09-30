@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { button, component, div, elements, input, li, render, span,
+import { button, observe, div, elements, input, li, render, span,
          textarea, ul } from '../elements.js'
 import { createFakeDom } from './fake-dom.js'
 
@@ -43,8 +43,8 @@ test('retained row references carry their DOM and edited inputs through reorderi
 })
 
 test('component definitions carry row DOM through fresh calls and reordering', () => {
-  const alice = component(() => row('Alice'))
-  const bob = component(() => row('Bob'))
+  const alice = observe(() => row('Alice'))
+  const bob = observe(() => row('Bob'))
   const host = mount(ul(alice(), bob()))
   const list = host.firstChild
   const [aliceNode, bobNode] = list.childNodes
@@ -65,9 +65,9 @@ test('component definitions carry row DOM through fresh calls and reordering', (
 })
 
 test('component insertion and replacement preserve the other definitions', () => {
-  const alice = component(() => row('Alice'))
-  const bob = component(() => row('Bob'))
-  const carol = component(() => row('Carol'))
+  const alice = observe(() => row('Alice'))
+  const bob = observe(() => row('Bob'))
+  const carol = observe(() => row('Carol'))
   const host = mount(ul(bob()))
   const bobNode = host.firstChild.firstChild
   bobNode.lastChild.value = 'Bob draft'
@@ -83,7 +83,7 @@ test('component insertion and replacement preserve the other definitions', () =>
 })
 
 test('retained references distinguish projections of the same component during reordering', () => {
-  const person = component(() => row('Shared'))
+  const person = observe(() => row('Shared'))
   const left = person(), right = person()
   const host = mount(ul(left, right))
   const [leftNode, rightNode] = host.firstChild.childNodes
@@ -98,8 +98,8 @@ test('retained references distinguish projections of the same component during r
 })
 
 test('fresh repeated projections remain positional rather than borrowing origin identity', () => {
-  const shared = component(() => row('Shared'))
-  const other = component(() => row('Other'))
+  const shared = observe(() => row('Shared'))
+  const other = observe(() => row('Other'))
   const host = mount(ul(shared(), shared(), other()))
   const [first, second, third] = host.firstChild.childNodes
   second.lastChild.value = 'second draft'
@@ -113,7 +113,7 @@ test('fresh repeated projections remain positional rather than borrowing origin 
 })
 
 test('a newly duplicated origin does not arbitrarily move the previous projection', () => {
-  const shared = component(() => row('Shared'))
+  const shared = observe(() => row('Shared'))
   const host = mount(ul(span('before'), shared()))
   const original = host.firstChild.lastChild
   original.lastChild.value = 'retained draft'
@@ -125,7 +125,7 @@ test('a newly duplicated origin does not arbitrarily move the previous projectio
 })
 
 test('explicit keys still distinguish fresh projections and can request replacement', () => {
-  const shared = component(key => li({ key }, input()))
+  const shared = observe(key => li({ key }, input()))
   const host = mount(ul(shared('left'), shared('right')))
   const [left, right] = host.firstChild.childNodes
   render(ul(shared('right'), shared('left')), host)
@@ -139,8 +139,8 @@ test('explicit keys still distinguish fresh projections and can request replacem
 })
 
 test('component fragment ranges move as a unit through fresh calls', () => {
-  const alice = component(() => elements.fragment(span('Alice'), input()))
-  const bob = component(() => elements.fragment(span('Bob'), input()))
+  const alice = observe(() => elements.fragment(span('Alice'), input()))
+  const bob = observe(() => elements.fragment(span('Bob'), input()))
   const host = mount(div(alice(), bob()))
   const nodes = Array.from(host.firstChild.childNodes)
   nodes[2].value = 'Alice draft'
@@ -155,7 +155,7 @@ test('component fragment ranges move as a unit through fresh calls', () => {
 test('retained graph-style continuations select one origin across separate projections', () => {
   // An adapter retains one component per origin and one vnode per observation.
   // Event callbacks select existing values; they never reconstruct the graph.
-  const observer = component(observation => observation)
+  const observer = observe(observation => observation)
   const a = Object.freeze(observer(div(span('A'), input(), button({ onclick: () => b }, 'next'))))
   const b = Object.freeze(observer(div(span('B'), input(), button({ onclick: () => a }, 'next'))))
   const host = mount(div(a, a))

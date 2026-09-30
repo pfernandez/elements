@@ -59,8 +59,9 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * A component vnode return selects that definition's observation in every
- * projection. A plain vnode updates the event's nearest component origin.
+ * Returning a component observation selects its next state and updates every
+ * mounted projection of that definition. A plain vnode updates the event's
+ * nearest component boundary.
  * Component calls only construct values; events select their continuations.
  * Passive synchronous values do not cancel native behavior. Returning a vnode
  * or Promise claims form submission/link navigation before dispatch completes;

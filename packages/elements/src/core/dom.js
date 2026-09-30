@@ -1,5 +1,5 @@
 import { assignProperties, removeMissingProps } from './props.js'
-import { createOrigin, observe, present, resume, sourceOf, subscribe } from './component.js'
+import { createOrigin, select, present, resume, sourceOf, subscribe } from './component.js'
 import { matchChildren } from './reconcile.js'
 import { stopTickLoop } from './tick.js'
 import { validateProps } from './attributes.js'
@@ -12,7 +12,7 @@ const roots = new WeakMap()
 const documentSlots = new WeakMap()
 
 /** @typedef {{ source: any, parent: any, namespace: any, owner: any,
- * node?: any, end?: any, children?: Mount[], view?: Mount,
+ * node?: any, end?: any, children?: Mount[], projection?: Mount,
  * origin?: any, unsubscribe?: () => void, adopted?: any }} Mount */
 
 const tagOf = value => Array.isArray(value) ? value[0] : null
@@ -32,10 +32,12 @@ const containerNamespace = node =>
   childNamespace(node.localName || node.tagName.toLowerCase(),
                  { encoding: node.getAttribute('encoding') },
                  [svgNS, mathNS].includes(node.namespaceURI) ? node.namespaceURI : null)
-const firstNode = record => record.view ? firstNode(record.view) : record.node
-const lastNode = record => record.view ? lastNode(record.view) : record.end || record.node
+const firstNode = record =>
+  record.projection ? firstNode(record.projection) : record.node
+const lastNode = record =>
+  record.projection ? lastNode(record.projection) : record.end || record.node
 const nodesOf = record =>
-  record.view ? nodesOf(record.view)
+  record.projection ? nodesOf(record.projection)
     : record.end ? [record.node, ...record.children.flatMap(nodesOf), record.end]
       : [record.node]
 
@@ -47,12 +49,12 @@ const release = record => {
   record.unsubscribe?.()
   record.adopted && documentSlots.get(record.adopted) === record
     && documentSlots.delete(record.adopted)
-  record.view ? release(record.view)
+  record.projection ? release(record.projection)
     : (stopTickLoop(record.node), record.children?.forEach(release))
 }
 
 const removeNodes = record =>
-  record.view ? removeNodes(record.view)
+  record.projection ? removeNodes(record.projection)
     : record.adopted ? record.children.forEach(removeNodes)
       : nodesOf(record).forEach(node => node.parentNode?.removeChild(node))
 
@@ -84,10 +86,10 @@ const afterChildrenProps = (node, tag, props, owner) =>
 const mountBoundary = (source, origin, parent, namespace, before, adopted = null,
                        owner = origin) => {
   const record = { source, origin, parent, namespace, owner,
-                   view: null, unsubscribe: null, adopted }
-  record.view = mount(origin.current, parent, namespace, owner, before, adopted)
+                   projection: null, unsubscribe: null, adopted }
+  record.projection = mount(origin.current, parent, namespace, owner, before, adopted)
   const notify = next => {
-    record.view = patch(record.view, next, record.owner)
+    record.projection = patch(record.projection, next, record.owner)
   }
   record.unsubscribe = subscribe(origin, notify, document)
   return record
@@ -98,8 +100,8 @@ const mountBoundary = (source, origin, parent, namespace, before, adopted = null
 const updateBoundary = (record, source, owner) => {
   const changedOwner = record.owner !== owner
   record.owner = owner
-  record.origin.current !== source ? observe(record.origin, source)
-    : changedOwner && (record.view = patch(record.view, source, owner))
+  record.origin.current !== source ? select(record.origin, source)
+    : changedOwner && (record.projection = patch(record.projection, source, owner))
   record.source = source
   return record
 }
@@ -271,7 +273,7 @@ export const render = (vnode, container = null, { replace: fresh = false } = {})
     fresh && clearChildren(container)
     const record = previous && !fresh ? previous
       : mountBoundary(vnode, createOrigin(vnode), container, containerNamespace(container), null)
-    previous && !fresh && observe(record.origin, vnode)
+    previous && !fresh && select(record.origin, vnode)
     roots.set(container, record)
   }
 }

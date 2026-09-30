@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { body, button, component, div, elements, head, html, input,
+import { body, button, observe, div, elements, head, html, input,
          output, render, span, title, toHtmlString } from '../elements.js'
 import { createFakeDom } from './fake-dom.js'
 import { annotationXml, math } from '../mathml.js'
@@ -20,7 +20,7 @@ const mount = vnode => {
 }
 const click = node => node.onclick({})
 const createCounter = () => {
-  const counter = component((n = 0) =>
+  const counter = observe((n = 0) =>
     button({ onclick: () => counter(n + 1) }, n))
   return counter
 }
@@ -43,7 +43,7 @@ test('separate component definitions establish independent origins', () => {
 })
 
 test('recursive functions can compute a vnode before mounting', () => {
-  const fibonacci = component((steps, a = 0, b = 1) =>
+  const fibonacci = observe((steps, a = 0, b = 1) =>
     steps > 0 ? fibonacci(steps - 1, b, a + b) : div(a))
   assert.equal(mount(fibonacci(6)).textContent, '8')
   assert.equal(mount(fibonacci(3)).textContent, '2')
@@ -71,8 +71,8 @@ test('one origin fans out to duplicate siblings and multiple containers', () => 
 
 test('equal observations from different origins do not couple evolution', () => {
   const observation = button({ onclick: () => span('next') }, 'start')
-  const left = mount(component(() => observation)())
-  const right = mount(component(() => observation)())
+  const left = mount(observe(() => observation)())
+  const right = mount(observe(() => observation)())
   click(left.firstChild)
   assert.equal(left.textContent, 'next')
   assert.equal(right.textContent, 'start')
@@ -80,8 +80,8 @@ test('equal observations from different origins do not couple evolution', () => 
 })
 
 test('a child can return a parent continuation without replacing itself', () => {
-  const child = component(next => button({ onclick: next }, 'advance'))
-  const parent = component((n = 0) =>
+  const child = observe(next => button({ onclick: next }, 'advance'))
+  const parent = observe((n = 0) =>
     div(output(n), child(() => parent(n + 1))))
   const host = mount(parent())
   const root = host.firstChild
@@ -97,7 +97,7 @@ test('a child can return a parent continuation without replacing itself', () => 
 
 test('parent rerenders preserve referenced children and can explicitly reset them', () => {
   const child = counter()
-  const parent = component((n = 0, selected = child) =>
+  const parent = observe((n = 0, selected = child) =>
     div(output(n), selected,
         button({ onclick: () => parent(n + 1, selected) }, 'parent'),
         button({ onclick: () => parent(n, counter()) }, 'reset')))
@@ -115,7 +115,7 @@ test('parent rerenders preserve referenced children and can explicitly reset the
 })
 
 test('plain nested updates diff against current observations after replacement', () => {
-  const child = component(() =>
+  const child = observe(() =>
     button({ onclick: () => span('local') }, 'initial'))
   const value = child()
   const host = mount(div(value, 'before'))
@@ -129,7 +129,7 @@ test('plain nested updates diff against current observations after replacement',
 test('finite preauthored observations cycle without rewriting source values', () => {
   const a = Object.freeze(button({ onclick: () => b }, 'A'))
   const b = Object.freeze(button({ onclick: () => a }, 'B'))
-  const origin = component(() => a)()
+  const origin = observe(() => a)()
   const host = mount(origin), other = mount(origin)
   Array.from({ length: 12 }, (_, index) => {
     click(host.firstChild)
@@ -142,9 +142,9 @@ test('finite preauthored observations cycle without rewriting source values', ()
 
 test('out-of-band component calls only construct values; render applies them explicitly', async () => {
   const wait = deferred()
-  const view = component((n = 0) => div(n))
-  const later = async () => { await wait.promise; return view(8) }
-  const source = view()
+  const describeState = observe((n = 0) => div(n))
+  const later = async () => { await wait.promise; return describeState(8) }
+  const source = describeState()
   const host = mount(source), other = mount(source)
   const pending = later()
   wait.resolve()
@@ -159,9 +159,9 @@ test('out-of-band component calls only construct values; render applies them exp
 test('overlapping asynchronous events retain their independent event origins', async () => {
   const first = deferred(), second = deferred()
   const create = wait => {
-    const view = component((n = 0) =>
-      button({ onclick: async () => { await wait.promise; return view(n + 1) } }, n))
-    return view
+    const describeState = observe((n = 0) =>
+      button({ onclick: async () => { await wait.promise; return describeState(n + 1) } }, n))
+    return describeState
   }
   const a = mount(create(first)()), b = mount(create(second)(10))
   const pa = click(a.firstChild), pb = click(b.firstChild)
@@ -178,12 +178,12 @@ test('overlapping asynchronous events retain their independent event origins', a
 
 test('constructing a future component value does not update before the event returns it', async () => {
   const wait = deferred()
-  const view = component((n = 0) => button({ onclick: async () => {
-    const next = view(n + 1)
+  const describeState = observe((n = 0) => button({ onclick: async () => {
+    const next = describeState(n + 1)
     await wait.promise
     return next
   } }, n))
-  const source = view()
+  const source = describeState()
   const host = mount(source), shared = mount(source)
   const pending = click(host.firstChild)
   assert.equal(host.textContent, '0')
@@ -196,15 +196,15 @@ test('constructing a future component value does not update before the event ret
 })
 
 test('a component value discarded by an event does not update its origin', () => {
-  const view = component((n = 0) => button({ onclick: () => { view(n + 1) } }, n))
-  const host = mount(view())
+  const describeState = observe((n = 0) => button({ onclick: () => { describeState(n + 1) } }, n))
+  const host = mount(describeState())
   click(host.firstChild)
   assert.equal(host.textContent, '0')
 })
 
 test('pending plain results target their captured origin, even after removal', async () => {
   const wait = deferred()
-  const source = component(() =>
+  const source = observe(() =>
     button({ onclick: () => wait.promise }, 'pending'))()
   const left = mount(source), right = mount(source)
   const pending = click(left.firstChild)
@@ -216,16 +216,16 @@ test('pending plain results target their captured origin, even after removal', a
 })
 
 test('component and event failures propagate and do not poison later updates', async () => {
-  assert.throws(() => component(() => null)(), /vnode array/)
-  assert.throws(() => component(() => () => div())(), /vnode array/)
-  const view = component((n = 0) => {
+  assert.throws(() => observe(() => null)(), /vnode array/)
+  assert.throws(() => observe(() => () => div())(), /vnode array/)
+  const describeState = observe((n = 0) => {
     if (n < 0) throw new Error('invalid state')
     return div(output(n),
-      button({ onclick: () => view(-1) }, 'throw'),
+      button({ onclick: () => describeState(-1) }, 'throw'),
       button({ onclick: async () => { throw new Error('rejected') } }, 'reject'),
-      button({ onclick: () => view(n + 1) }, 'next'))
+      button({ onclick: () => describeState(n + 1) }, 'next'))
   })
-  const host = mount(view())
+  const host = mount(describeState())
   assert.throws(() => click(host.firstChild.childNodes[1]), /invalid state/)
   await assert.rejects(click(host.firstChild.childNodes[2]), /rejected/)
   click(host.firstChild.childNodes[3])
@@ -250,10 +250,10 @@ test('fragment ranges reconcile, move, replace, and detach together', () => {
   assert.equal(host.childNodes.length, 1)
 })
 
-test('components can observe fragment ranges and empty values', () => {
-  const view = component((n = 0) =>
-    elements.fragment(output(n), button({ onclick: () => view(n + 1) }, 'next')))
-  const host = mount(view())
+test('components can describeState fragment ranges and empty values', () => {
+  const describeState = observe((n = 0) =>
+    elements.fragment(output(n), button({ onclick: () => describeState(n + 1) }, 'next')))
+  const host = mount(describeState())
   click(host.childNodes[2])
   assert.equal(host.textContent, '1next')
   render(elements.fragment(), host)
@@ -289,8 +289,8 @@ test('unchanged input props retain native editing across parent updates', () => 
 })
 
 test('preconstructed continuations cycle across every projection of their definition', () => {
-  const view = component(n => button({ onclick: () => n ? zero : one }, n))
-  const zero = Object.freeze(view(0)), one = Object.freeze(view(1))
+  const describeState = observe(n => button({ onclick: () => n ? zero : one }, n))
+  const zero = Object.freeze(describeState(0)), one = Object.freeze(describeState(1))
   const host = mount(zero), shared = mount(zero)
   click(host.firstChild)
   assert.equal(host.textContent, '1')
@@ -316,7 +316,7 @@ test('fresh calls of one definition share identity but remain inert until select
 
 test('a sidebar selects a precomputed sibling continuation, leaving itself alone', () => {
   const reset = counter(0)
-  const sidebar = component(() => button({ onclick: () => reset }, 'reset'))
+  const sidebar = observe(() => button({ onclick: () => reset }, 'reset'))
   const host = mount(div(sidebar(), counter(10), counter(10)))
   const side = host.firstChild.firstChild
   click(host.firstChild.childNodes[1])
@@ -328,7 +328,7 @@ test('a sidebar selects a precomputed sibling continuation, leaving itself alone
 
 test('an original component snapshot can be selected again without nesting itself', () => {
   const second = button({ onclick: () => original }, 'B')
-  const original = component(() => button({ onclick: () => second }, 'A'))()
+  const original = observe(() => button({ onclick: () => second }, 'A'))()
   const host = mount(original)
   Array.from({ length: 8 }, (_, index) => {
     click(host.firstChild)
@@ -338,7 +338,7 @@ test('an original component snapshot can be selected again without nesting itsel
 
 test('document adoption can switch between plain and component-authored pages', () => {
   render(html(head(title('plain')), body('plain')))
-  const page = component((n = 0) =>
+  const page = observe((n = 0) =>
     html(head(title(String(n))), body(button({ onclick: () => page(n + 1) }, n))))
   render(page())
   click(document.body.firstChild)
@@ -350,9 +350,9 @@ test('document adoption can switch between plain and component-authored pages', 
 })
 
 test('replacing a wrapper with its child can select a new root tag safely', () => {
-  const child = component(tag => tag('child'))
-  const wrapper = component(() => child(div))
-  const app = component((direct = false) =>
+  const child = observe(tag => tag('child'))
+  const wrapper = observe(() => child(div))
+  const app = observe((direct = false) =>
     div(button({ onclick: () => app(true) }, 'switch'),
         direct ? child(span) : wrapper()))
   const host = mount(app())
@@ -367,11 +367,11 @@ test('replacing a wrapper with its child can select a new root tag safely', () =
 })
 
 test('namespace replacement can select a new component root without retaining old subscriptions', () => {
-  const child = component(tag => tag('child'))
-  const view = (encoding, value) => math(annotationXml({ encoding }, value))
-  const host = mount(view('text/html', child(div)))
+  const child = observe(tag => tag('child'))
+  const describeState = (encoding, value) => math(annotationXml({ encoding }, value))
+  const host = mount(describeState('text/html', child(div)))
   const other = mount(child(div))
-  render(view('application/xml', child(span)), host)
+  render(describeState('application/xml', child(span)), host)
   const parent = host.firstChild.firstChild
   assert.equal(parent.firstChild.tagName, 'SPAN')
   assert.equal(parent.firstChild.namespaceURI, 'http://www.w3.org/1998/Math/MathML')
@@ -409,7 +409,7 @@ test('document adoption updates event ownership even for retained markup and han
 })
 
 test('document ownership changes leave nested component events local', () => {
-  const child = component(() => button({ onclick: () => span('local') }, 'child'))
+  const child = observe(() => button({ onclick: () => span('local') }, 'child'))
   const source = child()
   render(body(source))
   render(html(head(title('page')), body(source)))

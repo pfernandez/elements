@@ -1,8 +1,8 @@
-import { button, component, div, output }
+import { button, observe, div, output }
   from '@pfern/elements'
 
 export const createCounter = () => {
-  const counter = component((count = 0) =>
+  const counter = observe((count = 0) =>
     div(
       output(count),
       button({ onclick: () => counter(count + 1) },

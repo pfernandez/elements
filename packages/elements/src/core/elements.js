@@ -2,7 +2,7 @@
 import { htmlTagNames, svgTagNames } from './tags.js'
 
 export * from './types.js'
-export { component } from './component.js'
+export { observe } from './component.js'
 export { render } from './dom.js'
 
 export const DEBUG =

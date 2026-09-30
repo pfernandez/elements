@@ -7,17 +7,18 @@
 export { DEBUG } from './core/elements.js'
 
 /**
- * Define a recursive component using `component((...args) => vnode)`.
+ * Create a state observer with a stable identity using `observe(describe)`.
  *
- * Calls construct values without updating the DOM. Returning one from an event
- * updates that component wherever it is rendered. Use separate component
+ * The observer describes a state and its event handlers as a vnode. Calls
+ * construct observations; returning one from an event selects the next state
+ * and updates that component wherever it is rendered. Use separate component
  * definitions for independent state. Source arrays remain unchanged.
  *
  * @example
- * const counter = component((n = 0) =>
+ * const counter = observe((n = 0) =>
  *   button({ onclick: () => counter(n + 1) }, n))
  */
-export { component } from './core/elements.js'
+export { observe } from './core/elements.js'
 
 /**
  * A map of all HTML/SVG tag helpers (plus `fragment`).
