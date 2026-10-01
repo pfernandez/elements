@@ -8,7 +8,7 @@ necessary imperative DOM boundary with care.
 
 - **Single page-load mount:** typical apps call `render()` once at startup.
 - **Declarative updates via events:** observer calls are pure; returned
-  observer vnodes select their definition's observation across all projections.
+  observer vnodes select their identity's observation across all projections.
   Plain vnode returns patch the closest observer boundary. Independent state
   requires separate observer definitions.
 - **Links select continuations:** an eligible same-origin link's vnode return
@@ -26,6 +26,10 @@ necessary imperative DOM boundary with care.
 ### Code Style
 
 - Prefer **small, pure helpers** with clear names.
+- Build element vocabularies on the shared `element(tag)` constructor; do not
+  duplicate vnode construction or child-normalization logic.
+- HTML, SVG, and MathML helper modules are generated from `src/vocabularies/`;
+  edit the metadata and regenerate rather than editing generated helpers.
 - Prefer **expressions over statements** (arrow functions without braces where
   reasonable).
 - Prefer **one return** at the end when using blocks; avoid blocks when

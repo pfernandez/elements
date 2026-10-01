@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { element } from '@pfern/elements'
 
 const loadX3DOMModule = () =>
   import(
@@ -10,7 +11,7 @@ const loadX3DOMModule = () =>
 test(
   'withX3DOM does not throw when window+document exist in Node',
   async () => {
-  const { createTagHelper, withX3DOM } = await loadX3DOMModule()
+  const { withX3DOM } = await loadX3DOMModule()
   const prevWindow = globalThis.window
   const prevDocument = globalThis.document
   const prevX3dom = globalThis.x3dom
@@ -43,7 +44,7 @@ test(
 
   globalThis.x3dom = null
 
-  const x3d = withX3DOM('x3d', createTagHelper('x3d'))
+  const x3d = withX3DOM('x3d', element('x3d'))
   assert.deepEqual(x3d({ id: 'x' }), ['x3d', { id: 'x' }])
 
   // Allow the async loader to attempt imports and fall back to URL loading.
@@ -63,7 +64,7 @@ test(
 test(
   'withX3DOM loads x3dom-full (and never core)',
   async () => {
-  const { createTagHelper, withX3DOM } = await loadX3DOMModule()
+  const { withX3DOM } = await loadX3DOMModule()
   const prevWindow = globalThis.window
   const prevDocument = globalThis.document
   const prevX3dom = globalThis.x3dom
@@ -100,7 +101,7 @@ test(
 
   globalThis.x3dom = null
 
-  const arc2d = withX3DOM('arc2d', createTagHelper('arc2d'))
+  const arc2d = withX3DOM('arc2d', element('arc2d'))
   assert.deepEqual(arc2d({ id: 'x' }), ['arc2d', { id: 'x' }])
 
   await new Promise(resolve => setTimeout(resolve, 0))
@@ -124,7 +125,7 @@ test(
 test(
   'withX3DOM is a no-op when document is missing (SSR)',
   async () => {
-  const { createTagHelper, withX3DOM } = await loadX3DOMModule()
+  const { withX3DOM } = await loadX3DOMModule()
   const prevWindow = globalThis.window
   const prevDocument = globalThis.document
   const prevX3dom = globalThis.x3dom
@@ -133,7 +134,7 @@ test(
   globalThis.document = undefined
   globalThis.x3dom = undefined
 
-  const x3d = withX3DOM('x3d', createTagHelper('x3d'))
+  const x3d = withX3DOM('x3d', element('x3d'))
   assert.deepEqual(x3d({ id: 'x' }), ['x3d', { id: 'x' }])
 
   await new Promise(resolve => setTimeout(resolve, 0))

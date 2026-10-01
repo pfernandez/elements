@@ -44,6 +44,10 @@ test('3d.js exports helpers for every concrete x3dom node', () => {
   // <x3d> is not in registerNodeType.
   assert.equal(typeof x3d.x3d, 'function')
   assert.equal(x3d.x3d({})[0], 'x3d')
+  assert.deepEqual(
+    x3d.x3d([x3d.shape(), x3d.shape()]).slice(2).map(vnode => vnode[0]),
+    ['shape', 'shape']
+  )
 
   for (const name of byName.keys()) {
     if (name.startsWith('X3D')) continue

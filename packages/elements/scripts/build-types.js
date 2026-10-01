@@ -16,5 +16,6 @@ const runTsc = () => {
   if (result.status) process.exit(result.status)
 }
 
+run(['scripts/generate-vocabularies.js'])
 run(['scripts/clean-types.js'])
 runTsc()

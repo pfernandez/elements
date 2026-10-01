@@ -1,6 +1,6 @@
 {
   "name": "@pfern/elements-x3dom",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "X3DOM-powered X3D helpers for Elements.js.",
   "author": "Paul Fernandez",
   "license": "MIT",
@@ -32,12 +32,21 @@
     "test:coverage": "node scripts/test-coverage.js"
   },
   "peerDependencies": {
-    "@pfern/elements": "*"
+    "@pfern/elements": "^0.3.0"
   },
   "keywords": [
     "x3d",
     "x3dom",
     "3d",
     "elements"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pfernandez/elements.git",
+    "directory": "packages/elements-x3dom"
+  },
+  "homepage": "https://pfernandez.github.io/elements/",
+  "bugs": {
+    "url": "https://github.com/pfernandez/elements/issues"
+  }
 }

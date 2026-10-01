@@ -177,24 +177,6 @@ const ensureX3DOMForTag = async tag => {
   }
 }
 
-const isPropsObject = x =>
-  typeof x === 'object'
-  && x !== null
-  && !Array.isArray(x)
-  && !(typeof Node !== 'undefined' && x instanceof Node)
-
-export const createTagHelper = tag => (...args) => {
-  const hasFirstArg = args.length > 0
-  const [propsOrChild, ...children] = args
-  const props = hasFirstArg && isPropsObject(propsOrChild) ? propsOrChild : {}
-  const actualChildren = !hasFirstArg
-    ? []
-    : props === propsOrChild
-      ? children
-      : [propsOrChild, ...children]
-  return [tag, props, ...actualChildren]
-}
-
 export const withX3DOM = (tag, fn) => (...args) => {
   // Fire-and-forget: we want vnode creation to stay synchronous.
   // X3DOM will (re)parse after load via reloadX3DOM().

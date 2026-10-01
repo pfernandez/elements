@@ -18,7 +18,7 @@ const link = (path, label, active) =>
       class: active ? 'active' : '' }, label)
 
 const navbar = path =>
-  nav(...routes.map(([route, label]) => link(route, label, path === route)))
+  nav(routes.map(([route, label]) => link(route, label, path === route)))
 
 const home = () =>
   section(

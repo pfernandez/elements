@@ -9,7 +9,7 @@ const svgNS = 'http://www.w3.org/2000/svg'
 
 describe('MathML helpers + runtime', () => {
   test('tag helpers return vnodes', () => {
-    assert.deepEqual(apply({ id: 'x' }, ci('f'), ci('y')), [
+    assert.deepEqual(apply({ id: 'x' }, [ci('f'), ci('y')]), [
       'apply',
       { id: 'x' },
       ['ci', {}, 'f'],

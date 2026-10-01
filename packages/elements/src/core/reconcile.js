@@ -4,8 +4,8 @@ const keyOf = vnode =>
   Array.isArray(vnode) && vnode[1]?.key != null
     ? String(vnode[1].key) : null
 
-const originOf = vnode =>
-  keyOf(vnode) == null ? sourceOf(vnode)?.origin : null
+const identityOf = vnode =>
+  keyOf(vnode) == null ? sourceOf(vnode)?.identity : null
 
 const uniqueIndex = values => {
   const indices = new Map()
@@ -14,16 +14,16 @@ const uniqueIndex = values => {
   return indices
 }
 
-// Match references, explicit keys, unique unkeyed origins, then positions.
-// An origin shared by siblings cannot identify their individual projections;
+// Match references, explicit keys, unique unkeyed identities, then positions.
+// An identity shared by siblings cannot identify their individual projections;
 // retained references distinguish them, otherwise they stay positional.
 // The maps and used set are local scratch space; inputs remain untouched.
 export const matchChildren = (previous, next) => {
   const references = uniqueIndex(previous)
   const keys = uniqueIndex(previous.map(keyOf))
-  const origins = uniqueIndex(previous.map(originOf))
-  const nextOrigins = next.map(originOf)
-  const uniqueOrigins = uniqueIndex(nextOrigins)
+  const identities = uniqueIndex(previous.map(identityOf))
+  const nextIdentities = next.map(identityOf)
+  const uniqueIdentities = uniqueIndex(nextIdentities)
   const used = new Set()
   const claim = index =>
     index == null || index < 0 || used.has(index)
@@ -32,12 +32,12 @@ export const matchChildren = (previous, next) => {
     Array.isArray(value) ? claim(references.get(value)) : -1)
   const keysMatched = referencesMatched.map((index, position) =>
     index !== -1 ? index : claim(keys.get(keyOf(next[position]))))
-  const originsMatched = keysMatched.map((index, position) =>
+  const identitiesMatched = keysMatched.map((index, position) =>
     index !== -1 ? index
-      : uniqueOrigins.get(nextOrigins[position]) === position
-        ? claim(origins.get(nextOrigins[position])) : -1)
+      : uniqueIdentities.get(nextIdentities[position]) === position
+        ? claim(identities.get(nextIdentities[position])) : -1)
 
-  return originsMatched.map((index, position) =>
+  return identitiesMatched.map((index, position) =>
     index !== -1 ? index
       : position < previous.length
         && keyOf(previous[position]) == null && keyOf(next[position]) == null

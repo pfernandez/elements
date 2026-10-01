@@ -32,7 +32,7 @@ const deferred = () => {
   return { promise, resolve }
 }
 
-test('separate observer definitions establish independent origins', () => {
+test('separate observer definitions establish independent identities', () => {
   const counter2 = createCounter()
   const first = mount(counter())
   const second = mount(counter2(10))
@@ -49,7 +49,7 @@ test('recursive functions can compute a vnode before mounting', () => {
   assert.equal(mount(fibonacci(3)).textContent, '2')
 })
 
-test('one origin fans out to duplicate siblings and multiple containers', () => {
+test('one identity fans out to duplicate siblings and multiple containers', () => {
   const source = counter()
   const host = mount(div(source, source))
   const other = mount(source)
@@ -69,7 +69,7 @@ test('one origin fans out to duplicate siblings and multiple containers', () => 
   assert.equal(mount(source).textContent, '3')
 })
 
-test('equal observations from different origins do not couple evolution', () => {
+test('equal observations from different identities do not couple evolution', () => {
   const observation = button({ onclick: () => span('next') }, 'start')
   const left = mount(observe(() => observation)())
   const right = mount(observe(() => observation)())
@@ -129,8 +129,8 @@ test('plain nested updates diff against current observations after replacement',
 test('finite preauthored observations cycle without rewriting source values', () => {
   const a = Object.freeze(button({ onclick: () => b }, 'A'))
   const b = Object.freeze(button({ onclick: () => a }, 'B'))
-  const origin = observe(() => a)()
-  const host = mount(origin), other = mount(origin)
+  const identity = observe(() => a)()
+  const host = mount(identity), other = mount(identity)
   Array.from({ length: 12 }, (_, index) => {
     click(host.firstChild)
     assert.equal(host.textContent, index % 2 ? 'A' : 'B')
@@ -156,7 +156,7 @@ test('out-of-band observer calls only construct values; render applies them expl
   assert.equal(other.textContent, '8')
 })
 
-test('overlapping asynchronous events retain their independent event origins', async () => {
+test('overlapping asynchronous events retain their independent event identities', async () => {
   const first = deferred(), second = deferred()
   const create = wait => {
     const describeState = observe((n = 0) =>
@@ -195,14 +195,14 @@ test('constructing a future observer value does not update before the event retu
   assert.equal(shared.textContent, '1')
 })
 
-test('an observer value discarded by an event does not update its origin', () => {
+test('an observer value discarded by an event does not update its identity', () => {
   const describeState = observe((n = 0) => button({ onclick: () => { describeState(n + 1) } }, n))
   const host = mount(describeState())
   click(host.firstChild)
   assert.equal(host.textContent, '0')
 })
 
-test('pending plain results target their captured origin, even after removal', async () => {
+test('pending plain results target their captured identity, even after removal', async () => {
   const wait = deferred()
   const source = observe(() =>
     button({ onclick: () => wait.promise }, 'pending'))()

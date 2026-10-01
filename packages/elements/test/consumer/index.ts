@@ -1,4 +1,6 @@
-import { button, observe, div, input, render } from '@pfern/elements'
+import { element, observe, render } from '@pfern/elements'
+import { button, div, input } from '@pfern/elements/html'
+import { circle, svg } from '@pfern/elements/svg'
 import { math, mi } from '@pfern/elements/mathml'
 import { box, scene, x3d, type BoxProps, type X3DNode } from '@pfern/elements-x3dom'
 
@@ -18,7 +20,9 @@ label('not a number')
 
 const props: BoxProps = { size: '1 1 1' }
 const node: X3DNode = box(props)
-render(div(counter(), math(mi('x')), x3d(scene(node)),
+const custom = element('custom-element')('custom')
+const drawing = svg(circle({ r: 5 }))
+render(div(counter(), custom, drawing, math(mi('x')), x3d(scene(node)),
            input({ style: 'color: red', oninput: ({ value }) => div(value) }),
            input({ type: 'checkbox', onchange: ({ checked }) => div(String(checked)) })),
        document.body)
