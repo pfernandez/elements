@@ -1,6 +1,6 @@
 import { body, h1, head, header, html, meta,
          render, title } from '@pfern/elements'
-import { app } from './components/app.js'
+import { app } from './views/app.js'
 import './css/style.css'
 
 render(

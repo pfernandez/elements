@@ -2,8 +2,6 @@
 
 # @pfern/elements
 
-Describe a state. Return the next observation. Let the DOM follow.
-
 Elements.js is a small functional UI library for JavaScript. Ordinary functions
 build the interface, and event handlers return what comes next. No JSX or hooks
 are needed.
@@ -39,7 +37,8 @@ subsequent transitions.
 A **view** is a pure function that takes state as arguments and returns an
 **observation**: a description of the interface, including the event handlers
 available in that state. `observe(view)` gives the view a stable identity. The
-resulting **state observer** is what we call a component.
+resulting function is a **state observer**. It fills a role similar to a React
+or Web component: an identifiable part of an interface with its own behavior.
 
 In the counter above:
 
@@ -48,11 +47,11 @@ In the counter above:
 - `() => counter(count + 1)` describes how to continue after a click.
 - `observe` gives these successive observations one stable identity.
 
-The observer is recursive: its handlers can call the same component with new
+Here, the observer is recursive: its handlers can call the same observer with new
 arguments. Each event continues the calculation. You can write this using
 ordinary functions and closures; there is no separate state setter.
 
-Calling a component only constructs an observation. **Returning it from an
+Calling an observer only constructs an observation. **Returning it from an
 event handler selects it.** This distinction matters:
 
 ```js
@@ -60,8 +59,8 @@ onclick: () => counter(10)       // Select the counter at ten.
 onclick: () => { counter(10) }   // Construct a value, then discard it.
 ```
 
-A handler can also return another component's observation, so a child or sibling
-can select the next state of a different component.
+A handler can also return another observer's observation, so a child or sibling
+can select the next state of a different observer.
 
 ## Descriptions are data
 
@@ -81,13 +80,27 @@ div(
   button({ onclick: () => counter(0) }, 'Reset counter'))
 ```
 
-A component adds identity to a description. Elements keeps its current
-observation and updates the DOM wherever that component is mounted. Each
-mounted occurrence is a **projection** of the same component.
+An observer adds identity to a description. Elements keeps its current
+observation and updates the DOM wherever that observer is mounted. Each
+mounted occurrence is a **projection** of the same observer.
+
+## A graph of possibilities
+
+The nested functions describe a tree: a page contains a counter, and the
+counter contains an output and a button. References add connections across that
+tree. The button's handler refers back to `counter`; another handler can refer
+to a different observer. Together, these connections form a **graph**.
+
+An observer has a stable identity in that graph and carries a current
+observation. Its handlers can return to the same observer or continue through
+another. Each transition selects an observation, and Elements projects it into
+the DOM—the browser's objects representing the page. The browser then draws it
+on screen. A new observation can be constructed when an event happens; the
+possible future states do not all need to exist in advance.
 
 ## Shared and independent state
 
-All projections of one component definition share its current observation:
+All projections of one observer definition share its current observation:
 
 ```js
 const initial = counter()
@@ -95,7 +108,7 @@ render(div(initial, initial), document.body)
 ```
 
 Click either counter and both update. For independent state, create separate
-component definitions. A factory makes that convenient:
+observer definitions. A factory makes that convenient:
 
 ```js
 const createCounter = () => {
@@ -110,10 +123,10 @@ const right = createCounter()
 render(div(left(), right()), document.body)
 ```
 
-A fresh component call selects its observation when first mounted. Reusing an
-already mounted vnode preserves the component's current observation. Keep a
+A fresh observer call selects its observation when first mounted. Reusing an
+already mounted vnode preserves the observer's current observation. Keep a
 child's vnode when a parent transition should preserve its state; use a fresh
-call such as `counter(0)` when it should reset. Returning a component vnode from
+call such as `counter(0)` when it should reset. Returning an observer vnode from
 an event explicitly selects its observation, even if it was used before.
 
 ## State and the DOM
@@ -124,10 +137,10 @@ match. The source arrays remain unchanged.
 Existing DOM nodes are reused where possible. This lets native state, such as
 focus or an input's edited value, survive updates where those nodes and
 properties are preserved. Each projection has its own DOM nodes and native
-state, even when the component observation is shared.
+state, even when the observer observation is shared.
 
 Across sibling reorders, matching prefers retained vnode references, then
-explicit `key`s, then unique unkeyed component definitions, then position.
+explicit `key`s, then unique unkeyed observer definitions, then position.
 Repeated projections of one definition need retained references or keys to
 distinguish them across reorders.
 
@@ -153,9 +166,9 @@ Explore the [live demo](https://pfernandez.github.io/elements), its
 
 ## Events and forms
 
-Any DOM event handler can return a vnode. A component vnode selects that
-component's observation wherever it is mounted. A plain vnode updates the
-handler's nearest component boundary (or the render root outside a component).
+Any DOM event handler can return a vnode. An observer vnode selects that
+observer's observation wherever it is mounted. A plain vnode updates the
+handler's nearest observer boundary (or the render root outside an observer).
 
 `oninput` and `onchange` receive `(event.target, event)`. Destructure the native
 control's `value` or `checked` property:
@@ -191,7 +204,7 @@ leave native behavior alone. Errors propagate.
 
 ## Links and history
 
-An ordinary same-origin link can return the next observation of a page component:
+An ordinary same-origin link can return the next observation of a page observer:
 
 ```js
 a({ href: '/about', onclick: () => page('/about') }, 'About')
@@ -273,7 +286,7 @@ transform({
 })
 ```
 
-This return value carries animation context; it does not select a component
+This return value carries animation context; it does not select an observer
 observation. The hook must be synchronous. Throwing or returning a Promise
 stops ticking and propagates an error. X3DOM elements wait for scene readiness.
 
@@ -312,7 +325,7 @@ const cube = () =>
 
 The first helper call loads the vendored X3DOM runtime and stylesheet in the
 browser. See the [X3DOM package](https://github.com/pfernandez/elements/blob/main/packages/elements-x3dom/README.md) and
-[animation example](https://github.com/pfernandez/elements/blob/main/examples/components/tick.js).
+[animation example](https://github.com/pfernandez/elements/blob/main/examples/views/tick.js).
 
 ## Types and testing
 

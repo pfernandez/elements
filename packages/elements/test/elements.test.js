@@ -579,7 +579,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('render() explicitly selects a newly constructed component value', () => {
+  test('render() explicitly selects a newly constructed observer value', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -877,7 +877,7 @@ test('render() requires a container for non-html roots', () => {
     globalThis.window = prevWindow
   })
 
-  test('event handler update patches closest component boundary', async () => {
+  test('event handler update patches closest observer boundary', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 

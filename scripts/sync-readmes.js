@@ -25,11 +25,6 @@ const between = (text, begin, end) => {
   return text.slice(start + begin.length, stop)
 }
 
-const findTagline = text => {
-  const line = text.match(/^###\s+(.+)$/m)?.[1]?.trim()
-  return line || null
-}
-
 const toPosix = filePath => filePath.split(path.sep).join('/')
 
 const toGithubUrl = (repoRelativePath, { dir }) => {
@@ -50,7 +45,6 @@ const buildElementsPackageReadme = rootReadme => {
   const begin = '<!-- BEGIN README:elements -->'
   const end = '<!-- END README:elements -->'
 
-  const tagline = findTagline(rootReadme)
   const body = between(rootReadme, begin, end).trim()
 
   return [
@@ -58,7 +52,6 @@ const buildElementsPackageReadme = rootReadme => {
     '',
     '# @pfern/elements',
     '',
-    ...(tagline ? [tagline, ''] : []),
     body,
     ''
   ].join('\n')
@@ -80,4 +73,3 @@ const main = () => {
 }
 
 main()
-

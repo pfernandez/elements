@@ -49,7 +49,7 @@ test('history retains local state on departure and restores nested observations'
     assert.equal(host.textContent, 'Abouthome2')
   }))
 
-test('successive links to different component identities restore a coherent observation', () =>
+test('successive links to different observer identities restore a coherent observation', () =>
   withBrowser(({ history }) => {
     const left = observe(n => div(n)), right = observe(n => div(n))
     const host = mount(div(

@@ -28,7 +28,7 @@ export const present = vnode => {
   }
 }
 
-// Component continuations carry their destination. Plain vnodes use the
+// Observer continuations carry their destination. Plain vnodes use the
 // event's captured boundary instead. Explicit selection can revisit a source.
 export const resume = (vnode, owner = null) => {
   const source = sourceOf(vnode)
@@ -75,17 +75,17 @@ export const restore = observations => {
  *
  * The view takes state as arguments and returns an observation: a vnode
  * describing the interface and its event handlers. Handlers can return another
- * observation of the same component with new arguments, forming a recursive
+ * observation of the same observer with new arguments, forming a recursive
  * sequence of state transitions. Mounted DOM projections follow each selection.
  *
  * Calls to the returned observer construct vnodes without updating the DOM.
- * Returning one from an event selects that component's next observation,
+ * Returning one from an event selects that observer's next observation,
  * even from a sibling or child.
  * Plain vnode returns update the event's closest boundary. Promises may resolve
  * to either kind of continuation; errors propagate to the caller.
  *
  * All projections of this definition share its current observation. Create
- * separate component definitions for independent state (a factory can help).
+ * separate observer definitions for independent state (a factory can help).
  * A fresh vnode selects its observation when first rendered; reusing an already
  * projected vnode preserves current state. Source arrays are never rewritten.
  * Unkeyed sibling boundaries follow their definition through reordering when

@@ -7,10 +7,10 @@ necessary imperative DOM boundary with care.
 ### Design Invariants
 
 - **Single page-load mount:** typical apps call `render()` once at startup.
-- **Declarative updates via events:** component calls are pure; returned
-  component vnodes select their definition's observation across all projections.
-  Plain vnode returns patch the closest component boundary. Independent state
-  requires separate component definitions.
+- **Declarative updates via events:** observer calls are pure; returned
+  observer vnodes select their definition's observation across all projections.
+  Plain vnode returns patch the closest observer boundary. Independent state
+  requires separate observer definitions.
 - **Links select continuations:** an eligible same-origin link's vnode return
   updates its target and records its URL; Back/Forward restores observations.
   No navigation registration is required for these links.

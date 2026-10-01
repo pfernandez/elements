@@ -1,4 +1,4 @@
-import { sourceOf } from './component.js'
+import { sourceOf } from './observer.js'
 
 const keyOf = vnode =>
   Array.isArray(vnode) && vnode[1]?.key != null

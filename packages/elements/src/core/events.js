@@ -13,10 +13,10 @@ const eventArgument = (key, event) =>
     : event?.target
 
 /**
- * A vnode return selects its component, or the owner for a plain vnode.
+ * A vnode return selects its observer, or the owner for a plain vnode.
  * Eligible links also record their URL and observations for Back/Forward.
  * A Promise claims it synchronously, before native dispatch completes; its
- * eventual vnode selects its component (or the owner for a plain vnode).
+ * eventual vnode selects its observer (or the owner for a plain vnode).
  * Passive synchronous values do not
  * cancel default behavior (including false). Explicit preventDefault works too.
  *

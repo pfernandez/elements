@@ -32,7 +32,7 @@ const deferred = () => {
   return { promise, resolve }
 }
 
-test('separate component definitions establish independent origins', () => {
+test('separate observer definitions establish independent origins', () => {
   const counter2 = createCounter()
   const first = mount(counter())
   const second = mount(counter2(10))
@@ -140,7 +140,7 @@ test('finite preauthored observations cycle without rewriting source values', ()
   assert.equal(b[2], 'B')
 })
 
-test('out-of-band component calls only construct values; render applies them explicitly', async () => {
+test('out-of-band observer calls only construct values; render applies them explicitly', async () => {
   const wait = deferred()
   const describeState = observe((n = 0) => div(n))
   const later = async () => { await wait.promise; return describeState(8) }
@@ -176,7 +176,7 @@ test('overlapping asynchronous events retain their independent event origins', a
   assert.equal(b.textContent, '12')
 })
 
-test('constructing a future component value does not update before the event returns it', async () => {
+test('constructing a future observer value does not update before the event returns it', async () => {
   const wait = deferred()
   const describeState = observe((n = 0) => button({ onclick: async () => {
     const next = describeState(n + 1)
@@ -195,7 +195,7 @@ test('constructing a future component value does not update before the event ret
   assert.equal(shared.textContent, '1')
 })
 
-test('a component value discarded by an event does not update its origin', () => {
+test('an observer value discarded by an event does not update its origin', () => {
   const describeState = observe((n = 0) => button({ onclick: () => { describeState(n + 1) } }, n))
   const host = mount(describeState())
   click(host.firstChild)
@@ -215,7 +215,7 @@ test('pending plain results target their captured origin, even after removal', a
   assert.equal(right.textContent, 'resolved')
 })
 
-test('component and event failures propagate and do not poison later updates', async () => {
+test('observer and event failures propagate and do not poison later updates', async () => {
   assert.throws(() => observe(() => null)(), /vnode array/)
   assert.throws(() => observe(() => () => div())(), /vnode array/)
   const describeState = observe((n = 0) => {
@@ -250,7 +250,7 @@ test('fragment ranges reconcile, move, replace, and detach together', () => {
   assert.equal(host.childNodes.length, 1)
 })
 
-test('components can describeState fragment ranges and empty values', () => {
+test('observers can project fragment ranges and empty values', () => {
   const describeState = observe((n = 0) =>
     elements.fragment(output(n), button({ onclick: () => describeState(n + 1) }, 'next')))
   const host = mount(describeState())
@@ -326,7 +326,7 @@ test('a sidebar selects a precomputed sibling continuation, leaving itself alone
   assert.equal(host.firstChild.firstChild, side)
 })
 
-test('an original component snapshot can be selected again without nesting itself', () => {
+test('an original observer snapshot can be selected again without nesting itself', () => {
   const second = button({ onclick: () => original }, 'B')
   const original = observe(() => button({ onclick: () => second }, 'A'))()
   const host = mount(original)
@@ -336,7 +336,7 @@ test('an original component snapshot can be selected again without nesting itsel
   })
 })
 
-test('document adoption can switch between plain and component-authored pages', () => {
+test('document adoption can switch between plain and observer-authored pages', () => {
   render(html(head(title('plain')), body('plain')))
   const page = observe((n = 0) =>
     html(head(title(String(n))), body(button({ onclick: () => page(n + 1) }, n))))
@@ -366,7 +366,7 @@ test('replacing a wrapper with its child can select a new root tag safely', () =
   assert.equal(other.firstChild.tagName, 'DIV')
 })
 
-test('namespace replacement can select a new component root without retaining old subscriptions', () => {
+test('namespace replacement can select a new observer root without retaining old subscriptions', () => {
   const child = observe(tag => tag('child'))
   const describeState = (encoding, value) => math(annotationXml({ encoding }, value))
   const host = mount(describeState('text/html', child(div)))
@@ -408,7 +408,7 @@ test('document adoption updates event ownership even for retained markup and han
   assert.equal(fieldNode.value, 'draft')
 })
 
-test('document ownership changes leave nested component events local', () => {
+test('document ownership changes leave nested observer events local', () => {
   const child = observe(() => button({ onclick: () => span('local') }, 'child'))
   const source = child()
   render(body(source))

@@ -4,7 +4,7 @@ import { button, observe, div, elements, input, li, render, span,
          textarea, ul } from '../elements.js'
 import { createFakeDom } from './fake-dom.js'
 
-// Identity belongs to retained references and component definitions;
+// Identity belongs to retained references and observer definitions;
 // anonymous children and indistinguishable projections belong to positions.
 let previousDocument
 beforeEach(() => {
@@ -42,7 +42,7 @@ test('retained row references carry their DOM and edited inputs through reorderi
   assert.equal(aliceNode.parentNode, null)
 })
 
-test('component definitions carry row DOM through fresh calls and reordering', () => {
+test('observer definitions carry row DOM through fresh calls and reordering', () => {
   const alice = observe(() => row('Alice'))
   const bob = observe(() => row('Bob'))
   const host = mount(ul(alice(), bob()))
@@ -64,7 +64,7 @@ test('component definitions carry row DOM through fresh calls and reordering', (
   assert.equal(aliceNode.parentNode, null)
 })
 
-test('component insertion and replacement preserve the other definitions', () => {
+test('observer insertion and replacement preserve the other definitions', () => {
   const alice = observe(() => row('Alice'))
   const bob = observe(() => row('Bob'))
   const carol = observe(() => row('Carol'))
@@ -82,7 +82,7 @@ test('component insertion and replacement preserve the other definitions', () =>
   assert.equal(bobNode.lastChild.value, 'Bob draft')
 })
 
-test('retained references distinguish projections of the same component during reordering', () => {
+test('retained references distinguish projections of the same observer during reordering', () => {
   const person = observe(() => row('Shared'))
   const left = person(), right = person()
   const host = mount(ul(left, right))
@@ -138,7 +138,7 @@ test('explicit keys still distinguish fresh projections and can request replacem
   assert.ok(single.firstChild.firstChild !== replaced)
 })
 
-test('component fragment ranges move as a unit through fresh calls', () => {
+test('observer fragment ranges move as a unit through fresh calls', () => {
   const alice = observe(() => elements.fragment(span('Alice'), input()))
   const bob = observe(() => elements.fragment(span('Bob'), input()))
   const host = mount(div(alice(), bob()))
@@ -153,7 +153,7 @@ test('component fragment ranges move as a unit through fresh calls', () => {
 })
 
 test('retained graph-style continuations select one origin across separate projections', () => {
-  // An adapter retains one component per origin and one vnode per observation.
+  // An adapter retains one observer per origin and one vnode per observation.
   // Event callbacks select existing values; they never reconstruct the graph.
   const observer = observe(observation => observation)
   const a = Object.freeze(observer(div(span('A'), input(), button({ onclick: () => b }, 'next'))))

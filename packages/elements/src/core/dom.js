@@ -1,5 +1,5 @@
 import { assignProperties, removeMissingProps } from './props.js'
-import { createOrigin, select, present, resume, sourceOf, subscribe } from './component.js'
+import { createOrigin, select, present, resume, sourceOf, subscribe } from './observer.js'
 import { matchChildren } from './reconcile.js'
 import { stopTickLoop } from './tick.js'
 import { validateProps } from './attributes.js'
@@ -250,8 +250,8 @@ const patchValue = (record, source, owner, kind) => {
 
 /**
  * Mount a vnode, normally once at page load. Event continuations update it.
- * All projections of one component definition share its current observation.
- * Fresh component vnodes select when first rendered; reused references retain
+ * All projections of one observer definition share its current observation.
+ * Fresh observer vnodes select when first rendered; reused references retain
  * current state. Calls constructing those vnodes never update the DOM alone.
  * `html`, `head`, and `body` roots may omit the container. Existing unmanaged
  * head assets are retained; the first body mount owns its contents.

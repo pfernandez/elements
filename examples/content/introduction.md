@@ -1,4 +1,4 @@
-## A component as a recursive state observer
+## Recursive state observers
 
 An interface has a present state and ways to move to another state. A counter
 might be at zero, with a button that takes it to one. A form contains values,
@@ -49,9 +49,9 @@ render(counter(), document.body)
 ```
 
 `observe` establishes a stable identity for the counter. Each call to `counter`
-constructs an observation associated with that identity. Returning one from an event
-handler selects it as the component's current observation, and Elements updates
-its mounted DOM projections.
+constructs an observation associated with that identity. Returning one from an
+event handler selects it as the observer's current observation, and Elements
+updates its mounted DOM projections.
 
 Follow the first click:
 
@@ -94,34 +94,53 @@ at its current observation until the returned Promise resolves to `next`. If
 several handlers are pending, their results are selected in completion order.
 Each handler still carries the state from which it began.
 
-### A fixed identity through changing states
+### The connections form a graph
 
-The recursive definition ties each observation back to the same `counter`.
-That is the fixed-point intuition: a stable point of return through which the
-calculation continues. The count changes; the component's identity persists.
-This does not mean that the counter converges to a final, unchanging value.
+The nesting in our source describes a tree: a `div` contains an `output` and a
+`button`. But the button's handler refers back to `counter`, outside that
+nesting. References connect the pieces into a **graph**. The counter has a cycle:
+
+```text
+observer → current observation → event handler → same observer
+```
+
+The handler carries the count and can call `counter` with the next count. That
+call constructs a new observation; returning it from the event selects it.
+The selected observation changes. The observer remains the same point of
+return in the graph.
+
+This is the **recursive fixed-point** intuition: the definition refers back to
+itself, so the calculation can continue through the same identity. `observe`
+provides that identity; the reference to `counter` ties the recursive cycle.
+A view can also have an identity without being recursive.
+
+Other handlers can refer to other observers. A button in a sidebar can select
+the next observation of a page. Where something is nested tells us where it
+appears; its references tell us where the interaction can continue. These
+connections can describe future steps without constructing every possible
+observation in advance.
 
 For readers coming from Lisp, the structure is familiar: functions construct
 data, closures carry values, and recursion expresses the next step. In the
 browser, events provide the occasions for those steps, and Elements handles the
 DOM work after an observation is selected.
 
-`observe` gives a view a stable identity. The resulting observer
-is what we call a **component**. Given a state, it describes the interface and
-its possible interactions. Declaring an `onclick` handler describes a
-subscription that Elements installs at the DOM boundary. Selecting a new
-observation also updates the handlers, ready for subsequent events.
+An observer fills a role similar to a React or Web component. Given a state,
+it describes the interface and its possible interactions. Declaring an
+`onclick` handler describes a subscription that Elements installs at the DOM
+boundary. Selecting a new observation also updates the handlers, ready for
+subsequent events.
 
 ### One identity, multiple projections
 
-One component can appear in several places:
+One observer can appear in several places:
 
 ```js
 const initial = counter()
 render(div(initial, initial), document.body)
 ```
 
-Both projections subscribe to the same component's current observation.
+Both projections subscribe to the same observer's current observation.
 Clicking either advances both. Their DOM nodes are separate; they share the
 selected description and its handlers.
 
@@ -143,6 +162,16 @@ updates. Mounting a fresh call such as `left(0)` selects the newly described
 state. An event return can explicitly select an earlier observation again.
 
 ### Let the DOM follow
+
+The DOM is a projection of the selected observations. Its parent–child
+containment forms a [tree](https://dom.spec.whatwg.org/#trees); event handlers
+and other JavaScript references connect it to the wider graph. The browser
+turns that DOM into what appears on screen.
+
+The visible page is one aspect of the application's state. Two observations can
+look the same while carrying different handlers and different possible next
+steps. Each observer carries its own current observation, so several parts of a
+page can evolve independently.
 
 The state transition selects an observation. Elements patches existing DOM
 nodes where possible and installs the corresponding event handlers. Input
@@ -167,5 +196,5 @@ const writing = () => section(markdown(introduction))
 ```
 
 Fenced code blocks explain examples without executing them. The Todos and Scope
-pages provide live components to explore. The Markdown helper belongs to the
+pages provide live observers to explore. The Markdown helper belongs to the
 demo and uses `markdown-it` with raw HTML disabled.

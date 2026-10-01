@@ -1,8 +1,8 @@
 # Testing Philosophy: Elements.js
 
 Elements.js is designed around purity at the *API* boundary: tag helpers and
-component observers are functions that describe state as plain data (vnode
-arrays). Constructing an observation does not select it; returning it from an
+observers are functions that describe state as plain data (vnode arrays).
+Constructing an observation does not select it; returning it from an
 event does.
 
 Internally, the framework does imperative DOM work (patching, event wiring, and
@@ -12,7 +12,7 @@ they still verify the *behavioral contract* that users rely on.
 ## What We Test
 
 - **Vnode shape:** exported tag helpers return `[tag, props, ...children]`.
-- **Declarative events:** a returned component vnode updates that component's projections;
+- **Declarative events:** a returned observer vnode updates that observer's projections;
   a plain vnode updates the closest boundary. Synchronous passive returns do nothing.
 - **Form handler signature:** `onsubmit`, `oninput`, `onchange` receive
   `(arg, event)` where `onsubmit` gets `event.target.elements` and

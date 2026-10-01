@@ -17,7 +17,7 @@ const check = async () => {
   assert(frame.contentWindow.getComputedStyle(home.body).display === 'grid', 'The bundled stylesheet must load')
 
   home.querySelector('a[href="/elements/writing"]').click()
-  assert(home.querySelector('.markdown h2')?.textContent === 'A component as a recursive state observer',
+  assert(home.querySelector('.markdown h2')?.textContent === 'Recursive state observers',
          'Navigation must render the bundled Markdown')
   assert(frame.contentWindow.location.pathname === '/elements/writing', 'Navigation must record the prefixed URL')
   assert(home.querySelector('.markdown pre code')?.textContent.includes('const view = count'),
@@ -34,9 +34,9 @@ const check = async () => {
   assert(home.querySelector('section h2')?.textContent === 'Home', 'Back must restore the home observation')
 
   for (const [route, selector, heading] of [
-    ['writing', '.markdown h2', 'A component as a recursive state observer'],
+    ['writing', '.markdown h2', 'Recursive state observers'],
     ['todos', 'section h2', 'Todos App'],
-    ['scope', 'section h2', 'Component Scope'],
+    ['scope', 'section h2', 'Observer Scope'],
     ['x3dom', 'section h2', 'X3D / X3DOM Scene']
   ]) {
     const page = await visit(`/elements/${route}/`)

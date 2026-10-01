@@ -11,7 +11,7 @@ export { DEBUG } from './core/elements.js'
  *
  * The view describes a state and its event handlers as a vnode. Calling the
  * returned observer constructs an observation; an event return selects it
- * and updates that component wherever it is rendered. Use separate component
+ * and updates that observer wherever it is rendered. Use separate observer
  * definitions for independent state. Source arrays remain unchanged.
  *
  * @example
@@ -29,7 +29,7 @@ export { elements } from './core/elements.js'
  * Render a vnode into the DOM.
  *
  * This is typically called once on page load. After that, events that return
- * component vnodes update that component automatically; plain vnodes patch
+ * observer vnodes update that observer automatically; plain vnodes patch
  * the nearest boundary.
  *
  * `html`, `head`, and `body` roots may omit the container. Fragments have no

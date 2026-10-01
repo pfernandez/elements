@@ -1,4 +1,4 @@
-import { snapshot, restore } from './component.js'
+import { snapshot, restore } from './observer.js'
 
 const sessions = new WeakMap()
 const stateKey = '__elements_history'

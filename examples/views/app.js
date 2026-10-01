@@ -24,9 +24,9 @@ const home = () =>
   section(
     h2('Home'),
     div(`This template shows the built-in page navigation, a todos app,
-         independent counters to demonstrate component scope, and a basic X3DOM
-         animation. The Writing page explains components as recursive state
-         observers, with prose loaded from Markdown.`))
+         independent counters to demonstrate observer scope, and a basic X3DOM
+         animation. The Writing page starts with a simple page and builds up
+         to recursive observers and their connections.`))
 
 const writing = () => section(markdown(introduction))
 
@@ -38,7 +38,7 @@ const todosDemo = () =>
 
 const scopeDemo = () =>
   section(
-    h2('Component Scope'),
+    h2('Observer Scope'),
     p(`Reset selects fresh observations of two separately defined counters.
        Each definition has its own identity; its projections share state.`),
     scope())

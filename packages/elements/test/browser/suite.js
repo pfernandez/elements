@@ -111,7 +111,7 @@ test('an editable counter preserves its anonymous input, focus and caret during 
   equal(host.querySelector('output').textContent, '13')
 })
 
-test('fresh component calls reorder through events without remounting their controls', () => {
+test('fresh observer calls reorder through events without remounting their controls', () => {
   const createRow = name => {
     const row = observe((count = 0) =>
       div(input(), button({ onclick: () => row(count + 1) }, `${name}: ${count}`)))
@@ -291,7 +291,7 @@ test('static observations form a reusable finite cycle', () => {
   })
 })
 
-test('fragments are DOM ranges, including shared component projections', () => {
+test('fragments are DOM ranges, including shared observer projections', () => {
   const group = observe((n = 0) => elements.fragment(
     span(n), button({ onclick: () => group(n + 1) }, 'next')))
   const source = group()
@@ -411,7 +411,7 @@ test('sidebar links update only their named page and restore real browser histor
   assert(shell.firstChild === side)
 })
 
-test('modified link clicks leave the current component and native default untouched', () => {
+test('modified link clicks leave the current observer and native default untouched', () => {
   const page = observe(n => div(n))
   const host = mount(div(a({ href: '/elsewhere', onclick: () => page(1) }, 'link'), page(0)))
   const initial = location.href
@@ -445,7 +445,7 @@ test('a document base target keeps continuation links native', () => {
 })
 
 test('the demo Markdown helper renders independent prose and leaves HTML inert', async () => {
-  const { markdown } = await import('/examples/components/markdown.js')
+  const { markdown } = await import('/examples/views/markdown.js')
   const text = '## Prose\n\nA **small** example.\n\n- One\n- Two\n\n```js\ndiv("hello")\n```'
   equal(toHtmlString(markdown(text)), toHtmlString(markdown(text)))
   const host = mount(div(markdown(text), markdown('## Another view')))
@@ -539,7 +539,7 @@ test('the demo navigates and its counters and todos continue through events', as
   document.querySelector('a[href="/writing"]').click()
   equal(location.pathname, '/writing')
   equal(document.querySelector('.markdown h2').textContent,
-        'A component as a recursive state observer')
+        'Recursive state observers')
   assert(document.querySelector('.markdown pre code').textContent.includes('const view = count'))
   assert(document.querySelector('.markdown').textContent.includes('examples/content/introduction.md'))
   assert(document.querySelector('a[href="/writing"]').classList.contains('active'))
@@ -548,7 +548,7 @@ test('the demo navigates and its counters and todos continue through events', as
   equal(counters(), ['0', '0'])
   await traverse(1)
   equal(document.querySelector('.markdown h2').textContent,
-        'A component as a recursive state observer')
+        'Recursive state observers')
 })
 
 test('the ontick demo carries frame state, waits for readiness and stops on navigation', () => {
