@@ -49,6 +49,17 @@ specify its executable):
 npm run -s test:browser
 ```
 
+Check the production demo as GitHub Pages will serve it, without Vite's dev
+server transformations or route fallback:
+
+```bash
+npm run -s build:pages
+npm run -s test:pages
+```
+
+This checks the `/elements/` base path, bundled Markdown and CSS, direct route
+visits, navigation history, and independent counters.
+
 Packed-package checks also validate the generated types from a strict
 TypeScript consumer:
 

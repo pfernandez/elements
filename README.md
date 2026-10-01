@@ -350,6 +350,25 @@ npm run -s x3dom:test:coverage
 npm run -s x3dom:typecheck
 ```
 
+### Publishing the demo
+
+The demo uses Vite to bundle Markdown, styles, and package imports. GitHub Pages
+must publish the built `dist/` directory. Serving the repository directly leaves
+imports such as `introduction.md?raw` unprocessed.
+
+```sh
+npm run -s build:pages
+npm run -s test:pages
+```
+
+This builds for `/elements/`, creates an entry page for each demo route, and
+checks the output in Chrome using a plain static server. The check covers
+Markdown, styles, navigation, history, direct visits, and state transitions.
+
+In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
+The `Deploy demo to GitHub Pages` workflow then builds, checks, and publishes
+`dist/` on pushes to `main`. It can also be run manually from the Actions tab.
+
 ### Security / `npm audit`
 
 CI fails on **high+critical** vulnerabilities in production dependencies:

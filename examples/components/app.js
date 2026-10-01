@@ -7,18 +7,18 @@ import { scope } from './scope.js'
 import { todos } from './todos.js'
 import { markdown } from './markdown.js'
 import introduction from '../content/introduction.md?raw'
+import { routes } from '../routes.js'
+
+const base = import.meta.env.BASE_URL
+const initialPath = () =>
+  window.location.pathname.slice(base.length - 1).replace(/\/$/, '') || '/'
 
 const link = (path, label, active) =>
-  a({ href: path, onclick: () => app(path),
+  a({ href: `${base}${path.slice(1)}`, onclick: () => app(path),
       class: active ? 'active' : '' }, label)
 
 const navbar = path =>
-  nav(
-    link('/', 'Home', path === '/'),
-    link('/writing', 'Writing', path === '/writing'),
-    link('/todos', 'Todos', path === '/todos'),
-    link('/scope', 'Scope', path === '/scope'),
-    link('/x3dom', 'X3DOM', path === '/x3dom'))
+  nav(...routes.map(([route, label]) => link(route, label, path === route)))
 
 const home = () =>
   section(
@@ -53,7 +53,7 @@ const x3domDemo = () => section(
     + 'Return the next angle to carry it into the following frame.'),
   pre(code(tickSource)))
 
-export const app = observe((path = window.location.pathname) =>
+export const app = observe((path = initialPath()) =>
   main(
     navbar(path),
     path === '/todos' ? todosDemo()

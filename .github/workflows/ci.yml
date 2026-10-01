@@ -43,6 +43,9 @@ jobs:
       - name: Build
         run: npm run -s build
 
+      - name: Test Pages build
+        run: npm run -s build:pages && npm run -s test:pages
+
       - name: Audit (fail on high+critical) (prod deps)
         run: npm audit --omit=dev --audit-level=high
 
