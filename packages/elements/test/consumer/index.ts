@@ -8,12 +8,12 @@ const counter = observe((n = 0): ReturnType<typeof button> =>
   button({ onclick: () => counter(n + 1) }, n))
 
 counter(1)
-// @ts-expect-error The initial call has the observer's argument types.
+// @ts-expect-error The initial call has the view's argument types.
 counter('not a number')
 
 const label = observe((n = 0) => div(n))
 label(1)
-// @ts-expect-error Non-recursive observers infer their parameters without annotations.
+// @ts-expect-error Non-recursive views infer their parameters without annotations.
 label('not a number')
 
 const props: BoxProps = { size: '1 1 1' }

@@ -540,7 +540,7 @@ test('the demo navigates and its counters and todos continue through events', as
   equal(location.pathname, '/writing')
   equal(document.querySelector('.markdown h2').textContent,
         'A component as a recursive state observer')
-  assert(document.querySelector('.markdown pre code').textContent.includes('const describe = count'))
+  assert(document.querySelector('.markdown pre code').textContent.includes('const view = count'))
   assert(document.querySelector('.markdown').textContent.includes('examples/content/introduction.md'))
   assert(document.querySelector('a[href="/writing"]').classList.contains('active'))
   await traverse(-1)

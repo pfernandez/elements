@@ -63,24 +63,24 @@ export const restore = observations => {
 }
 
 /**
- * Infer the whole observer before extracting its arguments, so default
+ * Infer the whole view before extracting its arguments, so default
  * parameters keep their types instead of being contextually widened to any.
- * @template Observer
- * @typedef {Observer extends (...args: infer Args) => import('./types.js').ElementsVNode
+ * @template View
+ * @typedef {View extends (...args: infer Args) => import('./types.js').ElementsVNode
  *   ? (...args: Args) => import('./types.js').ElementsVNode : never} StateObserver
  */
 
 /**
- * Create a state observer with one stable component identity.
+ * Give a pure view a stable identity, returning a state observer.
  *
- * The observer takes state as arguments and returns an observation: a vnode
+ * The view takes state as arguments and returns an observation: a vnode
  * describing the interface and its event handlers. Handlers can return another
  * observation of the same component with new arguments, forming a recursive
  * sequence of state transitions. Mounted DOM projections follow each selection.
  *
  * Calls to the returned observer construct vnodes without updating the DOM.
- * Returning one from an event
- * selects that component's next observation, even from a sibling or child.
+ * Returning one from an event selects that component's next observation,
+ * even from a sibling or child.
  * Plain vnode returns update the event's closest boundary. Promises may resolve
  * to either kind of continuation; errors propagate to the caller.
  *
@@ -92,22 +92,22 @@ export const restore = observations => {
  * that definition occurs once on each side. Repeated projections need retained
  * vnode references or keys to distinguish them; otherwise they remain positional.
  * Strict TypeScript consumers may need an explicit return type on a recursive
- * observer to break circular inference; JavaScript needs no annotation.
+ * view to break circular inference; JavaScript needs no annotation.
  *
  * @example
  * const counter = observe((n = 0) =>
  *   button({ onclick: () => counter(n + 1) }, n))
  *
- * @template {Function} Observer
- * @param {Observer} describe Describe a state and its available interactions.
- * @returns {StateObserver<Observer>}
+ * @template {Function} View
+ * @param {View} view A pure function describing a state and its interactions.
+ * @returns {StateObserver<View>}
  */
-export const observe = describe => {
+export const observe = view => {
   const origin = createOrigin(undefined)
-  return /** @type {StateObserver<Observer>} */ ((...args) => {
-    const result = describe(...args)
+  return /** @type {StateObserver<View>} */ ((...args) => {
+    const result = view(...args)
     if (!Array.isArray(result))
-      throw new TypeError('A state observer must return a vnode array.')
+      throw new TypeError('A view must return a vnode array.')
     const source = sourceOf(result)
     const observation = source?.origin === origin ? source.observation : result
 

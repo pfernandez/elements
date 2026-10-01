@@ -7,13 +7,14 @@ functions describe both the present interface and what can happen next.
 
 ### Begin with a value
 
-Start with a function that describes a count:
+Start with a **view**: a pure function that describes a state. Here the state is
+a count:
 
 ```js
-const describe = count => output(count)
+const view = count => output(count)
 ```
 
-`count` is the state. Calling `describe(3)` produces an observation of that state:
+`count` is the state. Calling `view(3)` produces an observation of that state:
 
 ```js
 ['output', {}, 3]
@@ -23,7 +24,7 @@ The array is data. It describes an element without creating a DOM node. Tag
 helpers let us compose larger descriptions in the same way:
 
 ```js
-const describe = count =>
+const view = count =>
   div(output(count), button('Increment'))
 ```
 
@@ -32,7 +33,7 @@ the interface responds to interaction.
 
 ### Give the calculation somewhere to return
 
-Pass the state function to `observe` and let its handler refer to the resulting
+Pass the view to `observe` and let its handler refer to the resulting
 observer:
 
 ```js
@@ -105,7 +106,7 @@ data, closures carry values, and recursion expresses the next step. In the
 browser, events provide the occasions for those steps, and Elements handles the
 DOM work after an observation is selected.
 
-`observe` gives a pure state function a stable identity. The resulting observer
+`observe` gives a view a stable identity. The resulting observer
 is what we call a **component**. Given a state, it describes the interface and
 its possible interactions. Declaring an `onclick` handler describes a
 subscription that Elements installs at the DOM boundary. Selecting a new

@@ -7,10 +7,10 @@
 export { DEBUG } from './core/elements.js'
 
 /**
- * Create a state observer with a stable identity using `observe(describe)`.
+ * Give a pure view a stable identity using `observe(view)`.
  *
- * The observer describes a state and its event handlers as a vnode. Calls
- * construct observations; returning one from an event selects the next state
+ * The view describes a state and its event handlers as a vnode. Calling the
+ * returned observer constructs an observation; an event return selects it
  * and updates that component wherever it is rendered. Use separate component
  * definitions for independent state. Source arrays remain unchanged.
  *

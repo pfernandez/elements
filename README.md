@@ -36,10 +36,10 @@ subsequent transitions.
 
 ## Observing a state
 
-`observe` gives a pure state function a stable identity. The resulting
-**state observer** is what we call a component. It takes state as arguments and
-returns an **observation**: a description of the interface, including the event
-handlers available in that state.
+A **view** is a pure function that takes state as arguments and returns an
+**observation**: a description of the interface, including the event handlers
+available in that state. `observe(view)` gives the view a stable identity. The
+resulting **state observer** is what we call a component.
 
 In the counter above:
 
@@ -207,9 +207,9 @@ DOM nodes or serialize closures for restoration after a reload.
 
 ## API
 
-### `observe(describe)`
+### `observe(view)`
 
-Create a state observer with a stable identity. `describe(...args)` must return
+Give a pure view a stable identity. `view(...args)` must return
 a vnode array. Calling the returned observer constructs an observation;
 returning that observation from an event selects it. Each call to `observe`
 establishes a separate identity for independent state.

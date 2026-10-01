@@ -20,7 +20,7 @@ const check = async () => {
   assert(home.querySelector('.markdown h2')?.textContent === 'A component as a recursive state observer',
          'Navigation must render the bundled Markdown')
   assert(frame.contentWindow.location.pathname === '/elements/writing', 'Navigation must record the prefixed URL')
-  assert(home.querySelector('.markdown pre code')?.textContent.includes('const describe = count'),
+  assert(home.querySelector('.markdown pre code')?.textContent.includes('const view = count'),
          'The article must include its code examples')
 
   await new Promise((resolve, reject) => {
