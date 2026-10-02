@@ -31,7 +31,8 @@
     "3d:fetch:x3dom-src": "npm --prefix packages/elements-x3dom run -s fetch:x3dom-src",
     "pkg:report": "node scripts/package-report.js packages/elements",
     "x3dom:pkg:report": "node scripts/package-report.js packages/elements-x3dom",
-    "3d:pkg:report": "node scripts/package-report.js packages/elements-x3dom"
+    "3d:pkg:report": "node scripts/package-report.js packages/elements-x3dom",
+    "gen:vocabularies": "npm --prefix packages/elements run -s gen:vocabularies"
   },
   "devDependencies": {
     "@types/node": "^25.0.10",

@@ -1,7 +1,7 @@
 {
   "name": "@pfern/elements",
-  "version": "0.2.1",
-  "description": "A minimalist, pure functional declarative UI toolkit.",
+  "version": "0.3.0",
+  "description": "A functional UI library built around recursive composition and declarative state transitions.",
   "author": "Paul Fernandez",
   "license": "MIT",
   "type": "module",
@@ -16,10 +16,22 @@
       "types": "./types/mathml.d.ts",
       "import": "./mathml.js",
       "default": "./mathml.js"
+    },
+    "./html": {
+      "types": "./types/html.d.ts",
+      "import": "./html.js",
+      "default": "./html.js"
+    },
+    "./svg": {
+      "types": "./types/svg.d.ts",
+      "import": "./svg.js",
+      "default": "./svg.js"
     }
   },
   "files": [
     "./elements.js",
+    "./html.js",
+    "./svg.js",
     "./mathml.js",
     "./env.d.ts",
     "./src",
@@ -31,7 +43,8 @@
     "typecheck": "node scripts/typecheck.js",
     "prepack": "npm run -s build:types",
     "test": "node --test test/*.test.* --test-reporter spec",
-    "test:coverage": "node scripts/test-coverage.js"
+    "test:coverage": "node scripts/test-coverage.js",
+    "gen:vocabularies": "node scripts/generate-vocabularies.js"
   },
   "keywords": [
     "ui",
@@ -39,9 +52,20 @@
     "declarative",
     "frontend",
     "vdom",
-    "jsx-free",
-    "stateless",
     "recursive",
-    "html"
-  ]
+    "state-transitions",
+    "dom",
+    "html",
+    "svg",
+    "ssr"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pfernandez/elements.git",
+    "directory": "packages/elements"
+  },
+  "homepage": "https://pfernandez.github.io/elements/",
+  "bugs": {
+    "url": "https://github.com/pfernandez/elements/issues"
+  }
 }

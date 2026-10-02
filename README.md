@@ -2,14 +2,19 @@
 
 <!-- BEGIN README:elements -->
 
-Elements.js is a small functional UI library for JavaScript. Ordinary functions
-build the interface, and event handlers return what comes next. No JSX or hooks
-are needed.
+Elements.js is a functional UI library built around **recursive composition**
+and **declarative state transitions**. Build interfaces with ordinary nested
+function calls; when an event occurs, return the next observation instead of
+calling a setter. `observe(view)` gives those successive observations one stable
+identity, and Elements projects the selected one into the DOM.
 
-## Start with state
+State is ordinary JavaScript data passed through function arguments and
+closures.
 
-A counter needs one piece of state: its count. A function can describe what the
-user sees at that count and what clicking a button will do:
+## Start with a transition
+
+A counter has one piece of state: its count. A view can describe the interface
+at that count and the interaction that leads to the next one:
 
 ```js
 import { button, observe, div, output, render } from '@pfern/elements'
@@ -23,92 +28,77 @@ const counter = observe((count = 0) =>
 render(counter(), document.body)
 ```
 
-The first call describes a counter at zero. Clicking **Increment** returns a
-new description of the same counter at one. Elements selects that description
-and updates the DOM. The new handler carries the new count, ready for the next
-click.
+The first call constructs an observation of the counter at zero. Clicking
+**Increment** runs a handler that returns an observation of the same counter at
+one. Elements selects it and updates the DOM. The new handler closes over the
+new count, ready for the next click.
 
-This is a **state transition**: the counter goes from one state to the next.
-You normally call `render()` once, when the page loads. Event returns drive
-subsequent transitions.
+You normally call `render()` once, when the page loads. Event returns drive the
+state transitions after that.
 
-## Observing a state
+## The model
 
-A **view** is a pure function that takes state as arguments and returns an
-**observation**: a description of the interface, including the event handlers
-available in that state. `observe(view)` gives the view a stable identity. The
-resulting function is a **state observer**. It fills a role similar to a React
-or Web component: an identifiable part of an interface with its own behavior.
+Elements separates five ideas that UI libraries often combine:
 
-In the counter above:
+- A **view** is a pure function from state to an interface description.
+- An **observation** is the immutable vnode data returned by a view.
+- An **observer** is the stable identity created by `observe(view)`.
+- **Selection** chooses one observation as that observer's current state.
+- A **projection** is a mounted DOM realization of the selected observation.
 
-- `count` is the state.
-- The returned `div(...)` describes its observation.
-- `() => counter(count + 1)` describes how to continue after a click.
-- `observe` gives these successive observations one stable identity.
+A counter makes the relationship concrete:
 
-Here, the observer is recursive: its handlers can call the same observer with new
-arguments. Each event continues the calculation. You can write this using
-ordinary functions and closures; there is no separate state setter.
-
-Calling an observer only constructs an observation. **Returning it from an
-event handler selects it.** This distinction matters:
-
-```js
-onclick: () => counter(10)       // Select the counter at ten.
-onclick: () => { counter(10) }   // Construct a value, then discard it.
+```text
+counter                         observer identity
+   │
+   └── current ──> observation from counter(1)
+                         ├──> DOM projection A
+                         └──> DOM projection B
 ```
 
-A handler can also return another observer's observation, so a child or sibling
-can select the next state of a different observer.
+Calling the view with state constructs an observation. The observer identity
+persists while its current observation changes, and every mounted occurrence is
+a projection of that current observation.
 
-## Descriptions are data
+## Construction is not selection
 
-Tag helpers return plain nested arrays, called **vnodes** (virtual nodes):
-
-```js
-div({ class: 'message' }, 'Hello')
-// ['div', { class: 'message' }, 'Hello']
-```
-
-The first item is the tag, the second holds attributes and event handlers, and
-the rest are children. Compose helpers to build larger descriptions:
+Calling an observer constructs an observation. It does not by itself update the
+DOM:
 
 ```js
-div(
-  output('Ready'),
-  button({ onclick: () => counter(0) }, 'Reset counter'))
+counter(10)                       // Construct an observation.
+() => { counter(10) }             // Construct it, then discard it.
+() => counter(10)                 // Return it from an event: select it.
 ```
 
-An observer adds identity to a description. Elements keeps its current
-observation and updates the DOM wherever that observer is mounted. Each
-mounted occurrence is a **projection** of the same observer.
+That distinction keeps view construction pure. Selection happens at the
+projection boundary.
 
-## A graph of possibilities
+There is one corresponding mount rule: when a fresh observer vnode is first
+projected, that observation becomes current. Reusing an already projected vnode
+projects the observer's current observation instead of resetting it. Returning
+an observer vnode from an event explicitly selects its observation, even if that
+vnode was constructed earlier.
 
-The nested functions describe a tree: a page contains a counter, and the
-counter contains an output and a button. References add connections across that
-tree. The button's handler refers back to `counter`; another handler can refer
-to a different observer. Together, these connections form a **graph**.
+A plain vnode returned from an event updates the handler's nearest observer
+boundary (or the render root outside an observer).
 
-An observer has a stable identity in that graph and carries a current
-observation. Its handlers can return to the same observer or continue through
-another. Each transition selects an observation, and Elements projects it into
-the DOM—the browser's objects representing the page. The browser then draws it
-on screen. A new observation can be constructed when an event happens; the
-possible future states do not all need to exist in advance.
+## One identity, many projections
 
-## Shared and independent state
-
-All projections of one observer definition share its current observation:
+The same observer can be projected in more than one place:
 
 ```js
 const initial = counter()
 render(div(initial, initial), document.body)
 ```
 
-Click either counter and both update. For independent state, create separate
-observer definitions. A factory makes that convenient:
+Both DOM projections subscribe to one observer identity and therefore show the
+same selected observation. Clicking either advances both.
+
+The DOM nodes themselves are still separate. Native state such as focus or an
+input's edited value belongs to each projection.
+
+For independent counters, create independent observers:
 
 ```js
 const createCounter = () => {
@@ -123,32 +113,86 @@ const right = createCounter()
 render(div(left(), right()), document.body)
 ```
 
-A fresh observer call selects its observation when first mounted. Reusing an
-already mounted vnode preserves the observer's current observation. Keep a
-child's vnode when a parent transition should preserve its state; use a fresh
-call such as `counter(0)` when it should reset. Returning an observer vnode from
-an event explicitly selects its observation, even if it was used before.
+Each call to `observe` establishes a new identity.
+
+## Observations are data
+
+Tag helpers return plain nested arrays called **vnodes**:
+
+```js
+div({ class: 'message' }, 'Hello')
+// ['div', { class: 'message' }, 'Hello']
+```
+
+The first item is the tag, the second holds props and event handlers, and the
+rest are children. Nesting helper calls produces nested vnode data:
+
+```js
+div(
+  output('Ready'),
+  ul([
+    li('One'),
+    li('Two')
+  ]))
+
+// ['div', {},
+//   ['output', {}, 'Ready'],
+//   ['ul', {},
+//     ['li', {}, 'One'],
+//     ['li', {}, 'Two']]]
+```
+
+Arrays of vnodes can be passed directly, so mapped children compose
+directly without argument spreading:
+
+```js
+ul(items.map(item =>
+  li({ key: item.id }, item.label)))
+```
+
+Elements never rewrites the source arrays. The browser renderer interprets them
+as DOM; `toHtmlString()` can interpret the same data as HTML.
+
+## Recursive observers form a transition graph
+
+The vnode nesting describes where things appear, so it forms a tree. JavaScript
+references describe where interaction can continue.
+
+In the counter, the button handler refers back to `counter`:
+
+```text
+observer → observation → event handler
+    ↑                         │
+    └─────────────────────────┘
+```
+
+The recursive call is deferred inside the event handler, so constructing an
+observation does not recurse forever. Each event performs one step and can
+return another observation of the same observer.
+
+A handler can instead return an observation of a different observer. The
+resulting transition graph can therefore cross the visible nesting tree.
+Elements does not materialize every possible future state; ordinary references
+and closures describe the possible next steps, and observations are constructed
+when they are needed.
 
 ## State and the DOM
 
-Elements keeps the selected observation and patches its DOM projections to
-match. The source arrays remain unchanged.
-
-Existing DOM nodes are reused where possible. This lets native state, such as
-focus or an input's edited value, survive updates where those nodes and
-properties are preserved. Each projection has its own DOM nodes and native
-state, even when the observer observation is shared.
+Selection changes an observer's current observation. Elements patches every
+mounted projection to match while preserving compatible DOM nodes where
+possible. This lets native state survive updates when the corresponding nodes
+survive.
 
 Across sibling reorders, matching prefers retained vnode references, then
-explicit `key`s, then unique unkeyed observer definitions, then position.
-Repeated projections of one definition need retained references or keys to
+explicit `key`s, then unique unkeyed observer identities, then position.
+Repeated projections of one observer need retained references or keys to
 distinguish them across reorders.
 
 For fresh list items whose identity should survive insertion or removal, use a
 key that is unique among siblings:
 
 ```js
-ul(...items.map(item =>
+ul(items.map(item =>
   li({ key: item.id }, item.label)))
 ```
 
@@ -190,7 +234,7 @@ const todos = observe((items = []) =>
            todos([...items, value]) },
          input({ name: 'todo', required: true }),
          button({ type: 'submit' }, 'Add')),
-    ul(...items.map(item => li(item)))))
+    ul(items.map(item => li(item)))))
 ```
 
 Import the tag helpers you use from `@pfern/elements`. Other event handlers
@@ -242,16 +286,33 @@ container's mounted DOM and mount again, use
 
 ### Tag helpers and `elements`
 
-HTML and SVG tags are exported as functions and through the `elements` map:
+HTML and SVG helpers are exported from the main package for convenience:
 
 ```js
-import { div, elements } from '@pfern/elements'
+import { div, svg, circle, elements } from '@pfern/elements'
 
 const { button, fragment } = elements
 ```
 
-`fragment(...)` groups children without adding a wrapper element. Curated MathML
-helpers are available from `@pfern/elements/mathml`.
+They are also available as explicit vocabularies:
+
+```js
+import { div } from '@pfern/elements/html'
+import { svg, circle } from '@pfern/elements/svg'
+import { math, mfrac } from '@pfern/elements/mathml'
+```
+
+All of these are built on the same `element(tag)` primitive. Custom
+vocabularies can use it directly:
+
+```js
+import { element } from '@pfern/elements'
+
+const widget = element('my-widget')
+```
+
+`fragment(...)` groups children without adding a wrapper element. Tag helpers
+accept individual children or arrays of vnodes.
 
 ### Props
 
@@ -333,9 +394,10 @@ Elements is JS-first. Generated `.d.ts` files provide completion and API
 documentation in editors; TypeScript is optional. Strict TypeScript users may
 need an explicit return type on recursive observers to break circular inference.
 
-Node tests exercise the data and event contracts. Real-browser checks cover DOM
-identity, native state, namespaces, asynchronous events, and history. See the
-[testing guide](./packages/elements/test/README.md).
+Views and declarative handlers can be tested directly as data in, data out,
+without mounting a DOM. Real-browser checks are reserved for projection behavior
+such as DOM identity, native state, namespaces, asynchronous events, and history.
+See the [testing guide](./packages/elements/test/README.md).
 
 ## License
 

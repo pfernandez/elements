@@ -21,7 +21,15 @@ export { DEBUG } from './core/elements.js'
 export { observe } from './core/elements.js'
 
 /**
- * A map of all HTML/SVG tag helpers (plus `fragment`).
+ * Create a vnode constructor for any element tag.
+ *
+ * Built-in HTML, SVG, and MathML modules are vocabularies of these constructors;
+ * custom vocabularies can use the same primitive.
+ */
+export { element } from './core/elements.js'
+
+/**
+ * A map of all built-in HTML/SVG tag helpers (plus `fragment`).
  */
 export { elements } from './core/elements.js'
 

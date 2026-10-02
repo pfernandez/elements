@@ -2,6 +2,9 @@
 
 X3DOM-powered X3D helpers for Elements.js.
 
+Each X3D helper uses the same `element(tag)` vnode constructor as the built-in
+HTML, SVG, and MathML vocabularies, wrapped only to lazy-load X3DOM when needed.
+
 ## Install
 
 ```sh

@@ -30,10 +30,8 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * Child nodes are plain values, nested arrays, or vnodes.
- *
- * Note: nested arrays are treated as children values (they are not
- * automatically flattened).
+ * Child nodes are plain values, vnodes, or arrays. Tag helpers recursively
+ * flatten arrays of vnodes; other array-valued children retain their shape.
  *
  * @typedef {ElementsVNode | string | number | boolean | null | undefined
  *   | any[]} ElementsChild
@@ -695,6 +693,16 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  * @typedef {{ fragment: ElementsElementHelper<ElementsProps> } & {
  *   [K in ElementsTagName]: ElementsElementHelper<ElementsPropsForTag<K>>
  * }} ElementsElementMap
+ */
+
+/**
+ * Helper returned by `element(tag)`. Built-in tags retain their specific prop
+ * types; arbitrary custom tags use the common Elements props.
+ *
+ * @template {string} Tag
+ * @typedef {Tag extends ElementsTagName
+ *   ? ElementsElementHelper<ElementsPropsForTag<Tag>>
+ *   : ElementsElementHelper<ElementsProps>} ElementsElementForTag
  */
 
 /**

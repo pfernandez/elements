@@ -1,5 +1,5 @@
 import { assignProperties, removeMissingProps } from './props.js'
-import { createOrigin, select, present, resume, sourceOf, subscribe } from './observer.js'
+import { createIdentity, select, present, resume, sourceOf, subscribe } from './observer.js'
 import { matchChildren } from './reconcile.js'
 import { stopTickLoop } from './tick.js'
 import { validateProps } from './attributes.js'
@@ -13,7 +13,7 @@ const documentSlots = new WeakMap()
 
 /** @typedef {{ source: any, parent: any, namespace: any, owner: any,
  * node?: any, end?: any, children?: Mount[], projection?: Mount,
- * origin?: any, unsubscribe?: () => void, adopted?: any }} Mount */
+ * identity?: any, unsubscribe?: () => void, adopted?: any }} Mount */
 
 const tagOf = value => Array.isArray(value) ? value[0] : null
 const propsOf = value => Array.isArray(value) ? value[1] || {} : {}
@@ -83,24 +83,24 @@ const afterChildrenProps = (node, tag, props, owner) =>
     && assignProperties(node, { value: props.value }, propsEnv(owner))
 
 /** @returns {Mount} */
-const mountBoundary = (source, origin, parent, namespace, before, adopted = null,
-                       owner = origin) => {
-  const record = { source, origin, parent, namespace, owner,
+const mountBoundary = (source, identity, parent, namespace, before, adopted = null,
+                       owner = identity) => {
+  const record = { source, identity, parent, namespace, owner,
                    projection: null, unsubscribe: null, adopted }
-  record.projection = mount(origin.current, parent, namespace, owner, before, adopted)
+  record.projection = mount(identity.current, parent, namespace, owner, before, adopted)
   const notify = next => {
     record.projection = patch(record.projection, next, record.owner)
   }
-  record.unsubscribe = subscribe(origin, notify, document)
+  record.unsubscribe = subscribe(identity, notify, document)
   return record
 }
 
 // Document slots may acquire a different event owner without changing source.
-// Rebind handlers even then, while preserving native state and child origins.
+// Rebind handlers even then, while preserving native state and child identities.
 const updateBoundary = (record, source, owner) => {
   const changedOwner = record.owner !== owner
   record.owner = owner
-  record.origin.current !== source ? select(record.origin, source)
+  record.identity.current !== source ? select(record.identity, source)
     : changedOwner && (record.projection = patch(record.projection, source, owner))
   record.source = source
   return record
@@ -113,24 +113,24 @@ const documentNode = tag =>
 
 const documentBoundary = (source, node, owner = null) => {
   const previous = documentSlots.get(node)
-  const origin = previous?.origin || createOrigin(source)
-  const record = previous || mountBoundary(source, origin, node.parentNode,
-                                           null, null, node, owner || origin)
-  previous && updateBoundary(record, source, owner || origin)
+  const identity = previous?.identity || createIdentity(source)
+  const record = previous || mountBoundary(source, identity, node.parentNode,
+                                           null, null, node, owner || identity)
+  previous && updateBoundary(record, source, owner || identity)
   documentSlots.set(node, record)
   return record
 }
 
 /** @returns {Mount} */
 const mount = (source, parent, namespace, owner, before = null, adopted = null) => {
-  const identity = sourceOf(source)
-  identity && present(source)
+  const association = sourceOf(source)
+  association && present(source)
   const kind = kindOf(source)
   const isDocumentChild = !adopted && parent === document.documentElement
     && (kind === 'head' || kind === 'body')
 
-  return identity
-    ? mountBoundary(source, identity.origin, parent, namespace, before, adopted)
+  return association
+    ? mountBoundary(source, association.identity, parent, namespace, before, adopted)
     : isDocumentChild ? documentBoundary(source, documentNode(kind), owner)
       : mountValue(source, parent, namespace, owner, before, adopted)
 }
@@ -208,18 +208,18 @@ const replace = (record, source, owner, namespace = record.namespace) => {
 
 /** @returns {Mount} */
 const patch = (record, source, owner) => {
-  const identity = sourceOf(source)
-  const sameOrigin = record.origin && identity?.origin === record.origin
+  const association = sourceOf(source)
+  const sameIdentity = record.identity && association?.identity === record.identity
   const sameValue = source === record.source
 
-  return sameOrigin
+  return sameIdentity
     ? (present(source), record.source = source, record)
     : sameValue && record.owner === owner ? record
-      : record.origin
+      : record.identity
         ? record.adopted
           ? updateBoundary(record, source, owner)
           : replace(record, source, owner)
-        : identity || kindOf(source) !== kindOf(record.source) ? replace(record, source, owner)
+        : association || kindOf(source) !== kindOf(record.source) ? replace(record, source, owner)
           : patchValue(record, source, owner, kindOf(source))
 }
 
@@ -272,8 +272,8 @@ export const render = (vnode, container = null, { replace: fresh = false } = {})
     fresh && previous && remove(previous)
     fresh && clearChildren(container)
     const record = previous && !fresh ? previous
-      : mountBoundary(vnode, createOrigin(vnode), container, containerNamespace(container), null)
-    previous && !fresh && select(record.origin, vnode)
+      : mountBoundary(vnode, createIdentity(vnode), container, containerNamespace(container), null)
+    previous && !fresh && select(record.identity, vnode)
     roots.set(container, record)
   }
 }

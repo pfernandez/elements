@@ -1,40 +1,62 @@
 ## Recursive state observers
 
-An interface has a present state and ways to move to another state. A counter
-might be at zero, with a button that takes it to one. A form contains values,
-with a submit action that can take it to a result. In Elements, ordinary
-functions describe both the present interface and what can happen next.
+Elements is built around recursive composition and declarative state
+transitions. Ordinary functions compose interface data, and event handlers can
+return to the same observer with new state. Each call produces an observation;
+Elements selects which observation of that stable identity is current.
+
+The model has five parts:
+
+- a **view** is a pure function from state to interface data;
+- an **observation** is the vnode data produced by that view;
+- an **observer** is the stable identity created by `observe(view)`;
+- **selection** chooses the observer's current observation;
+- a **projection** is a mounted DOM realization of that selection.
+
+The distinction between constructing an observation and selecting it is the
+center of the model.
 
 ### Begin with a value
 
-Start with a **view**: a pure function that describes a state. Here the state is
-a count:
+Start with a view:
 
 ```js
 const view = count => output(count)
 ```
 
-`count` is the state. Calling `view(3)` produces an observation of that state:
+`count` is the state. Calling `view(3)` produces an observation:
 
 ```js
 ['output', {}, 3]
 ```
 
 The array is data. It describes an element without creating a DOM node. Tag
-helpers let us compose larger descriptions in the same way:
+helpers compose these descriptions directly:
 
 ```js
 const view = count =>
-  div(output(count), button('Increment'))
+  div(
+    output(count),
+    ul([
+      li('Previous'),
+      li('Next')
+    ]))
+
+// ['div', {},
+//   ['output', {}, count],
+//   ['ul', {},
+//     ['li', {}, 'Previous'],
+//     ['li', {}, 'Next']]]
 ```
 
-An observation can also contain event handlers. Those functions describe how
-the interface responds to interaction.
+Arrays of vnodes are flattened into the surrounding vnode, so mapped children
+can be passed directly without argument spreading. An observation can also
+contain event handlers; those functions describe the interactions available in
+that state.
 
-### Give the calculation somewhere to return
+### Give observations an identity
 
-Pass the view to `observe` and let its handler refer to the resulting
-observer:
+Pass the view to `observe`:
 
 ```js
 import { button, observe, div, output, render } from '@pfern/elements'
@@ -48,37 +70,38 @@ const counter = observe((count = 0) =>
 render(counter(), document.body)
 ```
 
-`observe` establishes a stable identity for the counter. Each call to `counter`
-constructs an observation associated with that identity. Returning one from an
-event handler selects it as the observer's current observation, and Elements
-updates its mounted DOM projections.
+`observe` establishes one stable identity for the counter. Each call to
+`counter(...)` constructs an observation associated with that identity.
 
-Follow the first click:
+The identity is not the observation. The observer remains the same while its
+selected observation changes:
 
-1. The selected observation describes zero. Its handler closes over `count = 0`.
-2. Clicking runs that handler, which returns `counter(1)`.
-3. Elements selects the returned observation. Its output shows one, and its
-   handler closes over `count = 1`.
-4. The next click can return `counter(2)`.
+```text
+counter
+   │
+   ├── observation at 0
+   ├── observation at 1
+   └── observation at 2
+```
 
-A **closure** is simply a function that retains access to the variables where
-it was created. Here that is how each handler knows the count it continues from.
-The new observation carries the next handlers along with the next output.
+Only one of those observations is current at a time.
 
-### Recursion across events
+### Construction is pure; selection is an effect
 
-The counter refers to itself, but the next call is inside an event handler.
-Constructing its observation does not immediately recurse. Each click continues
-the calculation with new arguments.
+Calling an observer does not by itself advance it:
 
-This is what we mean by a **recursive state observer**: a function that observes
-a state and describes interactions that can lead to its next observation.
-The function's return includes both presentation and possible continuations.
-A continuation here is the returned description of what should happen next.
+```js
+counter(10)                       // Construct an observation.
+() => { counter(10) }             // Construct it, then discard it.
+() => counter(10)                 // Event return: select it.
+```
 
-Calling `counter(10)` on its own constructs a value. Returning that value from
-an event selects it. This lets a handler compute a possible next state before
-committing to it, including while waiting for asynchronous work.
+The first two expressions create vnode data and have no rendering effect. In
+the third, Elements receives the returned vnode at the event boundary and
+selects its observation.
+
+This separation means application code can compute a candidate state without
+committing to it. It is especially useful with asynchronous work:
 
 ```js
 const counter = observe((count = 0) =>
@@ -89,62 +112,82 @@ const counter = observe((count = 0) =>
   } }, count))
 ```
 
-Here `save` is an application-supplied asynchronous function. The counter stays
-at its current observation until the returned Promise resolves to `next`. If
-several handlers are pending, their results are selected in completion order.
-Each handler still carries the state from which it began.
+`next` is only data while `save` is pending. When the Promise resolves to it,
+Elements selects that observation. If several handlers are pending, resolved
+observations are selected in completion order.
 
-### The connections form a graph
+A fresh observer vnode is also selected when it is first projected into the
+DOM. Reusing an already projected vnode does not reset the observer; it projects
+the observer's current observation. Event returns are explicit selections even
+when the returned vnode was constructed earlier.
 
-The nesting in our source describes a tree: a `div` contains an `output` and a
-`button`. But the button's handler refers back to `counter`, outside that
-nesting. References connect the pieces into a **graph**. The counter has a cycle:
+### Follow one transition
+
+The first click of the counter proceeds in a small sequence:
+
+1. `counter()` constructs an observation whose handler closes over `count = 0`.
+2. The first projection selects that observation and renders zero.
+3. Clicking the button runs its handler.
+4. The handler calls `counter(1)`, constructing another observation.
+5. Returning that vnode selects it.
+6. Every projection of `counter` patches to show one.
+7. The new handler now closes over `count = 1`.
+
+Nothing needs to mutate the old vnode. State advances by selecting another
+observation of the same identity.
+
+### Recursion happens across events
+
+The definition refers to `counter` from inside its own result:
 
 ```text
-observer → current observation → event handler → same observer
+observer → observation → event handler
+    ↑                         │
+    └─────────────────────────┘
 ```
 
-The handler carries the count and can call `counter` with the next count. That
-call constructs a new observation; returning it from the event selects it.
-The selected observation changes. The observer remains the same point of
-return in the graph.
+That is a real recursive cycle, but the recursive call is deferred inside the
+handler. Constructing the current observation therefore terminates normally.
+An event provides the occasion for one more step.
 
-This is the **recursive fixed-point** intuition: the definition refers back to
-itself, so the calculation can continue through the same identity. `observe`
-provides that identity; the reference to `counter` ties the recursive cycle.
-A view can also have an identity without being recursive.
+A closure is simply a function that retains access to values from the scope in
+which it was created. Here, each handler carries the state from which the next
+transition begins.
 
-Other handlers can refer to other observers. A button in a sidebar can select
-the next observation of a page. Where something is nested tells us where it
-appears; its references tell us where the interaction can continue. These
-connections can describe future steps without constructing every possible
-observation in advance.
+This is why **recursive state observer** is a useful name: the observer presents
+one state and contains interactions that can return another observation of the
+same identity.
 
-For readers coming from Lisp, the structure is familiar: functions construct
-data, closures carry values, and recursion expresses the next step. In the
-browser, events provide the occasions for those steps, and Elements handles the
-DOM work after an observation is selected.
+The model is continuation-like without requiring a continuation API. The
+handler contains the computation that can continue from the current state; its
+returned observation tells Elements what state to select next.
 
-An observer fills a role similar to a React or Web component. Given a state,
-it describes the interface and its possible interactions. Declaring an
-`onclick` handler describes a subscription that Elements installs at the DOM
-boundary. Selecting a new observation also updates the handlers, ready for
-subsequent events.
+### One identity can have many projections
 
-### One identity, multiple projections
-
-One observer can appear in several places:
+An observer may appear in several places:
 
 ```js
 const initial = counter()
 render(div(initial, initial), document.body)
 ```
 
-Both projections subscribe to the same observer's current observation.
-Clicking either advances both. Their DOM nodes are separate; they share the
-selected description and its handlers.
+There is still one observer identity and one selected observation:
 
-Independent counters need independent definitions:
+```text
+                 counter
+                    │
+             current observation
+                /         \
+       projection A     projection B
+```
+
+Clicking either projection advances `counter`, so both update.
+
+The projections are not the same DOM nodes. Native browser state belongs to
+each projection individually. One input may be focused or contain an edited
+value while another projection of the same observation does not.
+
+Independent state requires independent observer identities:
 
 ```js
 const createCounter = () => {
@@ -157,31 +200,95 @@ const left = createCounter()
 const right = createCounter()
 ```
 
-Keep a child's vnode to preserve its current observation through parent
-updates. Mounting a fresh call such as `left(0)` selects the newly described
-state. An event return can explicitly select an earlier observation again.
+Calling the same observer twice does not create two component instances.
+Calling `observe` twice does.
 
-### Let the DOM follow
+### The visible tree and the transition graph are different
 
-The DOM is a projection of the selected observations. Its parent–child
-containment forms a [tree](https://dom.spec.whatwg.org/#trees); event handlers
-and other JavaScript references connect it to the wider graph. The browser
-turns that DOM into what appears on screen.
+Vnode nesting describes containment:
 
-The visible page is one aspect of the application's state. Two observations can
-look the same while carrying different handlers and different possible next
-steps. Each observer carries its own current observation, so several parts of a
-page can evolve independently.
+```text
+div
+├── output
+└── button
+```
 
-The state transition selects an observation. Elements patches existing DOM
-nodes where possible and installs the corresponding event handlers. Input
-values, focus, and other native state can survive when their nodes and
-properties are preserved. Native state belongs to each DOM projection.
+That is a tree. References inside handlers add edges that are not part of the
+nesting tree. The counter's button points back to the counter observer. A button
+in one observer can just as easily return an observation belonging to another.
 
-The original observation remains data. Selecting a later observation does not
-rewrite earlier source arrays. Link navigation uses this distinction too:
-Back and Forward can select saved observations, including their handlers,
-without taking a snapshot of the DOM.
+So an Elements program has at least two useful structures:
+
+- the **projection tree**, describing where observations appear;
+- the **transition graph**, describing where interactions can continue.
+
+The transition graph is implicit in ordinary JavaScript references and
+closures. Elements does not enumerate or store a graph of every future
+observation. New observations can be constructed only when an interaction
+requires them.
+
+For readers coming from Lisp, this should feel familiar: functions construct
+data, closures retain values, references form recursive structure, and an
+interpreter at the boundary gives the data operational meaning.
+
+### The DOM is a projection
+
+When an observation is selected, Elements patches its mounted DOM projections.
+The vnode remains ordinary source data.
+
+This distinction matters because logical and native state are not identical.
+The observer owns the selected observation. Each projection owns its actual DOM
+nodes and therefore its browser-managed state: focus, selection, edited input
+values, media state, and so on.
+
+Elements reuses compatible nodes where it can. Retained vnode references,
+explicit keys, unique observer identities, and finally sibling positions help
+determine which existing nodes correspond to the next observation.
+
+The result is a useful separation:
+
+```text
+observer identity       stable
+selected observation    changes by selection
+source vnode             remains data
+DOM projection           patched in place where possible
+native DOM state         belongs to that projection
+```
+
+### Navigation is the same operation
+
+Page navigation does not require a separate state architecture. An ordinary
+same-origin link can return the next observation of a page observer:
+
+```js
+a({ href: '/about', onclick: () => page('/about') }, 'About')
+```
+
+For an eligible click, Elements selects the returned observation and records the
+URL. Back and Forward restore previously selected observations.
+
+History stores observations, including the closures reachable through their
+handlers. It does not snapshot DOM nodes, and it cannot serialize those
+closures across a full page reload. After a reload, the URL again becomes the
+source from which the application constructs its initial observation.
+
+Navigation is therefore another case of the same primitive: **select an
+observation**.
+
+### One small interpreter boundary
+
+Most application code only constructs data and functions. Elements contains the
+imperative machinery needed to make those values operational in a browser:
+
+- event handlers turn returned vnodes into selections;
+- observers notify their mounted projections;
+- the DOM renderer patches those projections;
+- browser history records and restores selections;
+- `toHtmlString()` interprets the same vnode data as HTML instead of live DOM.
+
+This is the intended boundary of the library. Purity belongs to the
+description API; the runtime performs the effects required to project those
+descriptions into the browser.
 
 ### Writing alongside live examples
 
@@ -195,6 +302,5 @@ import { markdown } from './markdown.js'
 const writing = () => section(markdown(introduction))
 ```
 
-Fenced code blocks explain examples without executing them. The Todos and Scope
-pages provide live observers to explore. The Markdown helper belongs to the
-demo and uses `markdown-it` with raw HTML disabled.
+The Todos and Scope pages provide live observers to explore. The Markdown
+helper belongs to the demo and uses `markdown-it` with raw HTML disabled.

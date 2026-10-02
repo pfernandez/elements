@@ -7,6 +7,7 @@ test('all exported element functions return valid vnodes', () => {
     'render',
     'observe',
     'elements',
+    'element',
     'DEBUG',
     'toHtmlString'
   ])

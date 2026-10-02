@@ -97,7 +97,7 @@ test('retained references distinguish projections of the same observer during re
   assert.equal(leftNode.lastChild.value, 'left draft')
 })
 
-test('fresh repeated projections remain positional rather than borrowing origin identity', () => {
+test('fresh repeated projections remain positional rather than borrowing observer identity', () => {
   const shared = observe(() => row('Shared'))
   const other = observe(() => row('Other'))
   const host = mount(ul(shared(), shared(), other()))
@@ -105,14 +105,14 @@ test('fresh repeated projections remain positional rather than borrowing origin 
   second.lastChild.value = 'second draft'
 
   render(ul(other(), shared(), shared()), host)
-  assert.ok(host.firstChild.firstChild === third, 'unique origins move')
-  assert.ok(host.firstChild.childNodes[1] === second, 'shared origin retains its slot')
+  assert.ok(host.firstChild.firstChild === third, 'unique identities move')
+  assert.ok(host.firstChild.childNodes[1] === second, 'shared identity retains its slot')
   assert.ok(host.firstChild.lastChild !== first, 'no invented correspondence across slots')
   assert.equal(first.parentNode, null)
   assert.equal(second.lastChild.value, 'second draft')
 })
 
-test('a newly duplicated origin does not arbitrarily move the previous projection', () => {
+test('a newly duplicated identity does not arbitrarily move the previous projection', () => {
   const shared = observe(() => row('Shared'))
   const host = mount(ul(span('before'), shared()))
   const original = host.firstChild.lastChild
@@ -181,7 +181,7 @@ test('retained graph-style continuations select one origin across separate proje
 })
 
 test('fresh anonymous rows currently preserve slot state, not inferred person identity', () => {
-  const people = names => ul(...names.map(row))
+  const people = names => ul(names.map(row))
   const host = mount(people(['Alice', 'Bob']))
   const list = host.firstChild
   const [firstSlot, secondSlot] = list.childNodes

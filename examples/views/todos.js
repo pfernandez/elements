@@ -22,7 +22,7 @@ export const todos = observe(
         input({ name: 'todo', placeholder: 'What needs doing?' }),
         button({ type: 'submit' }, 'Add')
       ),
-      ul(...items.map(item =>
+      ul(items.map(item =>
         li({ style:
           { 'text-decoration': item.done ? 'line-through' : 'none' }},
            span({ onclick: () => toggle(item) }, item.value),

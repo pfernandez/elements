@@ -2,7 +2,9 @@
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "allowJs": true,
     "checkJs": true,
     "declaration": true,
@@ -10,5 +12,11 @@
     "stripInternal": true,
     "outDir": "./types"
   },
-  "include": ["./env.d.ts", "./elements.js", "./mathml.js"]
+  "include": [
+    "./env.d.ts",
+    "./elements.js",
+    "./html.js",
+    "./svg.js",
+    "./mathml.js"
+  ]
 }
