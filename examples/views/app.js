@@ -1,13 +1,13 @@
-import { a, code, observe, div, h2, h3, main, nav, p, pre, section }
+import { a, code, div, h2, h3, main, nav, observe, p, pre, section }
   from '@pfern/elements'
 import { cube } from './cube.js'
+import introduction from '../content/introduction.md?raw'
+import { markdown } from './markdown.js'
+import { routes } from '../routes.js'
+import { scope } from './scope.js'
 import { tick } from './tick.js'
 import tickSource from './tick.js?raw'
-import { scope } from './scope.js'
 import { todos } from './todos.js'
-import { markdown } from './markdown.js'
-import introduction from '../content/introduction.md?raw'
-import { routes } from '../routes.js'
 
 const base = import.meta.env.BASE_URL
 const initialPath = () =>
