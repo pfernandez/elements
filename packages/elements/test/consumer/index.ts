@@ -31,8 +31,10 @@ project(fragment(html.title('page'), drawing.title('drawing'), mathml.mi('x')),
         document.createDocumentFragment())
 project(element('item', 'urn:example')(), document.body)
 
-// @ts-expect-error The first milestone requires an explicit target.
-project(counter())
+const detached: Element | DocumentFragment = project(counter())
+document.body.append(detached)
+document.body.replaceWith(project(html.body()))
+const mounted: Element | DocumentFragment = project(counter(), document.body)
 // @ts-expect-error Project has no replacement mode.
 project(counter(), document.body, { replace: true })
 // @ts-expect-error Tags are exported through vocabularies, not the main module.

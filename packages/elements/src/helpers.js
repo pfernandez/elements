@@ -34,12 +34,15 @@ export { element } from './core/elements.js'
 export { fragment } from './core/elements.js'
 
 /**
- * Append a new live projection to a DOM parent. Each call adds a projection;
- * event returns select subsequent observations. Existing children are retained.
- * The target is required; html, head, and body have ordinary element behavior.
+ * Create a live projection and return its root element. An explicit fragment
+ * returns a DocumentFragment. An optional target receives the projected DOM;
+ * otherwise insert it with native DOM operations. Each call creates a projection.
+ * Root replacement leaves previously returned element references unchanged;
+ * inserting a fragment empties it while its projected range remains live.
  *
  * @param {import('./core/types.js').ElementsVNode} graph
- * @param {Element | Document | DocumentFragment} target
+ * @param {Element | Document | DocumentFragment} [target]
+ * @returns {Element | DocumentFragment}
  */
 export { project } from './core/elements.js'
 

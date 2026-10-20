@@ -23,10 +23,13 @@ const abandoned = () => {
 }
 const discarded = abandoned()
 const ticking = () => {
-  const host = document.createElement('section')
-  // This never connects, so the existing connection gate keeps polling.
-  project(html.div({ ontick: el => ({ element: el }) }), host)
-  return new WeakRef(host.firstChild)
+  const root = project(html.div({ ontick: el => ({ element: el }) }))
+  // Initialize context referencing the node, then pause after disconnection.
+  root.isConnected = true
+  frames.at(-1)(0)
+  root.isConnected = false
+  frames.at(-1)(16)
+  return new WeakRef(root)
 }
 const discardedTick = ticking()
 project(initial, document.body)

@@ -47,7 +47,8 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  * ontick: (el, ctx = { t: 0 }, dt) => ({ ...ctx, t: ctx.t + dt })
  * ```
  *
- * The handler must be synchronous; thrown errors stop ticking.
+ * Disconnection pauses ticking. Reconnection preserves context and starts with
+ * zero elapsed time. The handler must be synchronous; thrown errors stop ticking.
  *
  * @callback ElementsOnTick
  * @param {Element} el

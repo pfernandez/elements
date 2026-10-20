@@ -9,6 +9,10 @@ export const createFakeDom = () => {
 
     appendChild(child) {
       if (child == null) return child
+      if (child.nodeType === 11) {
+        [...child.childNodes].forEach(node => this.appendChild(node))
+        return child
+      }
       child.parentNode?.removeChild(child)
       this.childNodes.push(child)
       child.parentNode = this
@@ -17,6 +21,10 @@ export const createFakeDom = () => {
 
     insertBefore(next, ref) {
       if (next == null) return next
+      if (next.nodeType === 11) {
+        [...next.childNodes].forEach(node => this.insertBefore(node, ref))
+        return next
+      }
       if (!ref) return this.appendChild(next)
       if (next === ref) return next
       next.parentNode?.removeChild(next)

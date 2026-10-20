@@ -5,6 +5,96 @@ import { snapshot, resume } from '../../src/core/observer.js'
 const host = () => document.body.appendChild(document.createElement('section'))
 const pause = () => new Promise(resolve => setTimeout(resolve, 0))
 
+test('detached roots support native insertion, movement and subsequent root replacement', () => {
+  const target = host(), other = host()
+  const view = observe((n = 0) => n === 2 ? html.span('done')
+    : html.button({ onclick: () => view(n + 1) }, n))
+  const initial = view()
+  const root = project(initial)
+  assert(root instanceof HTMLButtonElement && root.parentNode === null)
+  const parallel = project(initial, target)
+  assert(parallel === target.firstChild)
+  parallel.click()
+  equal(root.textContent, '1')
+  const placeholder = document.createElement('div')
+  target.prepend(placeholder)
+  placeholder.replaceWith(root)
+  equal(target.childNodes.length, 2)
+  other.append(root)
+  root.click()
+  equal([target.textContent, other.textContent], ['done', 'done'])
+  assert(other.firstChild instanceof HTMLSpanElement)
+  assert(root instanceof HTMLButtonElement && root.parentNode === null)
+  const circle = project(svg.circle({ r: 3 }))
+  assert(circle instanceof SVGCircleElement)
+  const drawing = project(svg.svg(), target)
+  drawing.append(circle)
+  assert(circle.parentNode === drawing)
+})
+
+test('explicit fragment ranges update after native insertion and movement', () => {
+  const target = host(), other = host()
+  const group = observe((n = 0) => n === 4 ? html.strong('done') : fragment(
+    Array.from({ length: n }, (_, i) => html.span(i)),
+    html.button({ onclick: () => group(n + 1) }, 'next')))
+  const initial = group()
+  const vessel = project(initial)
+  assert(vessel instanceof DocumentFragment)
+  vessel.querySelector('button').click()
+  equal(vessel.textContent, '0next')
+  target.append(vessel)
+  equal(vessel.childNodes.length, 0)
+  target.querySelector('button').click()
+  equal(target.textContent, '01next')
+  const appended = project(initial, target)
+  assert(appended instanceof DocumentFragment && appended.childNodes.length === 0)
+  // Move the entire range, including its boundary markers.
+  other.append(...target.childNodes)
+  other.querySelector('button').click()
+  equal(other.textContent, '012next012next')
+  equal(target.textContent, '')
+  other.querySelector('button').click()
+  equal(other.textContent, 'donedone')
+  equal(other.childNodes.length, 2)
+})
+
+test('ticks wait for insertion and resume retained context after reconnection', () => {
+  const request = window.requestAnimationFrame, cancel = window.cancelAnimationFrame
+  const pending = new Map()
+  let id = 0
+  window.requestAnimationFrame = callback => (pending.set(++id, callback), id)
+  window.cancelAnimationFrame = id => pending.delete(id)
+  const frame = time => {
+    const callbacks = [...pending.values()]
+    pending.clear()
+    callbacks.forEach(callback => callback(time))
+  }
+  try {
+    const target = host(), calls = []
+    const root = project(html.div({ ontick: (_el, n = 0, dt) =>
+      (calls.push([n, dt]), n + 1) }))
+    frame(0)
+    equal(calls.length, 0)
+    target.append(root)
+    frame(16)
+    frame(32)
+    equal(calls, [[0, 0], [1, 16]])
+    root.remove()
+    frame(48)
+    frame(1000)
+    equal(calls.length, 2)
+    target.append(root)
+    frame(2000)
+    equal(calls[2], [2, 0])
+    frame(2016)
+    equal(calls[3], [3, 16])
+    root.remove()
+  } finally {
+    window.requestAnimationFrame = request
+    window.cancelAnimationFrame = cancel
+  }
+})
+
 test('project appends independent placements with shared observations and native state', () => {
   const target = host()
   target.append(document.createElement('aside'))
@@ -98,9 +188,8 @@ test('document tags create local elements without adopting the document shell', 
   assert(target.firstChild !== document.documentElement)
   assert(document.body === body && document.head === head)
   equal(target.querySelector('body').textContent, 'local')
-  let missing = false
-  try { project(html.body()) } catch (error) { missing = error instanceof TypeError }
-  assert(missing, 'document tags require an explicit target too')
+  const detached = project(html.body())
+  assert(detached instanceof HTMLBodyElement && detached.parentNode === null)
 })
 
 test('native removal permits collection while retained DOM and observer state survive', async () => {
@@ -116,12 +205,16 @@ test('native removal permits collection while retained DOM and observer state su
     return new WeakRef(node)
   }
   const abandoned = discard()
-  const discardTick = () => {
-    const detached = document.createElement('section')
-    project(html.div({ ontick: el => ({ element: el }) }), detached)
-    return new WeakRef(detached.firstChild)
-  }
+  const discardTick = () =>
+    new WeakRef(project(html.div({ ontick: el => ({ element: el }) })))
   const ticking = discardTick()
+  const move = () => {
+    const previous = document.createElement('section')
+    const node = project(initial, previous)
+    target.append(node)
+    return new WeakRef(previous)
+  }
+  const previousParent = move()
   project(initial, target)
   const kept = target.lastChild
   kept.remove()
@@ -131,10 +224,11 @@ test('native removal permits collection while retained DOM and observer state su
     await pause()
     globalThis.gc()
     await pause()
-    if (!abandoned.deref() && !ticking.deref()) break
+    if (!abandoned.deref() && !ticking.deref() && !previousParent.deref()) break
   }
   assert(!abandoned.deref(), 'observer/history must not retain discarded DOM')
   assert(!ticking.deref(), 'a waiting tick must not retain discarded DOM')
+  assert(!previousParent.deref(), 'a moved projection must not retain its former parent')
   resume(counter(8))
   equal([kept.textContent, target.lastChild.textContent], ['8', '8'])
   assert(history.size > 0)

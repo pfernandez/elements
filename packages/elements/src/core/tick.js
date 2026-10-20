@@ -38,19 +38,9 @@ const frame = reference => {
     const el = reference.deref()
     const state = el && tickStateMap.get(el)
     if (!state) return
-    const connected = isConnected(el)
-    if (!state.running || (!connected && state.wasConnected))
-      return stopTickLoop(el)
+    if (!state.running) return stopTickLoop(el)
 
-    if (!connected) {
-      state.lastTime = null
-      state.rafId = window.requestAnimationFrame(step)
-      return
-    }
-
-    state.wasConnected = true
-
-    if (!state.ready(el)) {
+    if (!isConnected(el) || !state.ready(el)) {
       state.lastTime = null
       state.rafId = window.requestAnimationFrame(step)
       return
@@ -86,6 +76,8 @@ const frame = reference => {
  *
  * Returning `undefined` preserves the previous `ctx`. Returning any other value
  * replaces `ctx` for the next tick.
+ * Disconnection pauses calls without losing context. On reconnection/readiness,
+ * the first tick receives zero elapsed time, excluding the paused interval.
  *
  * If the handler throws (or returns a Promise), ticking stops.
  *
@@ -115,7 +107,6 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
     ctx: undefined,
     lastTime: null,
     rafId: null,
-    wasConnected: false,
     running: true
   }
 

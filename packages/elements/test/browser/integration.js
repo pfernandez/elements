@@ -5,6 +5,27 @@ import { a, body, button, div, form, input, output } from '../../html.js'
 import { assert, equal, mount, test, traverse } from './harness.js'
 
 // Document-level integration runs after the focused browser contracts.
+test('real X3DOM waits for connection and survives head replacement and reconnection', async () => {
+  const frame = document.createElement('iframe')
+  try {
+    await new Promise((resolve, reject) => {
+      const finish = error => {
+        clearTimeout(timeout)
+        window.removeEventListener('message', receive)
+        error ? reject(error) : resolve()
+      }
+      const receive = event => {
+        if (event.source !== frame.contentWindow || event.origin !== location.origin || !event.data.x3domCheck) return
+        finish(event.data.x3domCheck === 'PASS' ? null : new Error(event.data.x3domCheck))
+      }
+      const timeout = setTimeout(() => finish(new Error('X3DOM integration timed out')), 8000)
+      window.addEventListener('message', receive)
+      frame.src = '/packages/elements/test/browser/x3dom.html'
+      document.body.append(frame)
+    })
+  } finally { frame.remove() }
+})
+
 test('the demo Markdown helper renders independent prose and leaves HTML inert', async () => {
   const { markdown } = await import('/examples/views/markdown.js')
   const text = '## Prose\n\nA **small** example.\n\n- One\n- Two\n\n```js\ndiv("hello")\n```'
@@ -26,9 +47,20 @@ test('the demo Markdown helper renders independent prose and leaves HTML inert',
 })
 
 test('the demo navigates and its counters and todos continue through events', async () => {
-  document.body.replaceChildren()
+  const previousRoot = document.documentElement
   history.replaceState({}, '', '/scope')
   await import('/examples/index.js')
+  assert(document.documentElement !== previousRoot, 'the demo replaces the document root')
+  equal(document.documentElement.lang, 'en')
+  equal(document.title, 'Elements.js')
+  equal(document.body.className, 'container')
+  equal(document.head.querySelector('meta[name="viewport"]').content,
+        'width=device-width, initial-scale=1.0')
+  assert(document.doctype?.name === 'html', 'root replacement preserves the doctype')
+  assert(document.head.querySelector('style')?.textContent.includes('grid-template-rows'),
+         'the projected head contains the demo stylesheet')
+  assert(!document.head.querySelector('style[data-vite-dev-id]'), 'demo CSS needs no Vite injection')
+  equal(getComputedStyle(document.body).display, 'grid')
   const scope = () => document.querySelector('.scope')
   const counters = () => [...scope().querySelectorAll('output')].map(node => node.textContent)
   scope().querySelectorAll('button')[1].click()

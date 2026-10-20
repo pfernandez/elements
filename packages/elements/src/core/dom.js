@@ -11,7 +11,7 @@ import { htmlNS, svgNS, namespaceAt, childNamespace } from './namespaces.js'
 // The reverse subscription edges are weak, so native removal permits collection.
 const boundaries = new WeakMap()
 
-/** @typedef {{ source: any, parent: any, namespace: any, owner: any,
+/** @typedef {{ source: any, namespace: any, owner: any,
  * node?: any, end?: any, children?: Mount[], projection?: Mount,
  * identity?: any, unsubscribe?: () => void, scope?: Mount, notify?: Function }} Mount */
 
@@ -70,7 +70,7 @@ const afterChildrenProps = (node, tag, props, owner) =>
 
 /** @returns {Mount} */
 const mountBoundary = (source, identity, parent, namespace, before, scope = null) => {
-  const record = { source, identity, parent, namespace, owner: identity, scope,
+  const record = { source, identity, namespace, owner: identity, scope,
                    projection: null, unsubscribe: null, notify: null }
   record.projection = mount(identity.current, parent, namespace, identity, before, record)
   record.notify = next => {
@@ -99,7 +99,7 @@ const mountValue = (source, parent, namespace, owner, before, scope) => {
     : kind === 'empty' || kind === 'fragment' ? doc.createComment('')
       : doc.createElementNS(ownNamespace, kind)
   /** @type {Mount} */
-  const record = { source, parent, namespace, owner, node, children: [], scope }
+  const record = { source, namespace, owner, node, children: [], scope }
   boundaries.set(node, scope)
   if (kind === 'fragment') {
     record.end = doc.createComment('')
@@ -121,7 +121,7 @@ const mountValue = (source, parent, namespace, owner, before, scope) => {
 }
 
 const patchChildren = (record, sources, owner, namespace) => {
-  const parent = record.end ? record.parent : record.node
+  const parent = record.end ? record.node.parentNode : record.node
   const previous = record.children
   const matches = matchChildren(previous.map(child => child.source), sources)
   const used = new Set(matches)
@@ -199,19 +199,27 @@ const patchValue = (record, source, owner, kind) => {
 }
 
 /**
- * Append a new live projection, normally once at startup for each placement.
+ * Create a live DOM projection, optionally appending it to a target.
  * Observer event returns update all projections of that identity; plain vnode
  * returns update their captured boundary. Fresh observations select immediately.
- * Each call adds DOM, preserves existing children, and treats every tag equally.
+ * Each call creates independent DOM and preserves existing target children.
  * Vocabulary helpers determine namespaces independently of the target.
+ * Returns the root element, or a DocumentFragment for an explicit fragment.
+ * Inserting a fragment empties it. Replacing an observer's root does not change
+ * a previously returned element reference; it still refers to the original node.
  *
  * @param {import('./types.js').ElementsVNode} graph
- * @param {Element | Document | DocumentFragment} target Required DOM parent.
- * @returns {void}
+ * @param {Element | Document | DocumentFragment} [target] Optional DOM parent.
+ * @returns {Element | DocumentFragment} The initially projected DOM.
  */
 export const project = (graph, target) => {
-  if (!target || typeof target.insertBefore !== 'function')
-    throw new TypeError('project() requires a DOM parent target.')
+  if (target !== undefined && (!target || typeof target.insertBefore !== 'function'))
+    throw new TypeError('project() target must be a DOM parent.')
   watchHistory()
-  mountBoundary(graph, createIdentity(graph), target, htmlNS, null)
+  const staging = (target ? documentOf(target) : document).createDocumentFragment()
+  const record = mountBoundary(graph, createIdentity(graph), staging, htmlNS, null)
+  const first = firstNode(record)
+  const projection = first === lastNode(record) ? staging.removeChild(first) : staging
+  target?.insertBefore(projection, null)
+  return projection
 }

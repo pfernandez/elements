@@ -6,7 +6,7 @@ import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
 
-import { startTickLoop } from '../src/core/tick.js'
+import { startTickLoop, stopTickLoop } from '../src/core/tick.js'
 
 const makeWindow = extra =>
   ({
@@ -152,7 +152,7 @@ describe("runtime-tick", () => {
     globalThis.window = prevWindow
   })
 
-  test('ontick waits for connection and stops on disconnect', async () => {
+  test('ontick pauses and resumes with context and excludes disconnected time', async () => {
     const prevWindow = globalThis.window
 
     let rafId = 0
@@ -199,6 +199,19 @@ describe("runtime-tick", () => {
     rafQueue.delete(f3)
     await Promise.resolve()
 
+    assert.equal(calls.length, 1)
+    assert.equal(rafQueue.size, 1)
+
+    el.isConnected = true
+    const [f4] = rafQueue.keys()
+    rafQueue.get(f4)(1000)
+    rafQueue.delete(f4)
+    assert.deepEqual(calls[1], [1, 0])
+    const [f5] = rafQueue.keys()
+    rafQueue.get(f5)(1016)
+    rafQueue.delete(f5)
+    assert.deepEqual(calls[2], [2, 16])
+    stopTickLoop(el)
     assert.equal(rafQueue.size, 0)
 
     globalThis.window = prevWindow

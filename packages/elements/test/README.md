@@ -58,11 +58,12 @@ the browser itself is part of the behavior.
   `oninput`/`onchange` get `event.target`; `onsubmit` calls `preventDefault()`
   when returning a vnode or Promise. Eligible link handlers also record the URL
   when their result is a vnode.
-- **`project()` behavior:** fresh append-only placements, shared observations,
-  vocabulary namespaces, nested hosts, and collection of discarded projections.
+- **`project()` behavior:** returned roots, native insertion and movement, explicit
+  fragment ranges, shared observations, namespaces, nested hosts, and collection.
 - **Reconciliation:** observer selections patch props and children while retaining
   compatible nodes. The test-only `transition` fixture drives those selections.
-- **`ontick`:** readiness gating, stop-on-throw, and stop-on-Promise.
+- **`ontick`:** readiness gating, pause/resume with retained context, stop-on-throw,
+  and stop-on-Promise.
 
 ## How We Test
 

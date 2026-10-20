@@ -6,7 +6,7 @@
  * - Avoid loading heavy 3D code for apps that never use X3D.
  *
  * Implementation:
- * - On first use of any 3D helper, load vendor `x3dom-full.js` + `x3dom.css`
+ * - When an X3D scene connects to this document, load vendor `x3dom-full.js` + `x3dom.css`
  *   via DOM injection.
  *
  * Rationale:
@@ -16,12 +16,9 @@
  *   the smallest initial payload.
  */
 
-let x3domPromise = null
-let x3domLoadFailed = false
-
 let canvas2dPatched = false
 
-const patchCanvas2DWillReadFrequentlyOnce = () => {
+const patchCanvas2DWillReadFrequentlyOnce = window => {
   if (canvas2dPatched) return
   canvas2dPatched = true
 
@@ -29,7 +26,7 @@ const patchCanvas2DWillReadFrequentlyOnce = () => {
   // requests `getContext('2d', { willReadFrequently: true })` when it relies on
   // repeated `getImageData()` readbacks (avoids Chrome warning + can improve
   // performance).
-  const Canvas = globalThis?.HTMLCanvasElement
+  const Canvas = window.HTMLCanvasElement
   const originalGetContext = Canvas?.prototype?.getContext
   if (typeof originalGetContext !== 'function') return
 
@@ -71,115 +68,66 @@ const patchCanvas2DWillReadFrequentlyOnce = () => {
   }
 }
 
-const getHead = () =>
-  document?.head || document?.documentElement || null
+// Observe the document, not its replaceable head/body. No runtime resources are
+// requested until a scene is connected; vnode construction remains ordinary data.
+const assets = new WeakMap()
+const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).href
+const fullUrl = new URL('../../vendor/x3dom-full.js', import.meta.url).href
 
-const loadStyleOnce = href => {
-  const head = getHead()
-  if (!head
-    || document?.querySelector?.(`link[rel="stylesheet"][href="${href}"]`)) {
-    return Promise.resolve()
+const asset = (document, tag, attribute, url) => {
+  const existing = document.querySelector(`${tag}[${attribute}="${url}"]`)
+  const node = existing || document.createElement(tag)
+  let ready = assets.get(node)
+  if (!ready) {
+    ready = existing && tag === 'link' && existing.sheet ? Promise.resolve()
+      : new Promise((resolve, reject) => {
+        node.addEventListener('load', resolve, { once: true })
+        node.addEventListener('error', reject, { once: true })
+      })
+    assets.set(node, ready)
   }
-  return new Promise((resolve, reject) => {
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = href
-    link.onload = () => resolve()
-    link.onerror = err => reject(err)
-    head.appendChild(link)
-  })
-}
-
-const loadScriptOnce = src => {
-  const head = getHead()
-  if (!head || document?.querySelector?.(`script[src="${src}"]`)) {
-    return Promise.resolve()
+  if (!existing) {
+    tag === 'link' ? node.setAttribute('rel', 'stylesheet')
+      : node.setAttribute('defer', '')
+    node.setAttribute(attribute, url)
+    document.head.appendChild(node)
   }
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script')
-    script.src = src
-    script.defer = true
-    script.onload = () => resolve()
-    script.onerror = err => reject(err)
-    head.appendChild(script)
-  })
+  return { node, ready }
 }
 
-const getX3DOM = () => globalThis?.x3dom || null
-
-const reloadX3DOM = () => {
-  try {
-    getX3DOM()?.reload?.()
-  } catch (err) {
-    console.warn('x3dom.reload() failed', err)
-  }
-}
-
-let reloadScheduled = false
-const scheduleReloadX3DOM = () => {
-  if (reloadScheduled) return
-  reloadScheduled = true
-  window?.requestAnimationFrame?.(() => {
-    reloadScheduled = false
-    reloadX3DOM()
-  })
-}
-
-const ensureX3DOM = () => {
-  if (typeof window === 'undefined' || x3domLoadFailed) return null
-
-  // Apply once per page load (even if x3dom was loaded externally).
-  patchCanvas2DWillReadFrequentlyOnce()
-
-  if (getX3DOM()?.reload) return Promise.resolve(getX3DOM())
-  if (x3domPromise) return x3domPromise
-
-  x3domPromise = (async () => {
-    // Load assets via standard <link> and <script> tags (works across tools).
-    //
-    // Note: Avoid dynamic-importing CSS, since some dev servers may serve it as
-    // `text/css` even when requested as an ESM module, which triggers strict
-    // MIME type errors in the browser console.
-    const cssUrl = new URL(
-      '../../vendor/x3dom.css',
-      import.meta.url
-    ).toString()
-    const fullUrl = new URL(
-      '../../vendor/x3dom-full.js',
-      import.meta.url
-    ).toString()
-
-    await Promise.all([loadStyleOnce(cssUrl), loadScriptOnce(fullUrl)])
-    return getX3DOM()
-  })()
-    .then(() => {
-      reloadX3DOM()
-      const x3dom = getX3DOM()
-      x3dom && (x3dom.__elementsLoadedFull = true)
-      globalThis.__elementsX3domLoadedFull = true
-      return x3dom
+const watchDocument = document => {
+  const window = document.defaultView
+  if (!window?.MutationObserver) return
+  let connected = new WeakSet()
+  let stylesheet = null, script = null, revision = 0
+  const sync = () => {
+    const scenes = Array.from(document.querySelectorAll('x3d'))
+    const added = scenes.some(scene => !connected.has(scene))
+    connected = new WeakSet(scenes)
+    if (!scenes.length) {
+      stylesheet = script = null
+      revision++
+      return
+    }
+    if (!document.head) return
+    patchCanvas2DWillReadFrequentlyOnce(window)
+    const css = asset(document, 'link', 'href', cssUrl)
+    const js = window.x3dom?.reload ? null : asset(document, 'script', 'src', fullUrl)
+    if (!added && stylesheet === css.node && script === js?.node) return
+    stylesheet = css.node
+    script = js?.node
+    const current = ++revision
+    Promise.all([css.ready, js?.ready]).then(() => {
+      if (current !== revision || !document.querySelector('x3d')) return
+      // The vendor skips scenes it has already initialized, including moves.
+      window.x3dom?.reload()
+    }).catch(error => {
+      if (current === revision) console.warn('x3dom failed to load', error)
     })
-    .catch(err => {
-      x3domLoadFailed = true
-      console.warn('x3dom failed to load', err)
-      return null
-    })
-
-  return x3domPromise
-}
-
-const ensureX3DOMForTag = async tag => {
-  const x3dom = await ensureX3DOM()
-  if (x3dom) {
-    // Reloads in case an element is removed and re-added to the DOM.
-    scheduleReloadX3DOM()
-    return x3dom
   }
+  new window.MutationObserver(sync).observe(document, { childList: true, subtree: true })
+  sync()
 }
 
-export const withX3DOM = (tag, fn) => (...args) => {
-  // Fire-and-forget: we want vnode creation to stay synchronous.
-  // X3DOM will (re)parse after load via reloadX3DOM().
-  ensureX3DOMForTag(tag)
-  return fn(...args)
-}
+// Importing the vocabulary installs connection detection, not the 3D runtime.
+if (typeof document !== 'undefined') watchDocument(document)

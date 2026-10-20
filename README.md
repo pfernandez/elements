@@ -34,8 +34,47 @@ The first call constructs an observation of the counter at zero. Clicking
 one. Elements selects it and updates the DOM. The new handler closes over the
 new count, ready for the next click.
 
-Call `project(graph, target)` once for each placement, normally at startup.
-Each call appends a new projection; event returns drive subsequent transitions.
+Call `project(graph, target?)` once for each placement, normally at startup.
+Each call creates a new projection; event returns drive subsequent transitions.
+
+## Compose the whole document
+
+The document itself can be composed with `html`, `head`, and `body`. Start with
+a minimal `index.html`:
+
+```html
+<!doctype html>
+<meta charset="utf-8">
+<script type="module" src="/index.js"></script>
+```
+
+Then describe the page in `index.js` and replace the browser-created root:
+
+```js
+import { project } from '@pfern/elements'
+import { body, h1, head, html, meta, title } from '@pfern/elements/html'
+
+const graph = html({ lang: 'en' },
+  head(
+    meta({ charset: 'utf-8' }),
+    title('My app')),
+  body(h1('Hello')))
+
+const tree = project(graph)
+document.documentElement.replaceWith(tree)
+```
+
+The doctype remains in place. Stylesheets can also belong to the graph. With Vite,
+import processed CSS as text and include `style(css)` in the authored head:
+
+```js
+import css from './css/style.css?inline'
+import { style } from '@pfern/elements/html'
+
+head(title('My app'), style(css))
+```
+
+See [the demo entry point](./examples/index.js) for a complete page composed this way.
 
 ## The model
 
@@ -274,26 +313,32 @@ a vnode array. Calling the returned observer constructs an observation;
 returning that observation from an event selects it. Each call to `observe`
 establishes a separate identity for independent state.
 
-### `project(graph, target)`
+### `project(graph, target?)`
 
-Append a new live projection to a DOM parent. The target is required; existing
-children remain in place. Every call adds a projection, including repeated calls
-with the same graph and target. Event returns select subsequent observations.
+Create a live DOM projection and return its root element. If a target is supplied,
+append it there, preserving existing children. Otherwise, insert it using native DOM
+operations. Every call creates a separate projection.
 
 ```js
 const initial = counter()
 project(initial, document.body)
-project(initial, document.body) // Two projections of one observer.
+document.body.append(project(initial)) // Two projections of one observer.
 ```
 
+A returned element is an ordinary DOM reference: if an observer later replaces
+its root, that reference still points to the original element. Only an explicit
+`fragment(...)` projects to a `DocumentFragment`; insertion empties that fragment,
+while its inserted range remains live. To relocate a fragment projection, move a
+containing host or its complete range, including the boundary comments.
+
 A reused observer vnode follows its current observation. A fresh `counter(10)`
-selects ten across its projections, even when projected into a detached target.
+selects ten across its projections, even before the new projection is inserted.
 Separate observers provide independent state; focus and native input state
 belong to each DOM projection.
 
 `html`, `head`, and `body` are ordinary elements: they do not adopt the document
-shell. Put static document structure and assets in the host HTML. For embedding,
-use a dedicated host whose contents the surrounding application leaves alone.
+shell. Use native replacement to project a whole document, as shown above.
+For embedding, use a dedicated host whose contents the surrounding application leaves alone.
 Replacing the host detaches its projections; recreating it does not restore them.
 Observer state survives removal, retained projections remain live, and discarded
 projections can be garbage-collected. Selection does not repair arbitrary DOM edits.
@@ -366,6 +411,8 @@ transform({
 This return value carries animation context; it does not select an observer
 observation. The hook must be synchronous. Throwing or returning a Promise
 stops ticking and propagates an error. X3DOM elements wait for scene readiness.
+Disconnection pauses ticking; reconnection resumes with the previous context
+and an initial `dtMs` of zero, excluding time spent paused.
 
 ### `toHtmlString(vnode[, options])`
 

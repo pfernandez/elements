@@ -1,146 +1,122 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { element } from '@pfern/elements'
+import { box, scene, x3d } from '../x3dom.js'
 
-const loadX3DOMModule = () =>
-  import(
-    `${new URL('../src/core/elements-x3dom.js', import.meta.url).href}`
-      + `?t=${Math.random()}`
-  )
+const flush = () => new Promise(resolve => setTimeout(resolve, 0))
+const load = () => import(`../src/core/elements-x3dom.js?test=${Math.random()}`)
 
-test(
-  'withX3DOM does not throw when window+document exist in Node',
-  async () => {
-  const { withX3DOM } = await loadX3DOMModule()
-  const prevWindow = globalThis.window
-  const prevDocument = globalThis.document
-  const prevX3dom = globalThis.x3dom
-
-  const headChildren = []
-
-  globalThis.document = {
-    head: {
-      appendChild: el => {
-        headChildren.push(el)
-        typeof el.onload === 'function' && el.onload()
-        return el
-      }
-    },
-    createElement: tag => {
-      const el = {
-        tagName: String(tag).toUpperCase(),
-        attributes: {}
-      }
-      el.setAttribute = (k, v) => { el.attributes[k] = String(v) }
-      return el
-    },
-    querySelector: () => null
+const fixture = async run => {
+  const previous = globalThis.document
+  const nodes = [], scenes = []
+  let sync, watched, reloads = 0
+  class Asset extends EventTarget {
+    constructor(tag) { super(); this.tag = tag; this.attributes = {} }
+    setAttribute(key, value) { this.attributes[key] = value }
+    loaded() {
+      this.tag === 'link' ? this.sheet = {} : window.x3dom = { reload: () => reloads++ }
+      this.dispatchEvent(new Event('load'))
+    }
   }
-
-  globalThis.window = {
-    requestAnimationFrame: cb => cb(0),
-    cancelAnimationFrame: () => {}
+  const window = {
+    MutationObserver: class {
+      constructor(callback) { sync = callback }
+      observe(node) { watched = node }
+    }
   }
-
-  globalThis.x3dom = null
-
-  const x3d = withX3DOM('x3d', element('x3d'))
-  assert.deepEqual(x3d({ id: 'x' }), ['x3d', { id: 'x' }])
-
-  // Allow the async loader to attempt imports and fall back to URL loading.
-  await new Promise(resolve => setTimeout(resolve, 0))
-
-  const linkCount = headChildren.filter(x => x.tagName === 'LINK').length
-  const scriptCount = headChildren.filter(x => x.tagName === 'SCRIPT').length
-  assert.ok(linkCount >= 1)
-  assert.ok(scriptCount >= 1)
-
-  globalThis.window = prevWindow
-  globalThis.document = prevDocument
-  globalThis.x3dom = prevX3dom
+  const document = {
+    defaultView: window,
+    head: { appendChild: node => (nodes.push(node), node) },
+    createElement: tag => new Asset(tag),
+    querySelectorAll: () => scenes,
+    querySelector: selector => selector === 'x3d' ? scenes[0] || null
+      : nodes.find(node => selector === `${node.tag}[${node.tag === 'link' ? 'href' : 'src'}="${node.attributes.href || node.attributes.src}"]`) || null
   }
-)
+  globalThis.document = document
+  try {
+    await load()
+    assert.equal(watched, document)
+    await run({ nodes, scenes, sync: () => sync(), reloads: () => reloads })
+  } finally { globalThis.document = previous }
+}
 
-test(
-  'withX3DOM loads x3dom-full (and never core)',
-  async () => {
-  const { withX3DOM } = await loadX3DOMModule()
-  const prevWindow = globalThis.window
-  const prevDocument = globalThis.document
-  const prevX3dom = globalThis.x3dom
-  const prevWarn = console.warn
+test('X3DOM helpers construct descriptions without accessing the DOM', async () => {
+  const previous = globalThis.document
+  globalThis.document = new Proxy({}, { get: () => { throw new Error('DOM access during construction') } })
+  try {
+    assert.deepEqual(x3d(scene(box())), ['x3d', {}, ['scene', {}, ['box', {}]]])
+    await flush()
+  } finally { globalThis.document = previous }
+})
 
-  const headChildren = []
-  console.warn = () => {}
+test('connections load full X3DOM once and reconnection restores missing styles', () =>
+  fixture(async ({ nodes, scenes, sync, reloads }) => {
+    assert.equal(nodes.length, 0)
+    scenes.push({}, {})
+    sync()
+    assert.equal(nodes.length, 2)
+    assert.match(nodes[1].attributes.src, /x3dom-full\.js$/)
+    sync()
+    assert.equal(nodes.length, 2)
+    nodes.forEach(node => node.loaded())
+    await flush()
+    assert.equal(reloads(), 1)
+    scenes.splice(0)
+    sync()
+    nodes.splice(0, 1)
+    scenes.push({})
+    sync()
+    assert.equal(nodes.length, 2)
+    assert.equal(nodes.filter(node => node.tag === 'script').length, 1)
+    nodes.find(node => node.tag === 'link').loaded()
+    await flush()
+    assert.equal(reloads(), 2)
+  }))
 
-  globalThis.document = {
-    head: {
-      appendChild: el => {
-        headChildren.push(el)
+test('removal during loading does not initialize a disconnected scene', () =>
+  fixture(async ({ nodes, scenes, sync, reloads }) => {
+    scenes.push({})
+    sync()
+    scenes.splice(0)
+    sync()
+    nodes.forEach(node => node.loaded())
+    await flush()
+    assert.equal(reloads(), 0)
+    scenes.push({})
+    sync()
+    await flush()
+    assert.equal(reloads(), 1)
+  }))
 
-        typeof el.onload === 'function' && el.onload()
-        return el
-      }
-    },
-    createElement: tag => {
-      const el = {
-        tagName: String(tag).toUpperCase(),
-        attributes: {}
-      }
-      el.setAttribute = (k, v) => { el.attributes[k] = String(v) }
-      return el
-    },
-    querySelector: () => null
-  }
+test('head replacement during loading waits for the current assets', () =>
+  fixture(async ({ nodes, scenes, sync, reloads }) => {
+    scenes.push({})
+    sync()
+    const old = nodes.splice(0)
+    sync()
+    old.forEach(node => node.loaded())
+    await flush()
+    assert.equal(reloads(), 0)
+    nodes.forEach(node => node.loaded())
+    await flush()
+    assert.equal(reloads(), 1)
+  }))
 
-  globalThis.window = {
-    requestAnimationFrame: cb => cb(0),
-    cancelAnimationFrame: () => {},
-    x3dom: null
-  }
-
-  globalThis.x3dom = null
-
-  const arc2d = withX3DOM('arc2d', element('arc2d'))
-  assert.deepEqual(arc2d({ id: 'x' }), ['arc2d', { id: 'x' }])
-
-  await new Promise(resolve => setTimeout(resolve, 0))
-
-  const scriptSrcs =
-    headChildren
-      .filter(x => x.tagName === 'SCRIPT')
-      .map(x => String(x.src))
-
-  const hasFull = scriptSrcs.some(s => s.includes('x3dom-full.js'))
-  assert.equal(hasFull, true)
-  assert.equal(scriptSrcs.some(s => s.includes('x3dom.js')), false)
-
-  console.warn = prevWarn
-  globalThis.window = prevWindow
-  globalThis.document = prevDocument
-  globalThis.x3dom = prevX3dom
-  }
-)
-
-test(
-  'withX3DOM is a no-op when document is missing (SSR)',
-  async () => {
-  const { withX3DOM } = await loadX3DOMModule()
-  const prevWindow = globalThis.window
-  const prevDocument = globalThis.document
-  const prevX3dom = globalThis.x3dom
-
-  globalThis.window = undefined
-  globalThis.document = undefined
-  globalThis.x3dom = undefined
-
-  const x3d = withX3DOM('x3d', element('x3d'))
-  assert.deepEqual(x3d({ id: 'x' }), ['x3d', { id: 'x' }])
-
-  await new Promise(resolve => setTimeout(resolve, 0))
-
-  globalThis.window = prevWindow
-  globalThis.document = prevDocument
-  globalThis.x3dom = prevX3dom
-  }
-)
+test('failed assets report errors and can be replaced for a later attempt', () =>
+  fixture(async ({ nodes, scenes, sync, reloads }) => {
+    const warn = console.warn, warnings = []
+    console.warn = (...args) => warnings.push(args)
+    try {
+      scenes.push({})
+      sync()
+      nodes[0].dispatchEvent(new Event('error'))
+      nodes[1].loaded()
+      await flush()
+      assert.equal(warnings.length, 1)
+      assert.equal(reloads(), 0)
+      nodes.splice(0, 1)
+      sync()
+      nodes.find(node => node.tag === 'link').loaded()
+      await flush()
+      assert.equal(reloads(), 1)
+    } finally { console.warn = warn }
+  }))

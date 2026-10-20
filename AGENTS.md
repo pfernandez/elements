@@ -6,8 +6,8 @@ necessary imperative DOM boundary with care.
 
 ### Design Invariants
 
-- **Single page-load mount:** typical apps call `project(graph, target)` once per placement at startup.
-  Each call appends a fresh projection; event returns select subsequent observations.
+- **Single page-load mount:** typical apps call `project(graph, target?)` once per placement at startup.
+  Each call returns fresh DOM and optionally appends it; event returns select subsequent observations.
 - **Declarative updates via events:** observer calls are pure; returned
   observer vnodes select their identity's observation across all projections.
   Plain vnode returns patch the closest observer boundary. Independent state
@@ -17,6 +17,7 @@ necessary imperative DOM boundary with care.
   No navigation registration is required for these links.
 - **Explicit tick hook:** `ontick` is a hook (not a DOM event). It runs once per
   animation frame, waits for connection/readiness, and must be synchronous.
+  Disconnection pauses it; reconnection preserves context and resets elapsed time.
 - **Attribute-first props:** most props are assigned via `setAttribute`. A small
   explicit set of **property exceptions** are assigned as DOM properties when
   present: `value`, `checked`, `selected`, `disabled`, `multiple`, `muted`,
