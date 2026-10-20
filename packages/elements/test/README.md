@@ -17,7 +17,8 @@ return the next vnode. Neither operation requires a DOM projection:
 
 ```js
 import assert from 'node:assert/strict'
-import { button, observe } from '../elements.js'
+import { observe } from '../elements.js'
+import { button } from '../html.js'
 
 const counter = observe((count = 0) =>
   button({ onclick: () => counter(count + 1) }, count))
@@ -57,8 +58,10 @@ the browser itself is part of the behavior.
   `oninput`/`onchange` get `event.target`; `onsubmit` calls `preventDefault()`
   when returning a vnode or Promise. Eligible link handlers also record the URL
   when their result is a vnode.
-- **`render()` behavior:** initial mount, diff+patch updates, prop updates and
-  removals, and child add/remove behavior.
+- **`project()` behavior:** fresh append-only placements, shared observations,
+  vocabulary namespaces, nested hosts, and collection of discarded projections.
+- **Reconciliation:** observer selections patch props and children while retaining
+  compatible nodes. The test-only `transition` fixture drives those selections.
 - **`ontick`:** readiness gating, stop-on-throw, and stop-on-Promise.
 
 ## How We Test
@@ -68,7 +71,8 @@ observer behavior, projection, and animation contracts live in separate test
 files. For DOM behavior, tests use a small in-repo fake DOM implementation.
 The browser suite is likewise split by projection, event, observer, and
 integration contracts, with Chrome/Chromium reserved for behavior that requires
-a real browser.
+a real browser. Collection checks run with exposed GC in an isolated Node process
+and in Chrome; they also verify that retained projections remain live.
 
 The goal is to keep tests:
 

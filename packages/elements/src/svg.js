@@ -4,343 +4,379 @@
 import { element } from './core/element.js'
 
 /**
+ * A link within an SVG drawing.
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/a
+ */
+export const a = element("a", "http://www.w3.org/2000/svg")
+
+/**
+ * An accessible short title for an SVG element.
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title
+ */
+export const title = element("title", "http://www.w3.org/2000/svg")
+
+/**
+ * Styles for an SVG drawing.
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/style
+ */
+export const style = element("style", "http://www.w3.org/2000/svg")
+
+/**
+ * A script within an SVG drawing.
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/script
+ */
+export const script = element("script", "http://www.w3.org/2000/svg")
+
+/**
+ * An image within an SVG drawing.
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/image
+ */
+export const image = element("image", "http://www.w3.org/2000/svg")
+
+/**
+ * A clipping path for SVG content.
+ * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/clipPath
+ */
+export const clipPath = element("clipPath", "http://www.w3.org/2000/svg")
+
+/**
  * The <animate> SVG element provides a way to animate an attribute of an element over time.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animate
  */
-export const animate = element("animate")
+export const animate = element("animate", "http://www.w3.org/2000/svg")
 
 /**
  * The <animateMotion> SVG element provides a way to define how an element moves along a motion path.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateMotion
  */
-export const animateMotion = element("animateMotion")
+export const animateMotion = element("animateMotion", "http://www.w3.org/2000/svg")
 
 /**
  * The <animateTransform> SVG element animates a transformation attribute on its target element, thereby allowing animations to control translation, scaling, rotation, and/or skewing.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateTransform
  */
-export const animateTransform = element("animateTransform")
+export const animateTransform = element("animateTransform", "http://www.w3.org/2000/svg")
 
 /**
  * The <mpath> SVG sub-element for the <animateMotion> element provides the ability to reference an external <path> element as the definition of a motion path.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/mpath
  */
-export const mpath = element("mpath")
+export const mpath = element("mpath", "http://www.w3.org/2000/svg")
 
 /**
  * The <set> SVG element provides a method of setting the value of an attribute for a specified duration.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/set
  */
-export const set = element("set")
+export const set = element("set", "http://www.w3.org/2000/svg")
 
 /**
  * The <circle> SVG element is an SVG basic shape, used to draw circles based on a center point and a radius.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/circle
  */
-export const circle = element("circle")
+export const circle = element("circle", "http://www.w3.org/2000/svg")
 
 /**
  * The <ellipse> SVG element is an SVG basic shape, used to create ellipses based on a center coordinate, and both their x and y radius.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/ellipse
  */
-export const ellipse = element("ellipse")
+export const ellipse = element("ellipse", "http://www.w3.org/2000/svg")
 
 /**
  * The <line> SVG element is an SVG basic shape used to create a line connecting two points.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/line
  */
-export const line = element("line")
+export const line = element("line", "http://www.w3.org/2000/svg")
 
 /**
  * The <path> SVG element is the generic element to define a shape. All the basic shapes can be created with a path element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/path
  */
-export const path = element("path")
+export const path = element("path", "http://www.w3.org/2000/svg")
 
 /**
  * The <polygon> SVG element defines a closed shape consisting of a set of connected straight line segments. The last point is connected to the first point.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polygon
  */
-export const polygon = element("polygon")
+export const polygon = element("polygon", "http://www.w3.org/2000/svg")
 
 /**
  * The <polyline> SVG element is an SVG basic shape that creates straight lines connecting several points. Typically a polyline is used to create open shapes as the last point doesn't have to be connected to the first point. For closed shapes see the <polygon> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polyline
  */
-export const polyline = element("polyline")
+export const polyline = element("polyline", "http://www.w3.org/2000/svg")
 
 /**
  * The <rect> SVG element is a basic SVG shape that draws rectangles, defined by their position, width, and height. The rectangles may have their corners rounded.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/rect
  */
-export const rect = element("rect")
+export const rect = element("rect", "http://www.w3.org/2000/svg")
 
 /**
  * The <defs> SVG element is used to store graphical objects that will be used at a later time. Objects created inside a <defs> element are not rendered directly. To display them you have to reference them (with a <use> element for example).
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/defs
  */
-export const defs = element("defs")
+export const defs = element("defs", "http://www.w3.org/2000/svg")
 
 /**
  * The <g> SVG element is a container used to group other SVG elements.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/g
  */
-export const g = element("g")
+export const g = element("g", "http://www.w3.org/2000/svg")
 
 /**
  * The <marker> SVG element defines a graphic used for drawing arrowheads or polymarkers on a given <path>, <line>, <polyline> or <polygon> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/marker
  */
-export const marker = element("marker")
+export const marker = element("marker", "http://www.w3.org/2000/svg")
 
 /**
  * The <mask> SVG element defines a mask for compositing the current object into the background. A mask is used/referenced using the mask property and CSS mask-image property.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/mask
  */
-export const mask = element("mask")
+export const mask = element("mask", "http://www.w3.org/2000/svg")
 
 /**
  * The <pattern> SVG element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals ("tiled") to cover an area.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern
  */
-export const pattern = element("pattern")
+export const pattern = element("pattern", "http://www.w3.org/2000/svg")
 
 /**
  * The <svg> SVG element is a container that defines a new coordinate system and viewport. It is used as the outermost element of SVG documents, but it can also be used to embed an SVG fragment inside an SVG or HTML document.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/svg
  */
-export const svg = element("svg")
+export const svg = element("svg", "http://www.w3.org/2000/svg")
 
 /**
  * The <switch> SVG element evaluates any requiredFeatures, requiredExtensions and systemLanguage attributes on its direct child elements in order, and then renders the first child where these attributes evaluate to true.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/switch
  */
-export const svgswitch = element("switch")
+export const svgswitch = element("switch", "http://www.w3.org/2000/svg")
 
 /**
  * The <symbol> SVG element is used to define graphical template objects which can be instantiated by a <use> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/symbol
  */
-export const symbol = element("symbol")
+export const symbol = element("symbol", "http://www.w3.org/2000/svg")
 
 /**
  * The <use> element takes nodes from within an SVG document, and duplicates them somewhere else. The effect is the same as if the nodes were deeply cloned into a non-exposed DOM, then pasted where the <use> element is, much like cloned <template> elements.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
  */
-export const use = element("use")
+export const use = element("use", "http://www.w3.org/2000/svg")
 
 /**
  * The <desc> SVG element provides an accessible, long-text description of any SVG container element or graphics element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/desc
  */
-export const desc = element("desc")
+export const desc = element("desc", "http://www.w3.org/2000/svg")
 
 /**
  * The <metadata> SVG element adds metadata to SVG content. Metadata is structured information about data. The contents of <metadata> should be elements from other XML namespaces such as RDF, FOAF, etc.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/metadata
  */
-export const metadata = element("metadata")
+export const metadata = element("metadata", "http://www.w3.org/2000/svg")
 
 /**
  * The <filter> SVG element defines a custom filter effect by grouping atomic filter primitives. It is never rendered itself, but must be used by the filter attribute on SVG elements, or the filter CSS property for SVG/HTML elements.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/filter
  */
-export const filter = element("filter")
+export const filter = element("filter", "http://www.w3.org/2000/svg")
 
 /**
  * The <feBlend> SVG filter primitive composes two objects together ruled by a certain blending mode. This is similar to what is known from image editing software when blending two layers. The mode is defined by the mode attribute.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feBlend
  */
-export const feBlend = element("feBlend")
+export const feBlend = element("feBlend", "http://www.w3.org/2000/svg")
 
 /**
  * The <feColorMatrix> SVG filter element changes colors based on a transformation matrix. Every pixel's color value [R,G,B,A] is matrix multiplied by a 5 by 5 color matrix to create new color [R',G',B',A'].
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feColorMatrix
  */
-export const feColorMatrix = element("feColorMatrix")
+export const feColorMatrix = element("feColorMatrix", "http://www.w3.org/2000/svg")
 
 /**
  * The <feComponentTransfer> SVG filter primitive performs color-component-wise remapping of data for each pixel. It allows operations like brightness adjustment, contrast adjustment, color balance or thresholding.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComponentTransfer
  */
-export const feComponentTransfer = element("feComponentTransfer")
+export const feComponentTransfer = element("feComponentTransfer", "http://www.w3.org/2000/svg")
 
 /**
  * The <feComposite> SVG filter primitive performs the combination of two input images pixel-wise in image space using one of the Porter-Duff compositing operations: over, in, atop, out, xor, lighter, or arithmetic.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComposite
  */
-export const feComposite = element("feComposite")
+export const feComposite = element("feComposite", "http://www.w3.org/2000/svg")
 
 /**
  * The <feConvolveMatrix> SVG filter primitive applies a matrix convolution filter effect. A convolution combines pixels in the input image with neighboring pixels to produce a resulting image. A wide variety of imaging operations can be achieved through convolutions, including blurring, edge detection, sharpening, embossing and beveling.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feConvolveMatrix
  */
-export const feConvolveMatrix = element("feConvolveMatrix")
+export const feConvolveMatrix = element("feConvolveMatrix", "http://www.w3.org/2000/svg")
 
 /**
  * The <feDiffuseLighting> SVG filter primitive lights an image using the alpha channel as a bump map. The resulting image, which is an RGBA opaque image, depends on the light color, light position and surface geometry of the input bump map.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDiffuseLighting
  */
-export const feDiffuseLighting = element("feDiffuseLighting")
+export const feDiffuseLighting = element("feDiffuseLighting", "http://www.w3.org/2000/svg")
 
 /**
  * The <feDisplacementMap> SVG filter primitive uses the pixel values from the image from in2 to spatially displace the image from in.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDisplacementMap
  */
-export const feDisplacementMap = element("feDisplacementMap")
+export const feDisplacementMap = element("feDisplacementMap", "http://www.w3.org/2000/svg")
 
 /**
  * The <feDistantLight> SVG filter primitive defines a distant light source that can be used within a lighting filter primitive: <feDiffuseLighting> or <feSpecularLighting>.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDistantLight
  */
-export const feDistantLight = element("feDistantLight")
+export const feDistantLight = element("feDistantLight", "http://www.w3.org/2000/svg")
 
 /**
  * The <feDropShadow> SVG filter primitive creates a drop shadow of the input image. It can only be used inside a <filter> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDropShadow
  */
-export const feDropShadow = element("feDropShadow")
+export const feDropShadow = element("feDropShadow", "http://www.w3.org/2000/svg")
 
 /**
  * The <feFlood> SVG filter primitive fills the filter subregion with the color and opacity defined by flood-color and flood-opacity.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFlood
  */
-export const feFlood = element("feFlood")
+export const feFlood = element("feFlood", "http://www.w3.org/2000/svg")
 
 /**
  * The <feFuncA> SVG filter primitive defines the transfer function for the alpha component of the input graphic of its parent <feComponentTransfer> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncA
  */
-export const feFuncA = element("feFuncA")
+export const feFuncA = element("feFuncA", "http://www.w3.org/2000/svg")
 
 /**
  * The <feFuncB> SVG filter primitive defines the transfer function for the blue component of the input graphic of its parent <feComponentTransfer> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncB
  */
-export const feFuncB = element("feFuncB")
+export const feFuncB = element("feFuncB", "http://www.w3.org/2000/svg")
 
 /**
  * The <feFuncG> SVG filter primitive defines the transfer function for the green component of the input graphic of its parent <feComponentTransfer> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncG
  */
-export const feFuncG = element("feFuncG")
+export const feFuncG = element("feFuncG", "http://www.w3.org/2000/svg")
 
 /**
  * The <feFuncR> SVG filter primitive defines the transfer function for the red component of the input graphic of its parent <feComponentTransfer> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncR
  */
-export const feFuncR = element("feFuncR")
+export const feFuncR = element("feFuncR", "http://www.w3.org/2000/svg")
 
 /**
  * The <feGaussianBlur> SVG filter primitive blurs the input image by the amount specified in stdDeviation, which defines the bell-curve.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feGaussianBlur
  */
-export const feGaussianBlur = element("feGaussianBlur")
+export const feGaussianBlur = element("feGaussianBlur", "http://www.w3.org/2000/svg")
 
 /**
  * The <feImage> SVG filter primitive fetches image data from an external source and provides the pixel data as output (meaning if the external source is an SVG image, it is rasterized.)
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feImage
  */
-export const feImage = element("feImage")
+export const feImage = element("feImage", "http://www.w3.org/2000/svg")
 
 /**
  * The <feMerge> SVG element allows filter effects to be applied concurrently instead of sequentially. This is achieved by other filters storing their output via the result attribute and then accessing it in a <feMergeNode> child.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMerge
  */
-export const feMerge = element("feMerge")
+export const feMerge = element("feMerge", "http://www.w3.org/2000/svg")
 
 /**
  * The <feMergeNode> SVG takes the result of another filter to be processed by its parent <feMerge>.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMergeNode
  */
-export const feMergeNode = element("feMergeNode")
+export const feMergeNode = element("feMergeNode", "http://www.w3.org/2000/svg")
 
 /**
  * The <feMorphology> SVG filter primitive is used to erode or dilate the input image. Its usefulness lies especially in fattening or thinning effects.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMorphology
  */
-export const feMorphology = element("feMorphology")
+export const feMorphology = element("feMorphology", "http://www.w3.org/2000/svg")
 
 /**
  * The <feOffset> SVG filter primitive enables offsetting an input image relative to its current position. The input image as a whole is offset by the values specified in the dx and dy attributes.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feOffset
  */
-export const feOffset = element("feOffset")
+export const feOffset = element("feOffset", "http://www.w3.org/2000/svg")
 
 /**
  * The <fePointLight> SVG filter primitive defines a light source which allows to create a point light effect. It that can be used within a lighting filter primitive: <feDiffuseLighting> or <feSpecularLighting>.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/fePointLight
  */
-export const fePointLight = element("fePointLight")
+export const fePointLight = element("fePointLight", "http://www.w3.org/2000/svg")
 
 /**
  * The <feSpecularLighting> SVG filter primitive lights a source graphic using the alpha channel as a bump map. The resulting image is an RGBA image based on the light color. The lighting calculation follows the standard specular component of the Phong lighting model. The resulting image depends on the light color, light position and surface geometry of the input bump map. The result of the lighting calculation is added. The filter primitive assumes that the viewer is at infinity in the z direction.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpecularLighting
  */
-export const feSpecularLighting = element("feSpecularLighting")
+export const feSpecularLighting = element("feSpecularLighting", "http://www.w3.org/2000/svg")
 
 /**
  * The <feSpotLight> SVG filter primitive defines a light source that can be used to create a spotlight effect. It is used within a lighting filter primitive: <feDiffuseLighting> or <feSpecularLighting>.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpotLight
  */
-export const feSpotLight = element("feSpotLight")
+export const feSpotLight = element("feSpotLight", "http://www.w3.org/2000/svg")
 
 /**
  * The <feTile> SVG filter primitive allows to fill a target rectangle with a repeated, tiled pattern of an input image. The effect is similar to the one of a <pattern>.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTile
  */
-export const feTile = element("feTile")
+export const feTile = element("feTile", "http://www.w3.org/2000/svg")
 
 /**
  * The <feTurbulence> SVG filter primitive creates an image using the Perlin turbulence function. It allows the synthesis of artificial textures like clouds or marble. The resulting image will fill the entire filter primitive subregion.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence
  */
-export const feTurbulence = element("feTurbulence")
+export const feTurbulence = element("feTurbulence", "http://www.w3.org/2000/svg")
 
 /**
  * The <linearGradient> SVG element lets authors define linear gradients to apply to other SVG elements.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/linearGradient
  */
-export const linearGradient = element("linearGradient")
+export const linearGradient = element("linearGradient", "http://www.w3.org/2000/svg")
 
 /**
  * The <radialGradient> SVG element lets authors define radial gradients that can be applied to fill or stroke of graphical elements.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/radialGradient
  */
-export const radialGradient = element("radialGradient")
+export const radialGradient = element("radialGradient", "http://www.w3.org/2000/svg")
 
 /**
  * The <stop> SVG element defines a color and its position to use on a gradient. This element is always a child of a <linearGradient> or <radialGradient> element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/stop
  */
-export const stop = element("stop")
+export const stop = element("stop", "http://www.w3.org/2000/svg")
 
 /**
  * The <foreignObject> SVG element includes elements from a different XML namespace. In the context of a browser, it is most likely (X)HTML.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/foreignObject
  */
-export const foreignObject = element("foreignObject")
+export const foreignObject = element("foreignObject", "http://www.w3.org/2000/svg")
 
 /**
  * The <text> SVG element draws a graphics element consisting of text. It's possible to apply a gradient, pattern, clipping path, mask, or filter to <text>, like any other SVG graphics element.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/text
  */
-export const text = element("text")
+export const text = element("text", "http://www.w3.org/2000/svg")
 
 /**
  * The <textPath> SVG element is used to render text along the shape of a <path> element. The text must be enclosed in the <textPath> element and its href attribute is used to reference the desired <path>.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/textPath
  */
-export const textPath = element("textPath")
+export const textPath = element("textPath", "http://www.w3.org/2000/svg")
 
 /**
  * The <tspan> SVG element defines a subtext within a <text> element or another <tspan> element. It allows for adjustment of the style and/or position of that subtext as needed.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/tspan
  */
-export const tspan = element("tspan")
+export const tspan = element("tspan", "http://www.w3.org/2000/svg")
 
 /**
  * The <view> SVG element defines a particular view of an SVG document. A specific view can be displayed by referencing the <view> element's id as the target fragment of a URL.
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/view
  */
-export const view = element("view")
+export const view = element("view", "http://www.w3.org/2000/svg")

@@ -1,7 +1,7 @@
-import { a, body, button, observe, div, elements, form, head, html, input,
-         option, output, render, select, span, svg, title,
-         toHtmlString } from '../../elements.js'
-import { annotationXml, math, mi } from '../../mathml.js'
+import { transition } from '../transition.js'
+import { observe, toHtmlString } from '../../elements.js'
+import { a, button, div, form, input, output } from '../../html.js'
+
 import { assert, equal, mount, test, traverse } from './harness.js'
 
 test('an editable counter preserves its anonymous input, focus and caret during typing', () => {
@@ -87,7 +87,7 @@ test('event recursion shares one definition while separate definitions stay inde
   buttons()[0].click()
   equal(buttons().map(node => node.textContent), ['2', '2', '0'])
   equal(source[2], 0)
-  render(div(source), host)
+  transition(div(source), host)
   host.querySelector('button').click()
   equal(host.textContent, '3')
 })

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { a, div, render } from '../elements.js'
+import { transition } from './transition.js'
+import { a, div } from '../html.js'
 import { createFakeBrowser } from './fake-browser.js'
 
 const withBrowser = async run => {
@@ -16,7 +17,7 @@ const withBrowser = async run => {
   Object.assign(globalThis, { document, window })
   const click = (props, eventProps = {}) => {
     const container = document.createElement('section')
-    render(a(props, div('link')), container)
+    transition(a(props, div('link')), container)
     const anchor = container.firstChild
     const event = {
       type: 'click', target: anchor.firstChild, button: 0, defaultPrevented: false,

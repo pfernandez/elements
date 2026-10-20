@@ -1,3 +1,4 @@
+import { htmlNS, withNamespace } from './namespaces.js'
 import { markVNode, normalizeChildren } from './children.js'
 
 const isPropsObject = value =>
@@ -14,9 +15,10 @@ const isPropsObject = value =>
  *
  * @template {string} Tag
  * @param {Tag} tag
+ * @param {string | null} [namespace] DOM namespace; defaults to HTML.
  * @returns {import('./types.js').ElementsElementForTag<Tag>}
  */
-export const element = tag =>
+export const element = (tag, namespace = htmlNS) =>
   /** @type {import('./types.js').ElementsElementForTag<Tag>} */ ((...args) => {
   const hasFirstArg = args.length > 0
   const [propsOrChild, ...children] = args
@@ -27,7 +29,7 @@ export const element = tag =>
       ? children
       : [propsOrChild].concat(children)
 
-  return markVNode(/** @type {import('./types.js').ElementsVNode} */ (
+  return withNamespace(markVNode(/** @type {import('./types.js').ElementsVNode} */ (
     [tag, props].concat(normalizeChildren(actualChildren))
-  ))
+  )), namespace)
 })

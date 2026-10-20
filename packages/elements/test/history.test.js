@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { a, button, observe, div, render } from '../elements.js'
+import { transition } from './transition.js'
+import { observe } from '../elements.js'
+import { a, button, div } from '../html.js'
 import { click, withBrowser } from './fake-browser.js'
 
 const mount = vnode => {
   const host = document.createElement('section')
   document.body.appendChild(host)
-  render(vnode, host)
+  transition(vnode, host)
   return host
 }
 

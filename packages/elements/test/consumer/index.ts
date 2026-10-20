@@ -1,4 +1,4 @@
-import { element, observe, render } from '@pfern/elements'
+import { element, fragment, html, mathml, observe, project, svg as drawing } from '@pfern/elements'
 import { button, div, input } from '@pfern/elements/html'
 import { circle, svg } from '@pfern/elements/svg'
 import { math, mi } from '@pfern/elements/mathml'
@@ -21,8 +21,19 @@ label('not a number')
 const props: BoxProps = { size: '1 1 1' }
 const node: X3DNode = box(props)
 const custom = element('custom-element')('custom')
-const drawing = svg(circle({ r: 5 }))
-render(div(counter(), custom, drawing, math(mi('x')), x3d(scene(node)),
+const picture = svg(circle({ r: 5 }))
+project(div(counter(), custom, picture, math(mi('x')), x3d(scene(node)),
            input({ style: 'color: red', oninput: ({ value }) => div(value) }),
            input({ type: 'checkbox', onchange: ({ checked }) => div(String(checked)) })),
        document.body)
+
+project(fragment(html.title('page'), drawing.title('drawing'), mathml.mi('x')),
+        document.createDocumentFragment())
+project(element('item', 'urn:example')(), document.body)
+
+// @ts-expect-error The first milestone requires an explicit target.
+project(counter())
+// @ts-expect-error Project has no replacement mode.
+project(counter(), document.body, { replace: true })
+// @ts-expect-error Tags are exported through vocabularies, not the main module.
+import { button as removedFlatHelper } from '@pfern/elements'

@@ -1,9 +1,11 @@
-import { a, body, button, observe, div, form, head, html, input,
-  output, pre, render, span, svg, title } from '../elements.js'
+import { transition } from './transition.js'
+
+import { a, div } from '../html.js'
+
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
-import { createDeclarativeEventHandler } from '../src/core/events.js'
+
 import { startTickLoop } from '../src/core/tick.js'
 
 const makeWindow = extra =>
@@ -12,7 +14,6 @@ const makeWindow = extra =>
     history: { pushState: () => {} },
     ...extra
   })
-
 
 describe("runtime-tick", () => {
   test('ontick runs and threads context', async () => {
@@ -37,7 +38,7 @@ describe("runtime-tick", () => {
     const counts = []
 
     const container = document.createElement('div')
-    render(
+    transition(
       div(
         {
           ontick: (_el, ctx = { count: 0 }, dt) => {
@@ -95,7 +96,7 @@ describe("runtime-tick", () => {
     })
 
     const container = document.createElement('div')
-    render(div({ ontick: () => { throw new Error('boom') } }, 'x'), container)
+    transition(div({ ontick: () => { throw new Error('boom') } }, 'x'), container)
 
     const [firstId] = rafQueue.keys()
     const firstFrame = rafQueue.get(firstId)
@@ -131,7 +132,7 @@ describe("runtime-tick", () => {
     })
 
     const container = document.createElement('div')
-    render(
+    transition(
       div({ ontick: () => Promise.resolve({}) }, 'x'),
       container
     )
@@ -249,7 +250,7 @@ describe("runtime-tick", () => {
     globalThis.window = prevWindow
   })
 
-  test('render() clearing ontick stops ticking', async () => {
+  test('transition() clearing ontick stops ticking', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -270,11 +271,11 @@ describe("runtime-tick", () => {
     }
 
     const container = document.createElement('div')
-    render(div({ ontick: () => {} }, 'x'), container)
+    transition(div({ ontick: () => {} }, 'x'), container)
 
     assert.equal(rafQueue.size, 1)
 
-    render(div({}, 'x'), container)
+    transition(div({}, 'x'), container)
     assert.equal(rafQueue.size, 0)
 
     globalThis.document = prevDocument

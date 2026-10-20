@@ -1,4 +1,5 @@
-import { button, observe, div, h3 } from '@pfern/elements'
+import { observe } from '@pfern/elements'
+import { button, div, h3 } from '@pfern/elements/html'
 import { createCounter } from './counter.js'
 
 const counter1 = createCounter()

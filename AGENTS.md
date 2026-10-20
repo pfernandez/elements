@@ -6,7 +6,8 @@ necessary imperative DOM boundary with care.
 
 ### Design Invariants
 
-- **Single page-load mount:** typical apps call `render()` once at startup.
+- **Single page-load mount:** typical apps call `project(graph, target)` once per placement at startup.
+  Each call appends a fresh projection; event returns select subsequent observations.
 - **Declarative updates via events:** observer calls are pure; returned
   observer vnodes select their identity's observation across all projections.
   Plain vnode returns patch the closest observer boundary. Independent state
@@ -26,7 +27,7 @@ necessary imperative DOM boundary with care.
 ### Code Style
 
 - Prefer **small, pure helpers** with clear names.
-- Build element vocabularies on the shared `element(tag)` constructor; do not
+- Build element vocabularies on the shared `element(tag, namespace?)` constructor; do not
   duplicate vnode construction or child-normalization logic.
 - HTML, SVG, and MathML helper modules are generated from `src/vocabularies/`;
   edit the metadata and regenerate rather than editing generated helpers.

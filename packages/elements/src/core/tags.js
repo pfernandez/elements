@@ -119,6 +119,12 @@ export const htmlTagNames = /** @type {const} */ ([
 ])
 
 export const svgTagNames = /** @type {const} */ ([
+  "a",
+  "title",
+  "style",
+  "script",
+  "image",
+  "clipPath",
   "animate",
   "animateMotion",
   "animateTransform",

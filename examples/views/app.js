@@ -1,5 +1,5 @@
-import { a, code, div, h2, h3, main, nav, observe, p, pre, section }
-  from '@pfern/elements'
+import { observe } from '@pfern/elements'
+import { a, code, div, h2, h3, main, nav, p, pre, section } from '@pfern/elements/html'
 import { cube } from './cube.js'
 import introduction from '../content/introduction.md?raw'
 import { markdown } from './markdown.js'

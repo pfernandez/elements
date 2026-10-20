@@ -1,6 +1,7 @@
 import './projection.js'
 import './events.js'
 import './observers.js'
+import './project.js'
 import './integration.js'
 import { run } from './harness.js'
 

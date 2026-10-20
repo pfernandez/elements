@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { button, observe, div, elements, input, li, render, span,
-         textarea, ul } from '../elements.js'
+import { transition } from './transition.js'
+import { observe, fragment } from '../elements.js'
+import { button, div, input, li, span, textarea, ul } from '../html.js'
 import { createFakeDom } from './fake-dom.js'
 
 // Identity belongs to retained references and observer definitions;
@@ -16,7 +17,7 @@ afterEach(() => { globalThis.document = previousDocument })
 const mount = vnode => {
   const host = document.createElement('section')
   document.body.appendChild(host)
-  render(vnode, host)
+  transition(vnode, host)
   return host
 }
 const row = name => li(span(name), input())
@@ -29,14 +30,14 @@ test('retained row references carry their DOM and edited inputs through reorderi
   aliceNode.lastChild.value = 'Alice draft'
   bobNode.lastChild.value = 'Bob draft'
 
-  render(ul(bob, alice), host)
+  transition(ul(bob, alice), host)
   assert.ok(host.firstChild === list, 'the list stays mounted')
   assert.ok(list.firstChild === bobNode, 'Bob keeps his row node')
   assert.ok(list.lastChild === aliceNode, 'Alice keeps her row node')
   assert.equal(list.firstChild.lastChild.value, 'Bob draft')
   assert.equal(list.lastChild.lastChild.value, 'Alice draft')
 
-  render(ul(bob), host)
+  transition(ul(bob), host)
   assert.ok(list.firstChild === bobNode, 'removing Alice does not replace Bob')
   assert.equal(bobNode.lastChild.value, 'Bob draft')
   assert.equal(aliceNode.parentNode, null)
@@ -52,13 +53,13 @@ test('observer definitions carry row DOM through fresh calls and reordering', ()
   bobNode.lastChild.value = 'Bob draft'
 
   // Fresh descriptions of the same definitions, with no keys or retained vnode.
-  render(ul(bob(), alice()), host)
+  transition(ul(bob(), alice()), host)
   assert.ok(list.firstChild === bobNode, 'Bob should move, not be remounted')
   assert.ok(list.lastChild === aliceNode, 'Alice should move, not be remounted')
   assert.equal(list.firstChild.lastChild.value, 'Bob draft')
   assert.equal(list.lastChild.lastChild.value, 'Alice draft')
 
-  render(ul(bob()), host)
+  transition(ul(bob()), host)
   assert.ok(list.firstChild === bobNode, 'removing Alice retains Bob')
   assert.equal(bobNode.lastChild.value, 'Bob draft')
   assert.equal(aliceNode.parentNode, null)
@@ -72,10 +73,10 @@ test('observer insertion and replacement preserve the other definitions', () => 
   const bobNode = host.firstChild.firstChild
   bobNode.lastChild.value = 'Bob draft'
 
-  render(ul(alice(), bob()), host)
+  transition(ul(alice(), bob()), host)
   const aliceNode = host.firstChild.firstChild
   assert.ok(host.firstChild.lastChild === bobNode)
-  render(ul(carol(), bob()), host)
+  transition(ul(carol(), bob()), host)
   assert.ok(host.firstChild.firstChild !== aliceNode)
   assert.equal(aliceNode.parentNode, null)
   assert.ok(host.firstChild.lastChild === bobNode)
@@ -90,7 +91,7 @@ test('retained references distinguish projections of the same observer during re
   leftNode.lastChild.value = 'left draft'
   rightNode.lastChild.value = 'right draft'
 
-  render(ul(right, left), host)
+  transition(ul(right, left), host)
   assert.ok(host.firstChild.firstChild === rightNode)
   assert.ok(host.firstChild.lastChild === leftNode)
   assert.equal(rightNode.lastChild.value, 'right draft')
@@ -104,7 +105,7 @@ test('fresh repeated projections remain positional rather than borrowing observe
   const [first, second, third] = host.firstChild.childNodes
   second.lastChild.value = 'second draft'
 
-  render(ul(other(), shared(), shared()), host)
+  transition(ul(other(), shared(), shared()), host)
   assert.ok(host.firstChild.firstChild === third, 'unique identities move')
   assert.ok(host.firstChild.childNodes[1] === second, 'shared identity retains its slot')
   assert.ok(host.firstChild.lastChild !== first, 'no invented correspondence across slots')
@@ -118,7 +119,7 @@ test('a newly duplicated identity does not arbitrarily move the previous project
   const original = host.firstChild.lastChild
   original.lastChild.value = 'retained draft'
 
-  render(ul(shared(), shared()), host)
+  transition(ul(shared(), shared()), host)
   assert.ok(host.firstChild.lastChild === original)
   assert.ok(host.firstChild.firstChild !== original)
   assert.equal(original.lastChild.value, 'retained draft')
@@ -128,25 +129,25 @@ test('explicit keys still distinguish fresh projections and can request replacem
   const shared = observe(key => li({ key }, input()))
   const host = mount(ul(shared('left'), shared('right')))
   const [left, right] = host.firstChild.childNodes
-  render(ul(shared('right'), shared('left')), host)
+  transition(ul(shared('right'), shared('left')), host)
   assert.ok(host.firstChild.firstChild === right)
   assert.ok(host.firstChild.lastChild === left)
 
   const single = mount(ul(shared('before')))
   const replaced = single.firstChild.firstChild
-  render(ul(shared('after')), single)
+  transition(ul(shared('after')), single)
   assert.ok(single.firstChild.firstChild !== replaced)
 })
 
 test('observer fragment ranges move as a unit through fresh calls', () => {
-  const alice = observe(() => elements.fragment(span('Alice'), input()))
-  const bob = observe(() => elements.fragment(span('Bob'), input()))
+  const alice = observe(() => fragment(span('Alice'), input()))
+  const bob = observe(() => fragment(span('Bob'), input()))
   const host = mount(div(alice(), bob()))
   const nodes = Array.from(host.firstChild.childNodes)
   nodes[2].value = 'Alice draft'
   nodes[6].value = 'Bob draft'
 
-  render(div(bob(), alice()), host)
+  transition(div(bob(), alice()), host)
   assert.deepEqual(Array.from(host.firstChild.childNodes), [...nodes.slice(4), ...nodes.slice(0, 4)])
   assert.equal(nodes[2].value, 'Alice draft')
   assert.equal(nodes[6].value, 'Bob draft')
@@ -167,7 +168,7 @@ test('retained graph-style continuations select one origin across separate proje
   left.lastChild.onclick({})
   assert.equal(left.firstChild.textContent, 'B')
   assert.equal(right.firstChild.textContent, 'B')
-  render(div(a, a), host)
+  transition(div(a, a), host)
   assert.equal(left.firstChild.textContent, 'B', 'reprojecting a retained source does not reset it')
   right.lastChild.onclick({})
   assert.equal(left.firstChild.textContent, 'A')
@@ -188,7 +189,7 @@ test('fresh anonymous rows currently preserve slot state, not inferred person id
   firstSlot.lastChild.value = 'Alice draft'
   secondSlot.lastChild.value = 'Bob draft'
 
-  render(people(['Bob']), host)
+  transition(people(['Bob']), host)
   assert.ok(list.firstChild === firstSlot, 'the first slot is reused')
   assert.equal(list.firstChild.firstChild.textContent, 'Bob')
   // This is the visible cost of slot identity: changing a label is not moving
@@ -204,7 +205,7 @@ test('an incompatible anonymous element replaces only its own slot', () => {
   replaced.value = 'discarded draft'
   retained.value = 'retained draft'
 
-  render(div(textarea(), input()), host)
+  transition(div(textarea(), input()), host)
   assert.ok(host.firstChild === root, 'the parent stays mounted')
   assert.ok(root.firstChild !== replaced, 'a textarea is not the old input')
   assert.equal(root.firstChild.tagName.toLowerCase(), 'textarea')

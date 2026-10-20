@@ -1,7 +1,8 @@
 import { apply, ci, math, semantics, annotationXml } from '../mathml.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { render, svg, circle } from '../elements.js'
+import { transition } from './transition.js'
+import { svg, circle } from '../svg.js'
 import { createFakeDom } from './fake-dom.js'
 
 const mathNS = 'http://www.w3.org/1998/Math/MathML'
@@ -17,7 +18,7 @@ describe('MathML helpers + runtime', () => {
     ])
   })
 
-  test('render() creates MathML elements in the MathML namespace', () => {
+  test('transition() creates MathML elements in the MathML namespace', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -26,7 +27,7 @@ describe('MathML helpers + runtime', () => {
     globalThis.window = { requestAnimationFrame: () => 0, cancelAnimationFrame: () => {} }
 
     const container = document.createElement('div')
-    render(
+    transition(
       math(
         apply(ci('f'), ci('x'))
       ),
@@ -54,7 +55,7 @@ describe('MathML helpers + runtime', () => {
     globalThis.window = { requestAnimationFrame: () => 0, cancelAnimationFrame: () => {} }
 
     const container = document.createElement('div')
-    render(
+    transition(
       math(
         semantics(
           ci('x'),
@@ -75,7 +76,7 @@ describe('MathML helpers + runtime', () => {
     assert.equal(annotationXmlEl.tagName.toLowerCase(), 'annotation-xml')
     assert.equal(annotationXmlEl.namespaceURI, mathNS)
     assert.equal(innerDivEl.tagName.toLowerCase(), 'div')
-    assert.equal(innerDivEl.namespaceURI, null)
+    assert.equal(innerDivEl.namespaceURI, 'http://www.w3.org/1999/xhtml')
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
@@ -90,7 +91,7 @@ describe('MathML helpers + runtime', () => {
     globalThis.window = { requestAnimationFrame: () => 0, cancelAnimationFrame: () => {} }
 
     const container = document.createElement('div')
-    render(
+    transition(
       math(
         svg({ width: 10, height: 10 }, circle({ r: 5 }))
       ),

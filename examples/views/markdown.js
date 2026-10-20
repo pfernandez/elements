@@ -1,5 +1,5 @@
 import MarkdownIt from 'markdown-it'
-import { div } from '@pfern/elements'
+import { div } from '@pfern/elements/html'
 
 const parser = MarkdownIt({ html: false })
 

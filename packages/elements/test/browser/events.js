@@ -1,8 +1,8 @@
-import { a, body, button, observe, div, elements, form, head, html, input,
-         option, output, render, select, span, svg, title,
-         toHtmlString } from '../../elements.js'
-import { annotationXml, math, mi } from '../../mathml.js'
-import { assert, equal, mount, test, traverse } from './harness.js'
+
+import { observe } from '../../elements.js'
+import { a, button, div, form, head, input, output, span } from '../../html.js'
+
+import { assert, equal, mount, test } from './harness.js'
 
 test('form handlers receive native controls while input and change receive targets', () => {
   let controls, submittedEvent, inputTarget, inputEvent, changeTarget, changeEvent

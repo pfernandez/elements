@@ -17,7 +17,8 @@ A counter has one piece of state: its count. A view can describe the interface
 at that count and the interaction that leads to the next one:
 
 ```js
-import { button, observe, div, output, render } from '@pfern/elements'
+import { observe, project } from '@pfern/elements'
+import { button, div, output } from '@pfern/elements/html'
 
 const counter = observe((count = 0) =>
   div(
@@ -25,7 +26,7 @@ const counter = observe((count = 0) =>
     button({ onclick: () => counter(count + 1) },
            'Increment')))
 
-render(counter(), document.body)
+project(counter(), document.body)
 ```
 
 The first call constructs an observation of the counter at zero. Clicking
@@ -33,8 +34,8 @@ The first call constructs an observation of the counter at zero. Clicking
 one. Elements selects it and updates the DOM. The new handler closes over the
 new count, ready for the next click.
 
-You normally call `render()` once, when the page loads. Event returns drive the
-state transitions after that.
+Call `project(graph, target)` once for each placement, normally at startup.
+Each call appends a new projection; event returns drive subsequent transitions.
 
 ## The model
 
@@ -81,7 +82,7 @@ an observer vnode from an event explicitly selects its observation, even if that
 vnode was constructed earlier.
 
 A plain vnode returned from an event updates the handler's nearest observer
-boundary (or the render root outside an observer).
+boundary (or the projection root outside an observer).
 
 ## One identity, many projections
 
@@ -89,7 +90,7 @@ The same observer can be projected in more than one place:
 
 ```js
 const initial = counter()
-render(div(initial, initial), document.body)
+project(div(initial, initial), document.body)
 ```
 
 Both DOM projections subscribe to one observer identity and therefore show the
@@ -110,7 +111,7 @@ const createCounter = () => {
 const left = createCounter()
 const right = createCounter()
 
-render(div(left(), right()), document.body)
+project(div(left(), right()), document.body)
 ```
 
 Each call to `observe` establishes a new identity.
@@ -204,6 +205,8 @@ ul(items.map(item =>
 npm install @pfern/elements
 ```
 
+The runtime requires `WeakRef` and `FinalizationRegistry` support.
+
 Explore the [live demo](https://pfernandez.github.io/elements), its
 [examples](https://github.com/pfernandez/elements/tree/main/examples), and the longer article on
 [recursive state observers](https://github.com/pfernandez/elements/blob/main/examples/content/introduction.md).
@@ -212,7 +215,7 @@ Explore the [live demo](https://pfernandez.github.io/elements), its
 
 Any DOM event handler can return a vnode. An observer vnode selects that
 observer's observation wherever it is mounted. A plain vnode updates the
-handler's nearest observer boundary (or the render root outside an observer).
+handler's nearest observer boundary (or the projection root outside an observer).
 
 `oninput` and `onchange` receive `(event.target, event)`. Destructure the native
 control's `value` or `checked` property:
@@ -237,7 +240,7 @@ const todos = observe((items = []) =>
     ul(items.map(item => li(item)))))
 ```
 
-Import the tag helpers you use from `@pfern/elements`. Other event handlers
+Import HTML tag helpers from `@pfern/elements/html`. Other event handlers
 receive the original DOM event as their first argument.
 
 Handlers may return Promises that resolve to vnodes. Returning a vnode or a
@@ -271,48 +274,61 @@ a vnode array. Calling the returned observer constructs an observation;
 returning that observation from an event selects it. Each call to `observe`
 establishes a separate identity for independent state.
 
-### `render(vnode[, container[, options]])`
+### `project(graph, target)`
 
-Mount an observation into the DOM, normally once at startup. When the root tag
-is `html`, `head`, or `body`, the container can be omitted:
+Append a new live projection to a DOM parent. The target is required; existing
+children remain in place. Every call adds a projection, including repeated calls
+with the same graph and target. Event returns select subsequent observations.
 
 ```js
-render(body(counter()))
+const initial = counter()
+project(initial, document.body)
+project(initial, document.body) // Two projections of one observer.
 ```
 
-Calling `render` again is supported for explicit updates. To discard an ordinary
-container's mounted DOM and mount again, use
-`render(vnode, container, { replace: true })`.
+A reused observer vnode follows its current observation. A fresh `counter(10)`
+selects ten across its projections, even when projected into a detached target.
+Separate observers provide independent state; focus and native input state
+belong to each DOM projection.
 
-### Tag helpers and `elements`
+`html`, `head`, and `body` are ordinary elements: they do not adopt the document
+shell. Put static document structure and assets in the host HTML. For embedding,
+use a dedicated host whose contents the surrounding application leaves alone.
+Replacing the host detaches its projections; recreating it does not restore them.
+Observer state survives removal, retained projections remain live, and discarded
+projections can be garbage-collected. Selection does not repair arbitrary DOM edits.
 
-HTML and SVG helpers are exported from the main package for convenience:
+### Vocabularies and `element(tag[, namespace])`
+
+Use vocabulary objects from the main entry point, or import helpers directly:
 
 ```js
-import { div, svg, circle, elements } from '@pfern/elements'
-
-const { button, fragment } = elements
-```
-
-They are also available as explicit vocabularies:
-
-```js
-import { div } from '@pfern/elements/html'
-import { svg, circle } from '@pfern/elements/svg'
+import { html, svg, mathml, fragment } from '@pfern/elements'
+import { div, button } from '@pfern/elements/html'
+import { circle, title as svgTitle } from '@pfern/elements/svg'
 import { math, mfrac } from '@pfern/elements/mathml'
+
+project(circle({ r: 10 }), existingSvg)
 ```
 
-All of these are built on the same `element(tag)` primitive. Custom
-vocabularies can use it directly:
+Each helper carries its namespace, independently of where it is projected.
+`html.a` and `svg.a` create different kinds of elements. The root constructors
+are `html.html`, `svg.svg`, and `mathml.math`. Use HTML helpers for HTML content
+inside `svg.foreignObject`.
+
+Custom vocabularies use the same constructor, which defaults to HTML:
 
 ```js
 import { element } from '@pfern/elements'
 
 const widget = element('my-widget')
+const item = element('item', 'urn:example')
 ```
 
 `fragment(...)` groups children without adding a wrapper element. Tag helpers
-accept individual children or arrays of vnodes.
+accept individual children or arrays of vnodes. Helper-created vnodes retain
+namespace metadata; literal vnode arrays inherit their containing graph's namespace,
+starting in HTML. The projection target never supplies namespace context.
 
 ### Props
 
@@ -356,7 +372,8 @@ stops ticking and propagates an error. X3DOM elements wait for scene readiness.
 Serialize a description as HTML for server rendering or static generation:
 
 ```js
-import { div, toHtmlString } from '@pfern/elements'
+import { toHtmlString } from '@pfern/elements'
+import { div } from '@pfern/elements/html'
 
 toHtmlString(div('Hello')) // '<div>Hello</div>'
 ```

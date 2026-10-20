@@ -1,3 +1,5 @@
+export const namespace = 'http://www.w3.org/1998/Math/MathML'
+
 // Source metadata for generated MATHML element helpers.
 export const mathmlElements = /** @type {const} */ ([
   {

@@ -1,10 +1,10 @@
-import { a, body, button, observe, div, form, head, html, input,
-  output, pre, render, span, svg, title } from '../elements.js'
+import { transition } from './transition.js'
+import { observe } from '../elements.js'
+import { a, div, output } from '../html.js'
+
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
-import { createDeclarativeEventHandler } from '../src/core/events.js'
-import { startTickLoop } from '../src/core/tick.js'
 
 const makeWindow = extra =>
   ({
@@ -13,9 +13,8 @@ const makeWindow = extra =>
     ...extra
   })
 
-
 describe("observers", () => {
-  test('render() explicitly selects a newly constructed observer value', () => {
+  test('transition() explicitly selects a newly constructed observer value', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -28,7 +27,7 @@ describe("observers", () => {
     )
 
     const container = document.createElement('div')
-    render(div({}, Counter(0)), container)
+    transition(div({}, Counter(0)), container)
     assert.equal(container.childNodes[0].childNodes.length, 1)
     const getCountText = () =>
       container.childNodes[0]
@@ -38,7 +37,7 @@ describe("observers", () => {
         .nodeValue
     assert.equal(getCountText(), '0')
 
-    render(div({}, Counter(1)), container)
+    transition(div({}, Counter(1)), container)
     assert.equal(container.childNodes[0].childNodes.length, 1)
     assert.equal(getCountText(), '1')
 

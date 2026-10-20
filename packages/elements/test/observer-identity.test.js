@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { body, button, observe, div, elements, head, html, input,
-         output, render, span, title, toHtmlString } from '../elements.js'
+import { transition } from './transition.js'
+import { observe, toHtmlString, fragment } from '../elements.js'
+import { body, button, div, html, input, output, span } from '../html.js'
 import { createFakeDom } from './fake-dom.js'
 import { annotationXml, math } from '../mathml.js'
 
@@ -15,7 +16,7 @@ afterEach(() => { globalThis.document = previousDocument })
 const mount = vnode => {
   const host = document.createElement('section')
   document.body.appendChild(host)
-  render(vnode, host)
+  transition(vnode, host)
   return host
 }
 const click = node => node.onclick({})
@@ -59,10 +60,10 @@ test('one identity fans out to duplicate siblings and multiple containers', () =
   assert.equal(host.textContent, '11')
   assert.equal(other.textContent, '1')
   assert.equal(toHtmlString(source), original)
-  render(div(source), host)
+  transition(div(source), host)
   click(other.firstChild)
   assert.equal(host.textContent, '2')
-  render(div('removed'), host)
+  transition(div('removed'), host)
   click(other.firstChild)
   assert.equal(host.textContent, 'removed')
   assert.equal(other.textContent, '3')
@@ -120,9 +121,9 @@ test('plain nested updates diff against current observations after replacement',
   const value = child()
   const host = mount(div(value, 'before'))
   click(host.firstChild.firstChild)
-  render(div(value, 'after'), host)
+  transition(div(value, 'after'), host)
   assert.equal(host.textContent, 'localafter')
-  render(div(child(), 'reset'), host)
+  transition(div(child(), 'reset'), host)
   assert.equal(host.textContent, 'initialreset')
 })
 
@@ -140,7 +141,7 @@ test('finite preauthored observations cycle without rewriting source values', ()
   assert.equal(b[2], 'B')
 })
 
-test('out-of-band observer calls only construct values; render applies them explicitly', async () => {
+test('out-of-band observer calls only construct values; transition applies them explicitly', async () => {
   const wait = deferred()
   const describeState = observe((n = 0) => div(n))
   const later = async () => { await wait.promise; return describeState(8) }
@@ -151,7 +152,7 @@ test('out-of-band observer calls only construct values; render applies them expl
   const next = await pending
   assert.equal(host.textContent, '0')
   assert.equal(other.textContent, '0')
-  render(next, host)
+  transition(next, host)
   assert.equal(host.textContent, '8')
   assert.equal(other.textContent, '8')
 })
@@ -188,7 +189,7 @@ test('constructing a future observer value does not update before the event retu
   const pending = click(host.firstChild)
   assert.equal(host.textContent, '0')
   assert.equal(shared.textContent, '0')
-  render(div('removed'), host)
+  transition(div('removed'), host)
   wait.resolve()
   await pending
   assert.equal(host.textContent, 'removed')
@@ -208,7 +209,7 @@ test('pending plain results target their captured identity, even after removal',
     button({ onclick: () => wait.promise }, 'pending'))()
   const left = mount(source), right = mount(source)
   const pending = click(left.firstChild)
-  render(div('removed'), left)
+  transition(div('removed'), left)
   wait.resolve(span('resolved'))
   await pending
   assert.equal(left.textContent, 'removed')
@@ -233,58 +234,39 @@ test('observer and event failures propagate and do not poison later updates', as
 })
 
 test('fragment ranges reconcile, move, replace, and detach together', () => {
-  const { fragment } = elements
+
   const pair = fragment(span('a'), span('b'))
   const host = mount(div(pair, span('c')))
   const first = host.firstChild.childNodes[1]
-  render(div(span('c'), pair), host)
+  transition(div(span('c'), pair), host)
   assert.equal(host.textContent, 'cab')
   assert.equal(host.firstChild.childNodes[2], first)
-  render(div(fragment(span('d')), span('e')), host)
+  transition(div(fragment(span('d')), span('e')), host)
   assert.equal(host.textContent, 'de')
-  render(div(), host)
+  transition(div(), host)
   assert.equal(host.firstChild.childNodes.length, 0)
-  render(fragment('root', fragment('nested')), host)
+  transition(fragment('root', fragment('nested')), host)
   assert.equal(host.textContent, 'rootnested')
-  render(span('replacement'), host)
+  transition(span('replacement'), host)
   assert.equal(host.childNodes.length, 1)
 })
 
 test('observers can project fragment ranges and empty values', () => {
   const describeState = observe((n = 0) =>
-    elements.fragment(output(n), button({ onclick: () => describeState(n + 1) }, 'next')))
+    fragment(output(n), button({ onclick: () => describeState(n + 1) }, 'next')))
   const host = mount(describeState())
   click(host.childNodes[2])
   assert.equal(host.textContent, '1next')
-  render(elements.fragment(), host)
+  transition(fragment(), host)
   assert.equal(host.textContent, '')
-  render(div(null, false, [], 0), host)
+  transition(div(null, false, [], 0), host)
   assert.equal(host.textContent, '0')
-})
-
-test('document shortcuts stay coherent with subsequent whole-document updates', () => {
-  const page = text => html(head(title(text)), body(div(text)))
-  render(page('first'))
-  render(head(title('standalone')))
-  render(body(div('shortcut')))
-  render(page('last'))
-  assert.equal(document.head.textContent, 'last')
-  assert.equal(document.body.textContent, 'last')
-})
-
-test('document elements are not implicit local event boundaries', () => {
-  const page = text => html(head(title(text)), body(
-    button({ onclick: () => page('next') }, text)))
-  render(page('first'))
-  click(document.body.firstChild)
-  assert.equal(document.head.textContent, 'next')
-  assert.equal(document.body.textContent, 'next')
 })
 
 test('unchanged input props retain native editing across parent updates', () => {
   const host = mount(div(input({ value: 'initial' }), 'first'))
   host.firstChild.firstChild.value = 'edited'
-  render(div(input({ value: 'initial' }), 'next'), host)
+  transition(div(input({ value: 'initial' }), 'next'), host)
   assert.equal(host.firstChild.firstChild.value, 'edited')
 })
 
@@ -336,19 +318,6 @@ test('an original observer snapshot can be selected again without nesting itself
   })
 })
 
-test('document adoption can switch between plain and observer-authored pages', () => {
-  render(html(head(title('plain')), body('plain')))
-  const page = observe((n = 0) =>
-    html(head(title(String(n))), body(button({ onclick: () => page(n + 1) }, n))))
-  render(page())
-  click(document.body.firstChild)
-  assert.equal(document.head.textContent, '1')
-  assert.equal(document.body.textContent, '1')
-  render(html(head(title('plain again')), body('plain again')))
-  assert.equal(document.head.textContent, 'plain again')
-  assert.equal(document.body.textContent, 'plain again')
-})
-
 test('replacing a wrapper with its child can select a new root tag safely', () => {
   const child = observe(tag => tag('child'))
   const wrapper = observe(() => child(div))
@@ -361,71 +330,23 @@ test('replacing a wrapper with its child can select a new root tag safely', () =
   assert.equal(host.firstChild.lastChild.tagName, 'SPAN')
   assert.equal(other.firstChild.tagName, 'SPAN')
   assert.equal(host.firstChild.childNodes.length, 2)
-  render(child(div), other)
+  transition(child(div), other)
   assert.equal(host.firstChild.lastChild.tagName, 'DIV')
   assert.equal(other.firstChild.tagName, 'DIV')
 })
 
 test('namespace replacement can select a new observer root without retaining old subscriptions', () => {
-  const child = observe(tag => tag('child'))
+  const child = observe(tag => [tag === span ? 'span' : 'div', {}, 'child'])
   const describeState = (encoding, value) => math(annotationXml({ encoding }, value))
   const host = mount(describeState('text/html', child(div)))
   const other = mount(child(div))
-  render(describeState('application/xml', child(span)), host)
+  transition(describeState('application/xml', child(span)), host)
   const parent = host.firstChild.firstChild
   assert.equal(parent.firstChild.tagName, 'SPAN')
   assert.equal(parent.firstChild.namespaceURI, 'http://www.w3.org/1998/Math/MathML')
   assert.equal(other.firstChild.tagName, 'SPAN')
-  render(child(div), other)
+  transition(child(div), other)
   assert.equal(parent.childNodes.length, 1)
   assert.equal(parent.firstChild.tagName, 'DIV')
   assert.equal(other.firstChild.tagName, 'DIV')
-})
-
-test('document adoption updates event ownership even for retained markup and handlers', () => {
-  // Reusing the same source must rebind events without rewriting native state.
-  let next
-  const action = () => next
-  const field = input()
-  const control = button({ onclick: action }, 'next')
-  const content = body(field, control)
-  render(content)
-  const fieldNode = document.body.firstChild
-  fieldNode.value = 'draft'
-  render(html(head(title('before')), content))
-  next = html(head(title('after')), body(field, control))
-  click(document.body.lastChild)
-  assert.equal(document.head.textContent, 'after')
-  assert.equal(document.body.firstChild, fieldNode)
-  assert.equal(fieldNode.value, 'draft')
-
-  render(body(field, control))
-  next = body(field, control, span('standalone'))
-  click(document.body.childNodes[1])
-  assert.equal(document.body.textContent, 'nextstandalone')
-  assert.equal(document.head.textContent, 'after')
-  assert.equal(document.body.firstChild, fieldNode)
-  assert.equal(fieldNode.value, 'draft')
-})
-
-test('document ownership changes leave nested observer events local', () => {
-  const child = observe(() => button({ onclick: () => span('local') }, 'child'))
-  const source = child()
-  render(body(source))
-  render(html(head(title('page')), body(source)))
-  click(document.body.firstChild)
-  assert.equal(document.body.textContent, 'local')
-  assert.equal(document.head.textContent, 'page')
-})
-
-test('pending plain results retain the owner captured before document adoption', async () => {
-  const wait = deferred()
-  const content = body(button({ onclick: () => wait.promise }, 'pending'))
-  render(content)
-  const pending = click(document.body.firstChild)
-  render(html(head(title('page')), content))
-  wait.resolve(body('resolved'))
-  await pending
-  assert.equal(document.body.textContent, 'resolved')
-  assert.equal(document.head.textContent, 'page')
 })

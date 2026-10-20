@@ -29,29 +29,24 @@ export { observe } from './core/elements.js'
 export { element } from './core/elements.js'
 
 /**
- * A map of all built-in HTML/SVG tag helpers (plus `fragment`).
+ * Group children without introducing a DOM element.
  */
-export { elements } from './core/elements.js'
+export { fragment } from './core/elements.js'
 
 /**
- * Render a vnode into the DOM.
+ * Append a new live projection to a DOM parent. Each call adds a projection;
+ * event returns select subsequent observations. Existing children are retained.
+ * The target is required; html, head, and body have ordinary element behavior.
  *
- * This is typically called once on page load. After that, events that return
- * observer vnodes update that observer automatically; plain vnodes patch
- * the nearest boundary.
- *
- * `html`, `head`, and `body` roots may omit the container. Fragments have no
- * wrapper element. Use `{ replace: true }` to remount an ordinary container.
- *
- * @param {import('./core/types.js').ElementsVNode} vtree
- * @param {Element | null} [container]
+ * @param {import('./core/types.js').ElementsVNode} graph
+ * @param {Element | Document | DocumentFragment} target
  */
-export { render } from './core/elements.js'
+export { project } from './core/elements.js'
 
 /**
  * Serialize a vnode tree to an HTML string (SSR/SSG).
  *
- * This is the “stringification” counterpart to `render()`: it walks the same
+ * This is the “stringification” counterpart to `project()`: it walks the same
  * declarative vnode arrays and produces static HTML for build-time prerendering
  * or server-side rendering.
  *

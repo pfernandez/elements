@@ -1,9 +1,11 @@
+export const namespace = 'http://www.w3.org/1999/xhtml'
+
 // Source metadata for generated HTML element helpers.
 export const htmlElements = /** @type {const} */ ([
   {
     "name": "html",
     "tag": "html",
-    "description": "The root element of an HTML document.\n\nNote: when `html(...)` is used as the top-level vnode, `render()` will mount\ninto `document.documentElement` automatically.",
+    "description": "The root element of an HTML document.",
     "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/html"
   },
   {

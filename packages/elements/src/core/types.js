@@ -688,14 +688,6 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * All tag helpers, with per-tag prop typing when known.
- *
- * @typedef {{ fragment: ElementsElementHelper<ElementsProps> } & {
- *   [K in ElementsTagName]: ElementsElementHelper<ElementsPropsForTag<K>>
- * }} ElementsElementMap
- */
-
-/**
  * Helper returned by `element(tag)`. Built-in tags retain their specific prop
  * types; arbitrary custom tags use the common Elements props.
  *
@@ -717,8 +709,4 @@ import { htmlTagNames, svgTagNames } from './tags.js'
 /**
  * @template {ElementProps} P
  * @typedef {ElementsElementHelper<P>} ElementHelper
- */
-
-/**
- * @typedef {ElementsElementMap} ElementMap
  */

@@ -1,5 +1,5 @@
-import { button, observe, div, output }
-  from '@pfern/elements'
+import { observe } from '@pfern/elements'
+import { button, div, output } from '@pfern/elements/html'
 
 export const createCounter = () => {
   const counter = observe((count = 0) =>

@@ -1,14 +1,23 @@
+import { namespaceOf, withNamespace } from './namespaces.js'
+
 // A source value is immutable. Its identity carries the current observation;
 // mounted projections subscribe at the DOM boundary, never on the source array.
 const sources = new WeakMap()
 const presented = new WeakSet()
 const projections = new WeakMap()
+const retire = ({ listeners, active, reference }) =>
+  (listeners.delete(reference), active.delete(reference))
+const collected = new FinalizationRegistry(retire)
 
 export const sourceOf = vnode => sources.get(vnode)
 export const createIdentity = current => ({ current, listeners: new Set() })
 const notify = identity =>
-  Array.from(identity.listeners).forEach(listener =>
-    identity.listeners.has(listener) && listener(identity.current))
+  Array.from(identity.listeners).forEach(reference => {
+    const projection = reference.deref()
+    projection && identity.listeners.has(reference)
+      ? projection.notify(identity.current)
+      : !projection && identity.listeners.delete(reference)
+  })
 
 // Selection advances the identity; its mounted projections follow the change.
 export const select = (identity, next) => {
@@ -37,22 +46,25 @@ export const resume = (vnode, owner = null) => {
   identity && select(identity, source?.observation ?? vnode)
 }
 
-export const subscribe = (identity, listener, document) => {
-  const active = projections.get(document) || new Map()
+// Observers and history enumerate weak subscriptions. DOM nodes keep their
+// projection records alive; an observer never keeps discarded DOM alive.
+export const subscribe = (identity, projection, document) => {
+  const active = projections.get(document) || new Set()
+  const reference = new WeakRef(projection)
+  const registration = { listeners: identity.listeners, active, reference }
   projections.set(document, active)
-  active.set(identity, (active.get(identity) || 0) + 1)
-  identity.listeners.add(listener)
-  return () => {
-    identity.listeners.delete(listener)
-    const count = active.get(identity) - 1
-    count ? active.set(identity, count) : active.delete(identity)
-  }
+  active.add(reference)
+  identity.listeners.add(reference)
+  collected.register(projection, registration, reference)
+  return () => (collected.unregister(reference), retire(registration))
 }
 
 // History stores observations, never DOM nodes or serialized closures.
 export const snapshot = document =>
-  new Map(Array.from(projections.get(document)?.keys() || [], identity =>
-    [identity, identity.current]))
+  new Map(Array.from(projections.get(document) || []).flatMap(reference => {
+    const projection = reference.deref()
+    return projection ? [[projection.identity, projection.identity.current]] : []
+  }))
 
 export const restore = observations => {
   const changed = Array.from(observations).filter(([identity, next]) =>
@@ -86,7 +98,7 @@ export const restore = observations => {
  *
  * All projections of this definition share its current observation. Create
  * separate observer definitions for independent state (a factory can help).
- * A fresh vnode selects its observation when first rendered; reusing an already
+ * A fresh vnode selects its observation when first projected; reusing an already
  * projected vnode preserves current state. Source arrays are never rewritten.
  * Unkeyed sibling boundaries follow their identity through reordering when
  * that identity occurs once on each side. Repeated projections need retained
@@ -113,7 +125,7 @@ export const observe = view => {
       source?.identity === identity ? source.observation : result
 
     const vnode = /** @type {import('./types.js').ElementsVNode} */ (
-      observation.slice()
+      withNamespace(observation.slice(), namespaceOf(observation))
     )
     sources.set(vnode, { identity, observation })
     return vnode

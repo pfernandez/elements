@@ -31,6 +31,50 @@ export const stopTickLoop = el =>
       undefined)
   )(tickStateMap.get(el))
 
+// The scheduled callback must not retain an element, its handler, or context.
+// Those belong to the weakly keyed state and may themselves reference DOM.
+const frame = reference => {
+  const step = t => {
+    const el = reference.deref()
+    const state = el && tickStateMap.get(el)
+    if (!state) return
+    const connected = isConnected(el)
+    if (!state.running || (!connected && state.wasConnected))
+      return stopTickLoop(el)
+
+    if (!connected) {
+      state.lastTime = null
+      state.rafId = window.requestAnimationFrame(step)
+      return
+    }
+
+    state.wasConnected = true
+
+    if (!state.ready(el)) {
+      state.lastTime = null
+      state.rafId = window.requestAnimationFrame(step)
+      return
+    }
+
+    const dt = state.lastTime == null ? 0 : t - state.lastTime
+    state.lastTime = t
+
+    let next
+    try { next = state.handler.call(el, el, state.ctx, dt) }
+    catch (err) { stopTickLoop(el); throw err }
+
+    if (isThenable(next)) {
+      stopTickLoop(el)
+      throw new TypeError('ontick must be synchronous (no Promises).')
+    }
+
+    next !== undefined && (state.ctx = next)
+    state.running && (state.rafId = window.requestAnimationFrame(step))
+  }
+
+  return step
+}
+
 /**
  * Start (or restart) a tick loop for an element.
  *
@@ -76,41 +120,5 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
   }
 
   tickStateMap.set(el, state)
-
-  const step = t => {
-    const connected = isConnected(el)
-    if (!state.running || (!connected && state.wasConnected))
-      return stopTickLoop(el)
-
-    if (!connected) {
-      state.lastTime = null
-      state.rafId = window.requestAnimationFrame(step)
-      return
-    }
-
-    state.wasConnected = true
-
-    if (!ready(el)) {
-      state.lastTime = null
-      state.rafId = window.requestAnimationFrame(step)
-      return
-    }
-
-    const dt = state.lastTime == null ? 0 : t - state.lastTime
-    state.lastTime = t
-
-    let next
-    try { next = handler.call(el, el, state.ctx, dt) }
-    catch (err) { stopTickLoop(el); throw err }
-
-    if (isThenable(next)) {
-      stopTickLoop(el)
-      throw new TypeError('ontick must be synchronous (no Promises).')
-    }
-
-    next !== undefined && (state.ctx = next)
-    state.running && (state.rafId = window.requestAnimationFrame(step))
-  }
-
-  state.rafId = window.requestAnimationFrame(step)
+  state.rafId = window.requestAnimationFrame(frame(new WeakRef(el)))
 }

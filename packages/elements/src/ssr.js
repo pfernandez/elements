@@ -5,7 +5,7 @@
  *
  *   ['div', { id: 'x' }, 'Hello']
  *
- * In the browser, `render()` evaluates this AST into real DOM nodes. For
+ * In the browser, `project()` evaluates this AST into real DOM nodes. For
  * build-time prerendering (SSG) or server-side rendering (SSR),
  * `toHtmlString()` walks the same AST and prints HTML.
  *

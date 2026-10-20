@@ -107,14 +107,15 @@ If a fixed point is a value that remains unchanged under a given transform, a re
 Along with functions to simplify the creation of DOM elements, the Elements library provides the `observe` helper to define such an observer with the signature `observer = observe(transition)`, where `transition` is a function that describes a state transition and its projection. The example we've been working with can be written
 
 ```js
-import { body, button, div, observe, output, render } from '@pfern/elements'
+import { observe, project } from '@pfern/elements'
+import { button, div, output } from '@pfern/elements/html'
 
 const counter = observe((x = 0) =>
-  div({ class: 'container' }
-    output(count),
+  div({ class: 'container' },
+    output(x),
     button({ onclick: () => counter(x + 1) })))
 
-render(body(counter(0)))
+project(counter(0), document.body)
 ```
 
 With each recursive state transition, the DOM is efficiently updated with the next projection. The imperative work of DOM element creation and mutation is abstracted away.
@@ -133,16 +134,15 @@ The opposite of a side-effecting function is a _pure_ function. A pure function 
 
 Observers created with `observe` are pure functions because they return array data that represents the HTML to be rendered. We refer to these arrays as _vdom_.
 
-The value passed to `render` looks like this:
+The value passed to `project` looks like this:
 
 ```js
-[body, {},
-  ['div', { class: 'container' },
-    ['output', {}, 0],
-    ['button', { onclick: () => counter(count + 1) }]]]
+['div', { class: 'container' },
+  ['output', {}, 0],
+  ['button', { onclick: () => counter(1) }]]
 ```
 
-`render` will convert this to the equivalent HTML, and `onclick` contains the next call to `counter` with the closure around its next state value. When the button is clicked, Elements intercepts the event and performs the DOM update using the new vdom returned deterministically by `counter(count + 1)`. In fact, it's possible to precompute the result rather than evaluate it lazily on-demand, i.e. `{ onclick: () => ['div' ..., ['output', {}, 1], ...] }`. In this case that might not be a great idea, but it illustrates that it's all ultimately just vdom, all the way down.
+`project` will convert this to the equivalent HTML, and `onclick` contains the next call to `counter` with the closure around its next state value. When the button is clicked, Elements intercepts the event and performs the DOM update using the new vdom returned deterministically by `counter(count + 1)`. In fact, it's possible to precompute the result rather than evaluate it lazily on-demand, i.e. `{ onclick: () => ['div' ..., ['output', {}, 1], ...] }`. In this case that might not be a great idea, but it illustrates that it's all ultimately just vdom, all the way down.
 
 ### The Transition Graph
 
@@ -228,7 +228,8 @@ that state.
 Pass the view to `observe`:
 
 ```js
-import { button, observe, div, output, render } from '@pfern/elements'
+import { observe, project } from '@pfern/elements'
+import { button, div, output } from '@pfern/elements/html'
 
 const counter = observe((count = 0) =>
   div(
@@ -236,7 +237,7 @@ const counter = observe((count = 0) =>
     button({ onclick: () => counter(count + 1) },
            'Increment')))
 
-render(counter(), document.body)
+project(counter(), document.body)
 ```
 
 `observe` establishes one stable identity for the counter. Each call to
@@ -337,7 +338,7 @@ An observer may appear in several places:
 
 ```js
 const initial = counter()
-render(div(initial, initial), document.body)
+project(div(initial, initial), document.body)
 ```
 
 There is still one observer identity and one selected observation:

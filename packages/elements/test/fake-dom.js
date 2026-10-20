@@ -86,7 +86,7 @@ export const createFakeDom = () => {
   }
 
   class FakeElement extends FakeNode {
-    constructor(tagName, namespaceURI = null) {
+    constructor(tagName, namespaceURI = 'http://www.w3.org/1999/xhtml') {
       super(1, String(tagName).toUpperCase())
       this.tagName = String(tagName).toUpperCase()
       this.namespaceURI = namespaceURI
@@ -166,6 +166,10 @@ export const createFakeDom = () => {
 
     createComment(text) {
       return new FakeComment(text)
+    }
+
+    createDocumentFragment() {
+      return new FakeNode(11, '#document-fragment')
     }
 
   }

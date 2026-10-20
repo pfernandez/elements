@@ -27,7 +27,7 @@ const url = `http://127.0.0.1:${address.port}/packages/elements/test/browser/ind
 try {
   const output = await new Promise((resolve, reject) => {
     const child = spawn(chrome, [
-      '--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
+      '--headless', '--js-flags=--expose-gc', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
       ...process.env.CI ? ['--no-sandbox'] : [],
       `--user-data-dir=${profile}`, '--dump-dom', '--virtual-time-budget=10000', url
     ])

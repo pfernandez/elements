@@ -1,4 +1,4 @@
-import { render } from '../../elements.js'
+import { transition } from '../transition.js'
 
 const checks = []
 
@@ -15,7 +15,7 @@ export const equal = (actual, expected) =>
 export const mount = vnode => {
   const container = document.createElement('section')
   document.body.append(container)
-  render(vnode, container)
+  transition(vnode, container)
   return container
 }
 

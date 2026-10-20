@@ -1,14 +1,7 @@
-import { body, h1, head, header, html, meta,
-         render, title } from '@pfern/elements'
+import { project } from '@pfern/elements'
+import { header, h1 } from '@pfern/elements/html'
 import { app } from './views/app.js'
 import './css/style.css'
 
-render(
-  html(
-    head(
-      title('elements.js'),
-      meta({ name: 'viewport',
-             content: 'width=device-width, initial-scale=1.0' })),
-    body({ class: 'container' },
-         header(h1('Elements.js Demo')),
-         app())))
+project(header(h1('Elements.js Demo')), document.body)
+project(app(), document.body)

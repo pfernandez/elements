@@ -1,10 +1,11 @@
-import { a, body, button, observe, div, form, head, html, input,
-  output, pre, render, span, svg, title } from '../elements.js'
+import { transition } from './transition.js'
+import { observe } from '../elements.js'
+import { a, button, div, form, input, output, span } from '../html.js'
+
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
 import { createDeclarativeEventHandler } from '../src/core/events.js'
-import { startTickLoop } from '../src/core/tick.js'
 
 const makeWindow = extra =>
   ({
@@ -12,7 +13,6 @@ const makeWindow = extra =>
     history: { pushState: () => {} },
     ...extra
   })
-
 
 describe("events", () => {
   test('form onsubmit handler receives elements and event', () => {
@@ -137,7 +137,7 @@ describe("events", () => {
     )
 
     const container = document.createElement('div')
-    render(Outer(), container)
+    transition(Outer(), container)
 
     const outerRoot = container.childNodes[0]
     const sentinel = outerRoot.childNodes[0]
@@ -180,7 +180,7 @@ describe("events", () => {
     )
 
     const container = document.createElement('div')
-    render(AsyncCounter(0), container)
+    transition(AsyncCounter(0), container)
 
     const root = container.childNodes[0]
     assert.equal(root.childNodes[0].childNodes[0].nodeValue, '0')
@@ -219,7 +219,7 @@ describe("events", () => {
       )
     )
 
-    render(App('0.1'), container)
+    transition(App('0.1'), container)
     const inputEl = container.childNodes[0].childNodes[0]
 
     inputEl.value = '0.2'
@@ -249,7 +249,7 @@ describe("events", () => {
     let prevented = 0
 
     const container = document.createElement('div')
-    render(a({ href: '/x', onclick: () => div('ok') }, 'go'), container)
+    transition(a({ href: '/x', onclick: () => div('ok') }, 'go'), container)
 
     await container.childNodes[0].onclick({
       button: 0,
@@ -263,7 +263,7 @@ describe("events", () => {
     globalThis.window = prevWindow
   })
 
-  test('render() updates event handlers when props change', async () => {
+  test('transition() updates event handlers when props change', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -272,14 +272,14 @@ describe("events", () => {
     globalThis.window = makeWindow()
 
     const container = document.createElement('div')
-    render(button({ onclick: () => div('one') }, 'go'), container)
+    transition(button({ onclick: () => div('one') }, 'go'), container)
 
     const btn1 = container.childNodes[0]
     await btn1.onclick({})
     assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
     assert.equal(container.childNodes[0].childNodes[0].nodeValue, 'one')
 
-    render(button({ onclick: () => div('two') }, 'go'), container)
+    transition(button({ onclick: () => div('two') }, 'go'), container)
 
     const btn2 = container.childNodes[0]
     await btn2.onclick({})
@@ -299,7 +299,7 @@ describe("events", () => {
     globalThis.window = makeWindow()
 
     const container = document.createElement('div')
-    render(div(button({ onclick: () => 'noop' }, 'go')), container)
+    transition(div(button({ onclick: () => 'noop' }, 'go')), container)
 
     const root = container.childNodes[0]
     await root.childNodes[0].onclick({})
@@ -311,7 +311,7 @@ describe("events", () => {
     globalThis.window = prevWindow
   })
 
-  test('render() clears removed event handlers', async () => {
+  test('transition() clears removed event handlers', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -320,10 +320,10 @@ describe("events", () => {
     globalThis.window = makeWindow()
 
     const container = document.createElement('div')
-    render(button({ onclick: () => div('ok') }, 'go'), container)
+    transition(button({ onclick: () => div('ok') }, 'go'), container)
     assert.equal(typeof container.childNodes[0].onclick, 'function')
 
-    render(button({}, 'go'), container)
+    transition(button({}, 'go'), container)
     assert.equal(container.childNodes[0].onclick, null)
 
     globalThis.document = prevDocument

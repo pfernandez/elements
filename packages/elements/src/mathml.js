@@ -7,145 +7,145 @@ import { element } from './core/element.js'
  * The root element of a MathML expression.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/math
  */
-export const math = element("math")
+export const math = element("math", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Groups sub-expressions without introducing visible separators.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mrow
  */
-export const mrow = element("mrow")
+export const mrow = element("mrow", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Identifier (variable/function name).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mi
  */
-export const mi = element("mi")
+export const mi = element("mi", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Operator (e.g. "+", "→", parentheses).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mo
  */
-export const mo = element("mo")
+export const mo = element("mo", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Number literal.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
  */
-export const mn = element("mn")
+export const mn = element("mn", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Text inside math layout.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtext
  */
-export const mtext = element("mtext")
+export const mtext = element("mtext", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Spacing control.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mspace
  */
-export const mspace = element("mspace")
+export const mspace = element("mspace", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Styling wrapper for MathML subtree.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mstyle
  */
-export const mstyle = element("mstyle")
+export const mstyle = element("mstyle", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Encloses content (e.g. boxes, circles).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
  */
-export const menclose = element("menclose")
+export const menclose = element("menclose", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Convenience fencing wrapper (parentheses, brackets).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfenced
  */
-export const mfenced = element("mfenced")
+export const mfenced = element("mfenced", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Superscript.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
  */
-export const msup = element("msup")
+export const msup = element("msup", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Subscript.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msub
  */
-export const msub = element("msub")
+export const msub = element("msub", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Subscript + superscript.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msubsup
  */
-export const msubsup = element("msubsup")
+export const msubsup = element("msubsup", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Fraction.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
  */
-export const mfrac = element("mfrac")
+export const mfrac = element("mfrac", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Square root.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msqrt
  */
-export const msqrt = element("msqrt")
+export const msqrt = element("msqrt", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Root with explicit index.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mroot
  */
-export const mroot = element("mroot")
+export const mroot = element("mroot", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Under-script.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/munder
  */
-export const munder = element("munder")
+export const munder = element("munder", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Over-script.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mover
  */
-export const mover = element("mover")
+export const mover = element("mover", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Under + over script.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/munderover
  */
-export const munderover = element("munderover")
+export const munderover = element("munderover", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Table layout.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtable
  */
-export const mtable = element("mtable")
+export const mtable = element("mtable", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Table row.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtr
  */
-export const mtr = element("mtr")
+export const mtr = element("mtr", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Table cell.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd
  */
-export const mtd = element("mtd")
+export const mtd = element("mtd", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Attach semantic annotations to a presentation tree.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/semantics
  */
-export const semantics = element("semantics")
+export const semantics = element("semantics", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * A textual annotation inside <semantics>.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/annotation
  */
-export const annotation = element("annotation")
+export const annotation = element("annotation", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * An XML annotation inside <semantics>.
@@ -153,77 +153,77 @@ export const annotation = element("annotation")
  * Exported as `annotationXml` because of the dash in the tag name.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/annotation-xml
  */
-export const annotationXml = element("annotation-xml")
+export const annotationXml = element("annotation-xml", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML application node: first child is the operator, remaining
  * children are arguments.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/apply
  */
-export const apply = element("apply")
+export const apply = element("apply", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML identifier.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/ci
  */
-export const ci = element("ci")
+export const ci = element("ci", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML number.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/cn
  */
-export const cn = element("cn")
+export const cn = element("cn", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML symbol (often with a content dictionary via `cd`).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/csymbol
  */
-export const csymbol = element("csymbol")
+export const csymbol = element("csymbol", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML binding node (e.g. lambda).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/bind
  */
-export const bind = element("bind")
+export const bind = element("bind", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Bound variable (used under <bind>).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/bvar
  */
-export const bvar = element("bvar")
+export const bvar = element("bvar", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Lambda binder operator (typically inside <bind>).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/lambda
  */
-export const lambda = element("lambda")
+export const lambda = element("lambda", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML set constructor (often under <apply>).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/set
  */
-export const set = element("set")
+export const set = element("set", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML list constructor (often under <apply>).
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/list
  */
-export const list = element("list")
+export const list = element("list", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML vector constructor.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/vector
  */
-export const vector = element("vector")
+export const vector = element("vector", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML matrix constructor.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/matrix
  */
-export const matrix = element("matrix")
+export const matrix = element("matrix", "http://www.w3.org/1998/Math/MathML")
 
 /**
  * Content MathML matrix row.
  * https://developer.mozilla.org/en-US/docs/Web/MathML/Element/matrixrow
  */
-export const matrixrow = element("matrixrow")
+export const matrixrow = element("matrixrow", "http://www.w3.org/1998/Math/MathML")

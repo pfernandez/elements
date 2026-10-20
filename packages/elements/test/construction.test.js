@@ -1,10 +1,10 @@
-import { a, body, button, element, observe, div, form, head, html, input,
-  output, pre, render, span, svg, title } from '../elements.js'
+import { transition } from './transition.js'
+import { element, observe } from '../elements.js'
+import { a, body, button, div, form, input, output, pre, span } from '../html.js'
+import { svg } from '../svg.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
-import { createDeclarativeEventHandler } from '../src/core/events.js'
-import { startTickLoop } from '../src/core/tick.js'
 
 const makeWindow = extra =>
   ({
@@ -12,7 +12,6 @@ const makeWindow = extra =>
     history: { pushState: () => {} },
     ...extra
   })
-
 
 describe("construction", () => {
   test('div() returns a vnode with tag "div"', () => {
@@ -84,7 +83,7 @@ describe("construction", () => {
 
     const container = document.createElement('div')
     assert.throws(
-      () => render(div({ className: 'a' }, 'x'), container),
+      () => transition(div({ className: 'a' }, 'x'), container),
       /className/
     )
 
@@ -126,7 +125,7 @@ describe("construction", () => {
 
 	    assert.equal(inner[0], 'div')
 	    assert.equal(inner[2][2], 0)        // pre(n) = 0
-	    assert.equal(second[2][2], 1)       // pre(n) = 1 in next render
+	    assert.equal(second[2][2], 1)       // pre(n) = 1 in next transition
 	  })
 
   test('vnode return is pure (no mutation of props)', () => {
@@ -153,7 +152,7 @@ describe("construction", () => {
     )
 
     const container = document.createElement('div')
-    render(div({}, Counter(0), Counter(0)), container)
+    transition(div({}, Counter(0), Counter(0)), container)
 
     const getCounterRoot = index => container.childNodes[0].childNodes[index]
     const getCountText = root => root.childNodes[0].childNodes[0].nodeValue
@@ -178,7 +177,7 @@ describe("construction", () => {
     }
   )
 
-  test('events run within a rendered html root', async () => {
+  test('events run within a projection', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
 
@@ -187,7 +186,7 @@ describe("construction", () => {
     globalThis.window = makeWindow()
     let calls = 0
 
-    render(html(body(button({ onclick: () => { calls++ } }, 'go'))))
+    transition(button({ onclick: () => { calls++ } }, 'go'), document.body)
     await document.body.childNodes[0].onclick({})
 
     assert.equal(calls, 1)
@@ -206,11 +205,11 @@ describe("construction", () => {
 
     const container = document.createElement('div')
 
-    render(div({ hidden: true }, 'x'), container)
+    transition(div({ hidden: true }, 'x'), container)
     const el = container.childNodes[0]
     assert.equal(el.attributes.hidden, '')
 
-    render(div({ hidden: false }, 'x'), container)
+    transition(div({ hidden: false }, 'x'), container)
     assert.equal(el.attributes.hidden, undefined)
 
     globalThis.document = prevDocument
@@ -242,7 +241,7 @@ describe("construction", () => {
       }, input({ name: 'todo' }), button({ type: 'submit' }, 'go'))
     )
 
-    render(App(0), container1)
+    transition(App(0), container1)
     await container1.childNodes[0].onsubmit(event)
 
     assert.equal(prevented, 1)
@@ -254,7 +253,7 @@ describe("construction", () => {
     )
 
     const container2 = document.createElement('div')
-    render(Passive(), container2)
+    transition(Passive(), container2)
     await container2.childNodes[0].onsubmit(event)
 
     assert.equal(prevented, 2)

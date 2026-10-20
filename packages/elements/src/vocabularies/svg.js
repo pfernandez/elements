@@ -1,5 +1,43 @@
+export const namespace = 'http://www.w3.org/2000/svg'
+
 // Source metadata for generated SVG element helpers.
 export const svgElements = /** @type {const} */ ([
+{
+  "name": "a",
+  "tag": "a",
+  "description": "A link within an SVG drawing.",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/a"
+},
+{
+  "name": "title",
+  "tag": "title",
+  "description": "An accessible short title for an SVG element.",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title"
+},
+{
+  "name": "style",
+  "tag": "style",
+  "description": "Styles for an SVG drawing.",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/style"
+},
+{
+  "name": "script",
+  "tag": "script",
+  "description": "A script within an SVG drawing.",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/script"
+},
+{
+  "name": "image",
+  "tag": "image",
+  "description": "An image within an SVG drawing.",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/image"
+},
+{
+  "name": "clipPath",
+  "tag": "clipPath",
+  "description": "A clipping path for SVG content.",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/clipPath"
+},
   {
     "name": "animate",
     "tag": "animate",
