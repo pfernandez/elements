@@ -3,7 +3,8 @@
 X3DOM-powered X3D helpers for Elements.js.
 
 Each X3D helper uses the same `element(tag)` vnode constructor as the built-in
-HTML, SVG, and MathML vocabularies, wrapped only to lazy-load X3DOM when needed.
+HTML, SVG, and MathML vocabularies. Constructing a vnode does not load assets or
+touch the DOM.
 
 ## Install
 
@@ -14,7 +15,8 @@ npm i @pfern/elements @pfern/elements-x3dom
 ## Usage
 
 ```js
-import { render, div } from '@pfern/elements'
+import { project } from '@pfern/elements'
+import { div } from '@pfern/elements/html'
 import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
   from '@pfern/elements-x3dom'
 
@@ -27,14 +29,19 @@ export const cubeScene = () =>
           appearance(material({ diffuseColor: '0.2 0.6 1.0' })),
           box()))))
 
-render(div({}, cubeScene()), document.body)
+document.body.append(project(div(cubeScene())))
 ```
 
 ## Loading
 
-X3DOM is lazy-loaded the first time you call any helper from this package.
-This package always loads the `x3dom-full` bundle (plus `x3dom.css`) for
-correctness and stability.
+Importing the package watches the importing document for connected `<x3d>`
+scenes. The first connection loads `x3dom-full` and `x3dom.css` automatically;
+unused descriptions and detached projections load neither. Import the package
+in each document that hosts scenes, including iframe documents.
+
+Later scenes share the loaded engine and stylesheet. Reconnection initializes
+scenes that X3DOM tore down, and a missing stylesheet is restored in the current
+head. Authors do not need to include CSS or transfer assets during root replacement.
 
 All assets are vendored so apps can run without a CDN or additional runtime
 fetch steps.

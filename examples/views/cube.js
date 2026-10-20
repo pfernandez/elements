@@ -5,7 +5,7 @@ import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
  * Minimal X3D/X3DOM demo.
  *
  * Notes:
- * - Calling a 3D helper lazy-loads the full X3DOM bundle and its stylesheet.
+ * - Connecting the projected scene loads the full X3DOM bundle and stylesheet.
  * - Other examples do not load the 3D runtime.
  */
 export const cube = (props = {}) =>

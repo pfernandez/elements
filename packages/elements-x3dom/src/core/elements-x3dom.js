@@ -74,6 +74,21 @@ const assets = new WeakMap()
 const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).href
 const fullUrl = new URL('../../vendor/x3dom-full.js', import.meta.url).href
 
+// X3DOM 1.8.3 destroys a removed scene's backend, but leaves its flag, DOM
+// controls and method wrappers behind. Reset only those vendor-owned pieces.
+const resetScene = (scene, canvas) => {
+  if (!canvas || scene.runtime) return
+  const controls = [canvas.canvas, canvas.stateViewer?.viewer, canvas.progressDiv, canvas.vrDiv]
+  controls.forEach(node => node?.remove())
+  const methods = ['setAttribute', 'addEventListener', 'removeEventListener']
+  methods.forEach(name => {
+    const original = scene[`__${name}`]
+    if (original) scene[name] = original
+    delete scene[`__${name}`]
+  })
+  delete scene.hasRuntime
+}
+
 const asset = (document, tag, attribute, url) => {
   const existing = document.querySelector(`${tag}[${attribute}="${url}"]`)
   const node = existing || document.createElement(tag)
@@ -99,10 +114,14 @@ const watchDocument = document => {
   const window = document.defaultView
   if (!window?.MutationObserver) return
   let connected = new WeakSet()
+  const initialized = new WeakMap()
+  let engineLoad = null
   let stylesheet = null, script = null, revision = 0
-  const sync = () => {
+  const sync = (mutations = []) => {
     const scenes = Array.from(document.querySelectorAll('x3d'))
-    const added = scenes.some(scene => !connected.has(scene))
+    const moved = mutations.some(mutation => Array.from(mutation.removedNodes).some(node =>
+      node.localName === 'x3d' || node.querySelector?.('x3d')))
+    const added = moved || scenes.some(scene => !connected.has(scene))
     connected = new WeakSet(scenes)
     if (!scenes.length) {
       stylesheet = script = null
@@ -112,17 +131,28 @@ const watchDocument = document => {
     if (!document.head) return
     patchCanvas2DWillReadFrequentlyOnce(window)
     const css = asset(document, 'link', 'href', cssUrl)
-    const js = window.x3dom?.reload ? null : asset(document, 'script', 'src', fullUrl)
+    // A started script still executes if its old head is removed. Share that
+    // request so head replacement cannot execute the vendor bundle twice.
+    const js = window.x3dom?.reload ? null
+      : engineLoad || (engineLoad = asset(document, 'script', 'src', fullUrl))
     if (!added && stylesheet === css.node && script === js?.node) return
     stylesheet = css.node
     script = js?.node
     const current = ++revision
     Promise.all([css.ready, js?.ready]).then(() => {
       if (current !== revision || !document.querySelector('x3d')) return
-      // The vendor skips scenes it has already initialized, including moves.
+      engineLoad = null
+      const currentScenes = Array.from(document.querySelectorAll('x3d'))
+      currentScenes.forEach(scene => resetScene(scene, initialized.get(scene)))
       window.x3dom?.reload()
+      currentScenes.forEach(scene => {
+        if (scene.runtime?.canvas) initialized.set(scene, scene.runtime.canvas)
+      })
     }).catch(error => {
-      if (current === revision) console.warn('x3dom failed to load', error)
+      if (current === revision) {
+        engineLoad = null
+        console.warn('x3dom failed to load', error)
+      }
     })
   }
   new window.MutationObserver(sync).observe(document, { childList: true, subtree: true })

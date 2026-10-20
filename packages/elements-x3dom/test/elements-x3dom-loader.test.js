@@ -93,6 +93,8 @@ test('head replacement during loading waits for the current assets', () =>
     sync()
     const old = nodes.splice(0)
     sync()
+    assert.equal(nodes.filter(node => node.tag === 'script').length, 0,
+                 'head replacement must share the pending vendor script')
     old.forEach(node => node.loaded())
     await flush()
     assert.equal(reloads(), 0)

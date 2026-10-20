@@ -448,8 +448,10 @@ const cube = () =>
         box())))
 ```
 
-The first helper call loads the vendored X3DOM runtime and stylesheet in the
-browser. See the [X3DOM package](https://github.com/pfernandez/elements/blob/main/packages/elements-x3dom/README.md) and
+The first connected X3DOM scene loads the vendored runtime and stylesheet.
+Constructing descriptions or projecting detached scenes loads neither. The
+package handles later scenes, reconnection, and stylesheet restoration after
+head replacement. See the [X3DOM package](https://github.com/pfernandez/elements/blob/main/packages/elements-x3dom/README.md) and
 [animation example](https://github.com/pfernandez/elements/blob/main/examples/views/tick.js).
 
 ## Types and testing

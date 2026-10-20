@@ -24,8 +24,19 @@ try {
   assert(assets().length === 0 && !node.runtime, 'detached projection must not load X3DOM')
   const tree = project(html.html(html.head(html.title('X3DOM connection test')), html.body()))
   document.documentElement.replaceWith(tree)
+  let started = null
+  const duringLoad = new MutationObserver(() => {
+    const script = document.querySelector('script[src*="x3dom-full"]')
+    if (!script) return
+    started = script
+    duringLoad.disconnect()
+    document.head.replaceWith(project(html.head(html.title('Head replaced during loading'))))
+  })
+  duringLoad.observe(document, { childList: true, subtree: true })
   document.body.append(node)
   await until(() => node.runtime?.canvas?.gl && styles()?.sheet, 'connected scene did not initialize real WebGL')
+  assert(started && !started.isConnected, 'the loading script must have survived head removal')
+  assert(!document.querySelector('script[src*="x3dom-full"]'), 'head replacement must not start a second vendor script')
   assert(window.x3dom.about.version === '1.8.3', 'the vendored runtime must be running')
   assert(node.querySelector('shape')._x3domNode, 'the scene must be parsed by X3DOM')
   const engine = window.x3dom
@@ -41,6 +52,17 @@ try {
   assert(node.querySelectorAll('canvas').length === 1, 'reconnection must not duplicate canvases')
   const next = project(view(), document.body)
   await until(() => next.runtime?.canvas?.gl, 'a later scene did not initialize')
+  const destination = document.createElement('section')
+  document.body.append(destination)
+  destination.append(node)
+  await delay()
+  await until(() => node.runtime?.canvas?.gl, 'moving a connected scene did not reinitialize it')
+  node.setAttribute('width', '120px')
+  assert(node.querySelector('canvas').width === 120 * devicePixelRatio,
+         'reconnection must restore functioning attribute wrappers')
+  assert(node.querySelectorAll('canvas').length === 1, 'moves must not leave duplicate canvases')
+  document.head.replaceWith(project(html.head(html.title('Live head replacement'))))
+  await until(() => styles()?.sheet, 'live head replacement did not restore CSS')
   assert(document.querySelectorAll('link[rel="stylesheet"][href*="x3dom"]').length === 1,
          'parallel scenes must share a stylesheet')
   parent.postMessage({ x3domCheck: 'PASS' }, location.origin)
