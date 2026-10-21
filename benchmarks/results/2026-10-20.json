@@ -1,0 +1,1989 @@
+{
+  "recordedAt": "2026-10-21T03:34:37.488Z",
+  "environment": {
+    "platform": "linux",
+    "architecture": "x64",
+    "kernel": "7.0.0-34-generic",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+    "logicalCPUs": 16,
+    "memoryBytes": 50160267264,
+    "node": "v25.9.0",
+    "chrome": "155.0.8059.84",
+    "headless": true
+  },
+  "harness": {
+    "repository": "https://github.com/krausest/js-framework-benchmark",
+    "commit": "3ab4ceaf5591771228f83fb5161b9fda7e15934d",
+    "runner": "puppeteer",
+    "command": "node dist/benchmarkRunner.js --headless --chromeBinary /usr/bin/google-chrome --framework keyed/elements-baseline keyed/elements keyed/react-hooks keyed/vanillajs --benchmark 01_ 02_ 03_ 04_ 05_ 06_ 07_ 08_ 09_ --count 5",
+    "warmups": "Pinned upstream defaults; no slowest samples dropped",
+    "cpuSlowdown": {
+      "01": 1,
+      "02": 1,
+      "03": 4,
+      "04": 4,
+      "05": 4,
+      "06": 2,
+      "07": 1,
+      "08": 1,
+      "09": 4
+    },
+    "keyedChecks": "All four passed create, remove and swap identity checks",
+    "plausibilityCheck": "successful run",
+    "runOrder": [
+      "elements",
+      "elements-baseline",
+      "react-hooks",
+      "vanillajs"
+    ]
+  },
+  "elements": {
+    "baseline": "2e494da",
+    "optimized": "2e494da plus the reconciliation changes accompanying this report",
+    "sourceSHA256": {
+      "dom.js": "66bbd4694f04ee7f3dd0488aa195af38fb0db4f02110d5f20f3827adbac8e3e0",
+      "reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8"
+    },
+    "bundles": {
+      "elements-baseline": {
+        "asset": "assets/index-D1Cq_FLm.js",
+        "bytes": 14917,
+        "gzipBytes": 6221,
+        "sha256": "9a221f833fef2afdd26b2fce3e6512f4499d59f9c188eedc8fe8231f4986c6c7"
+      },
+      "elements": {
+        "asset": "assets/index-BJgb2YjL.js",
+        "bytes": 15496,
+        "gzipBytes": 6503,
+        "sha256": "11991bd97913f3837060ab97d3e845087263b5dd26fdae1e0ac2dcd7e70868ff"
+      }
+    }
+  },
+  "react": {
+    "version": "19.2.0",
+    "adapter": "upstream keyed/react-hooks, memoized Row, production build"
+  },
+  "units": "milliseconds",
+  "results": [
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 50.9,
+          "max": 64.7,
+          "median": 53.6,
+          "mean": 55.839999999999996,
+          "stddev": 5.380799197145347,
+          "values": [
+            56.8,
+            53.6,
+            50.9,
+            64.7,
+            53.2
+          ]
+        },
+        "script": {
+          "min": 17,
+          "max": 28.4,
+          "median": 18.8,
+          "mean": 20.640000000000004,
+          "stddev": 4.697658991455212,
+          "values": [
+            21.6,
+            17,
+            17.4,
+            28.4,
+            18.8
+          ]
+        },
+        "paint": {
+          "min": 33,
+          "max": 35.9,
+          "median": 34.8,
+          "mean": 34.660000000000004,
+          "stddev": 1.2218837915284746,
+          "values": [
+            34.8,
+            35.9,
+            33,
+            35.7,
+            33.9
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 50.2,
+          "max": 64.5,
+          "median": 55,
+          "mean": 55.839999999999996,
+          "stddev": 5.61542518425809,
+          "values": [
+            50.2,
+            51.9,
+            55,
+            57.6,
+            64.5
+          ]
+        },
+        "script": {
+          "min": 15.1,
+          "max": 27.3,
+          "median": 17.9,
+          "mean": 19.38,
+          "stddev": 4.690095947845844,
+          "values": [
+            15.1,
+            17.2,
+            17.9,
+            19.4,
+            27.3
+          ]
+        },
+        "paint": {
+          "min": 34.1,
+          "max": 37.5,
+          "median": 36.4,
+          "mean": 35.86,
+          "stddev": 1.4467204291085403,
+          "values": [
+            34.6,
+            34.1,
+            36.4,
+            37.5,
+            36.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 42.2,
+          "max": 44.6,
+          "median": 43.9,
+          "mean": 43.64,
+          "stddev": 0.8848728722251565,
+          "values": [
+            44.6,
+            43.9,
+            43.9,
+            43.6,
+            42.2
+          ]
+        },
+        "script": {
+          "min": 8.9,
+          "max": 10.9,
+          "median": 9.7,
+          "mean": 9.879999999999999,
+          "stddev": 0.7563068160475617,
+          "values": [
+            10.9,
+            9.6,
+            9.7,
+            10.3,
+            8.9
+          ]
+        },
+        "paint": {
+          "min": 32.8,
+          "max": 33.8,
+          "median": 33.2,
+          "mean": 33.239999999999995,
+          "stddev": 0.4159326868617084,
+          "values": [
+            33.2,
+            33.8,
+            33.5,
+            32.8,
+            32.9
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 37,
+          "max": 46.1,
+          "median": 37.5,
+          "mean": 39.64,
+          "stddev": 3.846816865929545,
+          "values": [
+            40.3,
+            37.3,
+            37.5,
+            37,
+            46.1
+          ]
+        },
+        "script": {
+          "min": 3.2,
+          "max": 6.2,
+          "median": 3.5,
+          "mean": 3.96,
+          "stddev": 1.2581732790041285,
+          "values": [
+            3.5,
+            3.2,
+            3.5,
+            3.4,
+            6.2
+          ]
+        },
+        "paint": {
+          "min": 33.1,
+          "max": 39.2,
+          "median": 33.6,
+          "mean": 35.14,
+          "stddev": 2.6005768590833847,
+          "values": [
+            36.3,
+            33.6,
+            33.5,
+            33.1,
+            39.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "02_replace1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 61.5,
+          "max": 65.1,
+          "median": 62.3,
+          "mean": 62.720000000000006,
+          "stddev": 1.5039946808416558,
+          "values": [
+            63.2,
+            61.5,
+            65.1,
+            62.3,
+            61.5
+          ]
+        },
+        "script": {
+          "min": 26.6,
+          "max": 29.9,
+          "median": 27.3,
+          "mean": 27.759999999999998,
+          "stddev": 1.2700393694685208,
+          "values": [
+            27.8,
+            26.6,
+            29.9,
+            27.2,
+            27.3
+          ]
+        },
+        "paint": {
+          "min": 33.6,
+          "max": 34.8,
+          "median": 34.5,
+          "mean": 34.36,
+          "stddev": 0.46151923036857206,
+          "values": [
+            34.8,
+            34.3,
+            34.6,
+            34.5,
+            33.6
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "02_replace1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 58.8,
+          "max": 67,
+          "median": 61.8,
+          "mean": 61.96,
+          "stddev": 3.3805325024321253,
+          "values": [
+            58.8,
+            67,
+            59,
+            61.8,
+            63.2
+          ]
+        },
+        "script": {
+          "min": 24.7,
+          "max": 29.4,
+          "median": 27.7,
+          "mean": 27.18,
+          "stddev": 2.1787611158637827,
+          "values": [
+            24.7,
+            29,
+            25.1,
+            27.7,
+            29.4
+          ]
+        },
+        "paint": {
+          "min": 33.3,
+          "max": 37.4,
+          "median": 33.5,
+          "mean": 34.239999999999995,
+          "stddev": 1.7700282483621552,
+          "values": [
+            33.5,
+            37.4,
+            33.3,
+            33.6,
+            33.4
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "02_replace1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 52.6,
+          "max": 56.6,
+          "median": 54.5,
+          "mean": 54.4,
+          "stddev": 1.6477257053284078,
+          "values": [
+            56.6,
+            53,
+            52.6,
+            55.3,
+            54.5
+          ]
+        },
+        "script": {
+          "min": 17.3,
+          "max": 20.2,
+          "median": 17.9,
+          "mean": 18.32,
+          "stddev": 1.1099549540409284,
+          "values": [
+            17.9,
+            17.3,
+            18.3,
+            17.9,
+            20.2
+          ]
+        },
+        "paint": {
+          "min": 33.7,
+          "max": 38.2,
+          "median": 35.2,
+          "mean": 35.52,
+          "stddev": 1.933132173442883,
+          "values": [
+            38.2,
+            35.2,
+            33.8,
+            36.7,
+            33.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "02_replace1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 39.6,
+          "max": 46.2,
+          "median": 41.9,
+          "mean": 42.52,
+          "stddev": 2.6414011433328346,
+          "values": [
+            44.1,
+            41.9,
+            40.8,
+            46.2,
+            39.6
+          ]
+        },
+        "script": {
+          "min": 6.1,
+          "max": 8.4,
+          "median": 6.5,
+          "mean": 6.82,
+          "stddev": 0.9093954035511728,
+          "values": [
+            6.4,
+            6.7,
+            6.5,
+            8.4,
+            6.1
+          ]
+        },
+        "paint": {
+          "min": 33,
+          "max": 36.9,
+          "median": 34.4,
+          "mean": 35.00000000000001,
+          "stddev": 1.7621010186706088,
+          "values": [
+            36.8,
+            34.4,
+            33.9,
+            36.9,
+            33
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 36.5,
+          "max": 46.4,
+          "median": 37.4,
+          "mean": 39.260000000000005,
+          "stddev": 4.088153617465958,
+          "values": [
+            38.9,
+            36.5,
+            37.1,
+            46.4,
+            37.4
+          ]
+        },
+        "script": {
+          "min": 14.9,
+          "max": 18.9,
+          "median": 16.1,
+          "mean": 16.44,
+          "stddev": 1.5093044755780716,
+          "values": [
+            16.6,
+            15.7,
+            14.9,
+            18.9,
+            16.1
+          ]
+        },
+        "paint": {
+          "min": 18.8,
+          "max": 24.9,
+          "median": 19.4,
+          "mean": 20.5,
+          "stddev": 2.4959967948697366,
+          "values": [
+            19.4,
+            18.8,
+            19.4,
+            24.9,
+            20
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 31.3,
+          "max": 35.3,
+          "median": 31.8,
+          "mean": 32.739999999999995,
+          "stddev": 1.6831518053936776,
+          "values": [
+            33.6,
+            31.8,
+            31.7,
+            31.3,
+            35.3
+          ]
+        },
+        "script": {
+          "min": 11.9,
+          "max": 12.7,
+          "median": 12.1,
+          "mean": 12.24,
+          "stddev": 0.34351128074635306,
+          "values": [
+            12.7,
+            12.1,
+            12,
+            12.5,
+            11.9
+          ]
+        },
+        "paint": {
+          "min": 16.8,
+          "max": 21.3,
+          "median": 18.4,
+          "mean": 18.8,
+          "stddev": 1.6777961735562517,
+          "values": [
+            19.4,
+            18.1,
+            18.4,
+            16.8,
+            21.3
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 25.7,
+          "max": 36.9,
+          "median": 27.2,
+          "mean": 29.18,
+          "stddev": 4.471800532224128,
+          "values": [
+            36.9,
+            29,
+            27.1,
+            25.7,
+            27.2
+          ]
+        },
+        "script": {
+          "min": 6.5,
+          "max": 13.3,
+          "median": 6.9,
+          "mean": 8.1,
+          "stddev": 2.912902332725902,
+          "values": [
+            13.3,
+            6.8,
+            6.9,
+            6.5,
+            7
+          ]
+        },
+        "paint": {
+          "min": 17.6,
+          "max": 21.7,
+          "median": 18.5,
+          "mean": 19.240000000000002,
+          "stddev": 1.680178561939176,
+          "values": [
+            21.7,
+            20.2,
+            18.2,
+            17.6,
+            18.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 19,
+          "max": 22.6,
+          "median": 20.4,
+          "mean": 20.619999999999997,
+          "stddev": 1.4839137441239643,
+          "values": [
+            19,
+            20.4,
+            21.6,
+            19.5,
+            22.6
+          ]
+        },
+        "script": {
+          "min": 0.2,
+          "max": 0.9,
+          "median": 0.7,
+          "mean": 0.62,
+          "stddev": 0.27748873851023215,
+          "values": [
+            0.5,
+            0.9,
+            0.7,
+            0.2,
+            0.8
+          ]
+        },
+        "paint": {
+          "min": 17,
+          "max": 19.8,
+          "median": 17.2,
+          "mean": 18.04,
+          "stddev": 1.3520355024924458,
+          "values": [
+            17.2,
+            17,
+            19.2,
+            17,
+            19.8
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 9.5,
+          "max": 13.7,
+          "median": 11.2,
+          "mean": 11.333333333333334,
+          "stddev": 1.1932348988399242,
+          "values": [
+            11.3,
+            10.1,
+            11.4,
+            12.5,
+            10.2,
+            11.2,
+            10.6,
+            11.5,
+            10.6,
+            11.1,
+            12.8,
+            13.7,
+            13,
+            10.5,
+            9.5
+          ]
+        },
+        "script": {
+          "min": 4.7,
+          "max": 7.8,
+          "median": 6.1,
+          "mean": 6.14,
+          "stddev": 0.8174874398336125,
+          "values": [
+            5.8,
+            5.5,
+            6.5,
+            6.8,
+            5.3,
+            7.1,
+            5.4,
+            6.5,
+            5.6,
+            6.1,
+            6.9,
+            7.8,
+            6.4,
+            5.7,
+            4.7
+          ]
+        },
+        "paint": {
+          "min": 2.7,
+          "max": 5,
+          "median": 4.2,
+          "mean": 4.08,
+          "stddev": 0.6304193615590907,
+          "values": [
+            4.9,
+            3.4,
+            4.4,
+            4.2,
+            3.4,
+            2.7,
+            4.2,
+            4.5,
+            3.5,
+            4.2,
+            3.9,
+            4.5,
+            5,
+            3.8,
+            4.6
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 9.4,
+          "max": 15.8,
+          "median": 10.4,
+          "mean": 10.880000000000003,
+          "stddev": 1.5794212321516476,
+          "values": [
+            10.2,
+            11.3,
+            10.2,
+            10.5,
+            10,
+            12.3,
+            9.6,
+            11.9,
+            10,
+            9.4,
+            10.4,
+            10.7,
+            10.9,
+            10,
+            15.8
+          ]
+        },
+        "script": {
+          "min": 5.1,
+          "max": 7.6,
+          "median": 5.7,
+          "mean": 5.846666666666667,
+          "stddev": 0.6232021761683381,
+          "values": [
+            5.6,
+            6.5,
+            5.5,
+            6,
+            5.4,
+            5.9,
+            5.3,
+            6.3,
+            5.4,
+            5.1,
+            6,
+            5.4,
+            6,
+            5.7,
+            7.6
+          ]
+        },
+        "paint": {
+          "min": 2.3,
+          "max": 5.6,
+          "median": 3.6,
+          "mean": 3.7466666666666666,
+          "stddev": 0.8733078876700168,
+          "values": [
+            3.9,
+            2.9,
+            3.2,
+            3.5,
+            3.4,
+            5.6,
+            3.5,
+            4.8,
+            3.8,
+            2.7,
+            2.3,
+            4.3,
+            3.6,
+            3.8,
+            4.9
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 7.5,
+          "max": 12,
+          "median": 9.8,
+          "mean": 9.706666666666667,
+          "stddev": 1.2881141623466823,
+          "values": [
+            10.1,
+            7.5,
+            9.2,
+            10.5,
+            9.8,
+            9.4,
+            9.8,
+            11.6,
+            10.1,
+            12,
+            7.5,
+            8.4,
+            10.9,
+            9.3,
+            9.5
+          ]
+        },
+        "script": {
+          "min": 2.7,
+          "max": 5.4,
+          "median": 4.2,
+          "mean": 4.286666666666666,
+          "stddev": 0.7558029473600214,
+          "values": [
+            4.2,
+            2.7,
+            4.6,
+            4.1,
+            4.1,
+            4.2,
+            5.4,
+            4.5,
+            4.5,
+            5.3,
+            2.8,
+            4,
+            4.9,
+            4.2,
+            4.8
+          ]
+        },
+        "paint": {
+          "min": 3.2,
+          "max": 5.4,
+          "median": 4.2,
+          "mean": 4.2333333333333325,
+          "stddev": 0.5367450401216932,
+          "values": [
+            4.8,
+            4.2,
+            3.5,
+            4.4,
+            4.7,
+            4.1,
+            3.6,
+            5.4,
+            4.2,
+            4.2,
+            4.2,
+            3.2,
+            4.5,
+            4.3,
+            4.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 4.3,
+          "max": 6.7,
+          "median": 5.1,
+          "mean": 5.186666666666667,
+          "stddev": 0.6696125389962111,
+          "values": [
+            6,
+            4.3,
+            5.1,
+            5.1,
+            5.9,
+            4.9,
+            4.5,
+            4.8,
+            4.9,
+            4.4,
+            5.7,
+            4.7,
+            6.7,
+            5.3,
+            5.5
+          ]
+        },
+        "script": {
+          "min": 0.1,
+          "max": 0.9,
+          "median": 0.6,
+          "mean": 0.5133333333333334,
+          "stddev": 0.2972893411828826,
+          "values": [
+            0.9,
+            0.1,
+            0.9,
+            0.8,
+            0.1,
+            0.4,
+            0.1,
+            0.4,
+            0.5,
+            0.7,
+            0.7,
+            0.7,
+            0.6,
+            0.7,
+            0.1
+          ]
+        },
+        "paint": {
+          "min": 3,
+          "max": 4.6,
+          "median": 3.7,
+          "mean": 3.74,
+          "stddev": 0.503984126734166,
+          "values": [
+            4.6,
+            3.1,
+            3.4,
+            3.4,
+            4.6,
+            3.7,
+            4.1,
+            3.6,
+            3.3,
+            3,
+            4,
+            3.3,
+            4,
+            3.8,
+            4.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 160.7,
+          "max": 190.8,
+          "median": 167.3,
+          "mean": 170.74,
+          "stddev": 12.397701399856354,
+          "values": [
+            173.7,
+            190.8,
+            161.2,
+            167.3,
+            160.7
+          ]
+        },
+        "script": {
+          "min": 22.8,
+          "max": 27.2,
+          "median": 23.3,
+          "mean": 24.42,
+          "stddev": 1.872698587600257,
+          "values": [
+            23.3,
+            27.2,
+            22.8,
+            25.5,
+            23.3
+          ]
+        },
+        "paint": {
+          "min": 135.2,
+          "max": 159.4,
+          "median": 139.5,
+          "mean": 143.73999999999998,
+          "stddev": 10.305241384848783,
+          "values": [
+            148.8,
+            159.4,
+            135.8,
+            139.5,
+            135.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 30.8,
+          "max": 31.6,
+          "median": 31.5,
+          "mean": 31.259999999999998,
+          "stddev": 0.42190046219457994,
+          "values": [
+            31.6,
+            30.8,
+            30.8,
+            31.5,
+            31.6
+          ]
+        },
+        "script": {
+          "min": 5.5,
+          "max": 7,
+          "median": 6.1,
+          "mean": 6.14,
+          "stddev": 0.6268971207462992,
+          "values": [
+            5.6,
+            7,
+            6.5,
+            6.1,
+            5.5
+          ]
+        },
+        "paint": {
+          "min": 22.1,
+          "max": 24.1,
+          "median": 23,
+          "mean": 23.140000000000004,
+          "stddev": 0.7829431652425352,
+          "values": [
+            24.1,
+            22.1,
+            22.8,
+            23,
+            23.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 160.7,
+          "max": 178.2,
+          "median": 168.4,
+          "mean": 168.48000000000002,
+          "stddev": 7.62213880744768,
+          "values": [
+            161.4,
+            160.7,
+            173.7,
+            168.4,
+            178.2
+          ]
+        },
+        "script": {
+          "min": 25.3,
+          "max": 31,
+          "median": 26.5,
+          "mean": 27.160000000000004,
+          "stddev": 2.2799122790142605,
+          "values": [
+            26.5,
+            25.3,
+            31,
+            25.7,
+            27.3
+          ]
+        },
+        "paint": {
+          "min": 131.3,
+          "max": 147.2,
+          "median": 139.9,
+          "mean": 138.34,
+          "stddev": 6.500230765134413,
+          "values": [
+            131.3,
+            132.6,
+            139.9,
+            140.7,
+            147.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 22.4,
+          "max": 27.4,
+          "median": 24,
+          "mean": 24.6,
+          "stddev": 2.383275057562597,
+          "values": [
+            24,
+            26.8,
+            27.4,
+            22.4,
+            22.4
+          ]
+        },
+        "script": {
+          "min": 0.1,
+          "max": 0.8,
+          "median": 0.4,
+          "mean": 0.44000000000000006,
+          "stddev": 0.30495901363953815,
+          "values": [
+            0.4,
+            0.8,
+            0.2,
+            0.1,
+            0.7
+          ]
+        },
+        "paint": {
+          "min": 20.1,
+          "max": 25.3,
+          "median": 21.4,
+          "mean": 22.38,
+          "stddev": 2.210656011232865,
+          "values": [
+            21.4,
+            24.1,
+            25.3,
+            21,
+            20.1
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "06_remove-one-1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 21.4,
+          "max": 24.2,
+          "median": 22.1,
+          "mean": 22.38,
+          "stddev": 1.0986355173577815,
+          "values": [
+            21.4,
+            22.5,
+            21.7,
+            24.2,
+            22.1
+          ]
+        },
+        "script": {
+          "min": 2.7,
+          "max": 3.3,
+          "median": 3,
+          "mean": 3,
+          "stddev": 0.22360679774997888,
+          "values": [
+            2.7,
+            3.1,
+            2.9,
+            3,
+            3.3
+          ]
+        },
+        "paint": {
+          "min": 17.7,
+          "max": 19.9,
+          "median": 18.1,
+          "mean": 18.339999999999996,
+          "stddev": 0.9099450532861856,
+          "values": [
+            17.7,
+            18.3,
+            18.1,
+            19.9,
+            17.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "06_remove-one-1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 21.4,
+          "max": 25.5,
+          "median": 21.9,
+          "mean": 22.82,
+          "stddev": 1.7253985046939164,
+          "values": [
+            21.7,
+            21.9,
+            25.5,
+            23.6,
+            21.4
+          ]
+        },
+        "script": {
+          "min": 2.6,
+          "max": 3.1,
+          "median": 2.9,
+          "mean": 2.8600000000000003,
+          "stddev": 0.20736441353327717,
+          "values": [
+            3,
+            2.7,
+            3.1,
+            2.6,
+            2.9
+          ]
+        },
+        "paint": {
+          "min": 17.8,
+          "max": 21.2,
+          "median": 18.3,
+          "mean": 19.020000000000003,
+          "stddev": 1.5172343260024135,
+          "values": [
+            17.8,
+            18.3,
+            21.2,
+            20,
+            17.8
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "06_remove-one-1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 20.4,
+          "max": 23.4,
+          "median": 21,
+          "mean": 21.380000000000003,
+          "stddev": 1.1882760622010355,
+          "values": [
+            20.7,
+            20.4,
+            21.4,
+            23.4,
+            21
+          ]
+        },
+        "script": {
+          "min": 1.8,
+          "max": 2.6,
+          "median": 2,
+          "mean": 2.08,
+          "stddev": 0.33466401061363027,
+          "values": [
+            2,
+            1.8,
+            1.8,
+            2.6,
+            2.2
+          ]
+        },
+        "paint": {
+          "min": 17.6,
+          "max": 19.6,
+          "median": 17.7,
+          "mean": 18.18,
+          "stddev": 0.8613942186943213,
+          "values": [
+            17.6,
+            17.6,
+            18.4,
+            19.6,
+            17.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "06_remove-one-1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 18.9,
+          "max": 22.5,
+          "median": 20.7,
+          "mean": 20.419999999999998,
+          "stddev": 1.5056560032092325,
+          "values": [
+            20.7,
+            18.9,
+            22.5,
+            19,
+            21
+          ]
+        },
+        "script": {
+          "min": 0.3,
+          "max": 0.5,
+          "median": 0.5,
+          "mean": 0.45999999999999996,
+          "stddev": 0.0894427190999916,
+          "values": [
+            0.5,
+            0.5,
+            0.5,
+            0.3,
+            0.5
+          ]
+        },
+        "paint": {
+          "min": 17.4,
+          "max": 20.4,
+          "median": 19.1,
+          "mean": 18.7,
+          "stddev": 1.292284798332009,
+          "values": [
+            19.1,
+            17.4,
+            20.4,
+            17.4,
+            19.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 536.4,
+          "max": 559.5,
+          "median": 546.6,
+          "mean": 549.0799999999999,
+          "stddev": 9.392390537025184,
+          "values": [
+            559.5,
+            545.7,
+            557.2,
+            536.4,
+            546.6
+          ]
+        },
+        "script": {
+          "min": 136.5,
+          "max": 152,
+          "median": 142.1,
+          "mean": 142.78,
+          "stddev": 5.737333875590649,
+          "values": [
+            142.1,
+            143.1,
+            152,
+            136.5,
+            140.2
+          ]
+        },
+        "paint": {
+          "min": 395.2,
+          "max": 412.4,
+          "median": 400.4,
+          "mean": 401.46000000000004,
+          "stddev": 6.583919805100902,
+          "values": [
+            412.4,
+            397.8,
+            400.4,
+            395.2,
+            401.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 533.9,
+          "max": 551.3,
+          "median": 542.9,
+          "mean": 543.4399999999999,
+          "stddev": 6.804263369388329,
+          "values": [
+            542.9,
+            533.9,
+            548.4,
+            551.3,
+            540.7
+          ]
+        },
+        "script": {
+          "min": 139.7,
+          "max": 156.9,
+          "median": 143.9,
+          "mean": 145.28,
+          "stddev": 6.801617454694147,
+          "values": [
+            143.9,
+            139.7,
+            141.2,
+            156.9,
+            144.7
+          ]
+        },
+        "paint": {
+          "min": 389.2,
+          "max": 402.4,
+          "median": 391.2,
+          "mean": 393.18,
+          "stddev": 5.406662556513024,
+          "values": [
+            393.4,
+            389.2,
+            402.4,
+            389.7,
+            391.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 569.4,
+          "max": 607.7,
+          "median": 598.8,
+          "mean": 593.74,
+          "stddev": 16.248476851692914,
+          "values": [
+            585.7,
+            607.1,
+            569.4,
+            598.8,
+            607.7
+          ]
+        },
+        "script": {
+          "min": 177.5,
+          "max": 198.5,
+          "median": 198,
+          "mean": 192.9,
+          "stddev": 8.985822166056925,
+          "values": [
+            192.3,
+            198,
+            177.5,
+            198.5,
+            198.2
+          ]
+        },
+        "paint": {
+          "min": 387.1,
+          "max": 404.5,
+          "median": 395.4,
+          "mean": 395.62,
+          "stddev": 8.287762062221615,
+          "values": [
+            387.7,
+            403.4,
+            387.1,
+            395.4,
+            404.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 388.4,
+          "max": 410,
+          "median": 401.2,
+          "mean": 398.73999999999995,
+          "stddev": 9.809587147275877,
+          "values": [
+            401.2,
+            410,
+            388.4,
+            388.7,
+            405.4
+          ]
+        },
+        "script": {
+          "min": 29.3,
+          "max": 39.2,
+          "median": 30.9,
+          "mean": 32.64,
+          "stddev": 3.8965369239877616,
+          "values": [
+            30.8,
+            33,
+            29.3,
+            30.9,
+            39.2
+          ]
+        },
+        "paint": {
+          "min": 352.8,
+          "max": 370.8,
+          "median": 360.9,
+          "mean": 360.67999999999995,
+          "stddev": 7.533060467034628,
+          "values": [
+            364.9,
+            370.8,
+            354,
+            352.8,
+            360.9
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "08_create1k-after1k_x2",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 56.9,
+          "max": 66.1,
+          "median": 62.2,
+          "mean": 62.5,
+          "stddev": 3.751666296460812,
+          "values": [
+            61.5,
+            56.9,
+            66.1,
+            62.2,
+            65.8
+          ]
+        },
+        "script": {
+          "min": 17.8,
+          "max": 21.6,
+          "median": 20.8,
+          "mean": 20.439999999999998,
+          "stddev": 1.5646085772486358,
+          "values": [
+            21.6,
+            17.8,
+            21.6,
+            20.4,
+            20.8
+          ]
+        },
+        "paint": {
+          "min": 38,
+          "max": 43.5,
+          "median": 40.6,
+          "mean": 40.8,
+          "stddev": 2.516942589730644,
+          "values": [
+            38.7,
+            38,
+            43.2,
+            40.6,
+            43.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "08_create1k-after1k_x2",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 58.8,
+          "max": 63.8,
+          "median": 59.8,
+          "mean": 61,
+          "stddev": 2.404163056034261,
+          "values": [
+            63.4,
+            59.2,
+            59.8,
+            63.8,
+            58.8
+          ]
+        },
+        "script": {
+          "min": 18.5,
+          "max": 21.5,
+          "median": 19.5,
+          "mean": 19.7,
+          "stddev": 1.151086443322134,
+          "values": [
+            20,
+            19.5,
+            18.5,
+            21.5,
+            19
+          ]
+        },
+        "paint": {
+          "min": 38.6,
+          "max": 42.3,
+          "median": 39.9,
+          "mean": 40.080000000000005,
+          "stddev": 1.5594870951694322,
+          "values": [
+            42.3,
+            38.6,
+            39.9,
+            40.9,
+            38.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "08_create1k-after1k_x2",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 51.2,
+          "max": 59.9,
+          "median": 56,
+          "mean": 55.67999999999999,
+          "stddev": 3.5351096164051246,
+          "values": [
+            58.1,
+            59.9,
+            56,
+            51.2,
+            53.2
+          ]
+        },
+        "script": {
+          "min": 12,
+          "max": 14.2,
+          "median": 12.7,
+          "mean": 12.879999999999999,
+          "stddev": 0.9257429448826493,
+          "values": [
+            14.2,
+            13.4,
+            12.1,
+            12,
+            12.7
+          ]
+        },
+        "paint": {
+          "min": 38,
+          "max": 45.2,
+          "median": 42.6,
+          "mean": 41.6,
+          "stddev": 2.8521921393903336,
+          "values": [
+            42.6,
+            45.2,
+            42.7,
+            38,
+            39.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "08_create1k-after1k_x2",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 41,
+          "max": 47.4,
+          "median": 42.1,
+          "mean": 43.84,
+          "stddev": 3.2745992121174154,
+          "values": [
+            42.1,
+            41,
+            41.3,
+            47.4,
+            47.4
+          ]
+        },
+        "script": {
+          "min": 3.2,
+          "max": 3.7,
+          "median": 3.3,
+          "mean": 3.3800000000000003,
+          "stddev": 0.1923538406167135,
+          "values": [
+            3.3,
+            3.2,
+            3.3,
+            3.7,
+            3.4
+          ]
+        },
+        "paint": {
+          "min": 36.9,
+          "max": 42.4,
+          "median": 37.8,
+          "mean": 39.260000000000005,
+          "stddev": 2.7978563222581685,
+          "values": [
+            37.8,
+            36.9,
+            37,
+            42.4,
+            42.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-baseline-v2e494da-keyed",
+      "keyed": true,
+      "benchmark": "09_clear1k_x8",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 30.9,
+          "max": 39.1,
+          "median": 34.6,
+          "mean": 35.26,
+          "stddev": 3.35454915003492,
+          "values": [
+            38.1,
+            39.1,
+            30.9,
+            33.6,
+            34.6
+          ]
+        },
+        "script": {
+          "min": 28.1,
+          "max": 35.2,
+          "median": 31.7,
+          "mean": 32.239999999999995,
+          "stddev": 2.921985626248014,
+          "values": [
+            35.2,
+            34.9,
+            28.1,
+            31.7,
+            31.3
+          ]
+        },
+        "paint": {
+          "min": 1.2,
+          "max": 3.1,
+          "median": 2.4,
+          "mean": 2.2399999999999998,
+          "stddev": 0.9071934744033382,
+          "values": [
+            1.4,
+            3.1,
+            2.4,
+            1.2,
+            3.1
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-v2e494da-working-tree-keyed",
+      "keyed": true,
+      "benchmark": "09_clear1k_x8",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 29.9,
+          "max": 36.5,
+          "median": 30.3,
+          "mean": 31.979999999999997,
+          "stddev": 2.819042390600042,
+          "values": [
+            30.3,
+            30.2,
+            36.5,
+            29.9,
+            33
+          ]
+        },
+        "script": {
+          "min": 27,
+          "max": 33,
+          "median": 27.4,
+          "mean": 28.839999999999996,
+          "stddev": 2.6015380066414564,
+          "values": [
+            27.4,
+            27,
+            33,
+            27,
+            29.8
+          ]
+        },
+        "paint": {
+          "min": 1.8,
+          "max": 2.9,
+          "median": 2.2,
+          "mean": 2.32,
+          "stddev": 0.4658325879540846,
+          "values": [
+            2,
+            2.2,
+            2.9,
+            1.8,
+            2.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "09_clear1k_x8",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 27.5,
+          "max": 31.5,
+          "median": 29.7,
+          "mean": 29.679999999999996,
+          "stddev": 1.7555625878902756,
+          "values": [
+            27.5,
+            31.5,
+            28.4,
+            31.3,
+            29.7
+          ]
+        },
+        "script": {
+          "min": 24.8,
+          "max": 28.4,
+          "median": 26.4,
+          "mean": 26.7,
+          "stddev": 1.5684387141358116,
+          "values": [
+            24.8,
+            28.2,
+            25.7,
+            28.4,
+            26.4
+          ]
+        },
+        "paint": {
+          "min": 1.6,
+          "max": 3.1,
+          "median": 2.3,
+          "mean": 2.2800000000000002,
+          "stddev": 0.6418722614352486,
+          "values": [
+            1.6,
+            2.7,
+            1.7,
+            2.3,
+            3.1
+          ]
+        }
+      }
+    },
+    {
+      "framework": "vanillajs-keyed",
+      "keyed": true,
+      "benchmark": "09_clear1k_x8",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 15.3,
+          "max": 16.8,
+          "median": 15.6,
+          "mean": 15.959999999999999,
+          "stddev": 0.6503845016603642,
+          "values": [
+            16.8,
+            15.6,
+            16.5,
+            15.3,
+            15.6
+          ]
+        },
+        "script": {
+          "min": 11.6,
+          "max": 13.2,
+          "median": 12,
+          "mean": 12.26,
+          "stddev": 0.6148170459575757,
+          "values": [
+            13.2,
+            12,
+            12.5,
+            11.6,
+            12
+          ]
+        },
+        "paint": {
+          "min": 1.3,
+          "max": 2.6,
+          "median": 2.4,
+          "mean": 2.18,
+          "stddev": 0.5118593556827891,
+          "values": [
+            2.4,
+            2.6,
+            2.2,
+            1.3,
+            2.4
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { assignProperties, removeMissingProps } from './props.js'
 import { createIdentity, present, resume, sourceOf, subscribe } from './observer.js'
-import { matchChildren } from './reconcile.js'
+import { matchChildren, stablePositions } from './reconcile.js'
 import { stopTickLoop } from './tick.js'
 import { validateProps } from './attributes.js'
 import { watchHistory } from './history.js'
@@ -48,7 +48,8 @@ const removeNodes = record =>
 const remove = record => (release(record), removeNodes(record))
 
 const moveBefore = (record, parent, before) =>
-  firstNode(record) === before ? undefined
+  firstNode(record) === before
+    || firstNode(record).parentNode === parent && lastNode(record).nextSibling === before ? undefined
     : nodesOf(record).forEach(node => parent.insertBefore(node, before))
 
 const propsEnv = owner => ({ svgNS, resume: result => resume(result, owner) })
@@ -126,22 +127,25 @@ const patchChildren = (record, sources, owner, namespace) => {
   const parent = record.end ? record.node.parentNode : record.node
   const previous = record.children
   const matches = matchChildren(previous.map(child => child.source), sources)
-  const used = new Set(matches)
+  const used = previous.length > 1 ? new Set(matches) : null
   const next = sources.map((source, index) =>
     matches[index] === -1
       ? mount(source, parent, namespace, owner, record.end || null, record.scope)
       : previous[matches[index]].namespace !== namespace
         ? replace(previous[matches[index]], source, owner, namespace)
         : patch(previous[matches[index]], source, owner))
-  previous.forEach((child, index) => !used.has(index) && remove(child))
+  previous.forEach((child, index) =>
+    !(used ? used.has(index) : matches.includes(index)) && remove(child))
 
-  // Walk forward so appends/removals leave focused preceding nodes untouched.
-  let cursor = record.end ? record.node.nextSibling
-    : next.length ? parent.firstChild : null
-  next.forEach(child => {
-    moveBefore(child, parent, cursor)
-    cursor = lastNode(child).nextSibling
-  })
+  // Place only new or out-of-sequence ranges, leaving retained controls alone.
+  const stable = stablePositions(matches)
+  let before = record.end || null
+  for (let index = next.length - 1; index >= 0; index--) {
+    const child = next[index]
+    if (matches[index] === -1 || stable && !stable.has(index))
+      moveBefore(child, parent, before)
+    before = firstNode(child)
+  }
   return next
 }
 

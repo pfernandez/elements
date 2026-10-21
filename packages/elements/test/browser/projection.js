@@ -66,6 +66,56 @@ test('reference reordering preserves controls, focus and native state', () => {
   assert(document.activeElement === node)
 })
 
+test('a distant keyed swap moves only two rows and keeps middle controls focused', () => {
+  const sources = Array.from({ length: 1000 }, (_, key) => div({ key }, input()))
+  const host = mount(div(sources)), parent = host.firstChild
+  const original = [...parent.children], focused = original[500].firstChild
+  focused.value = 'draft'
+  focused.focus()
+  const insert = parent.insertBefore
+  let moves = 0
+  parent.insertBefore = function(node, before) {
+    if (node.parentNode === this) moves++
+    return insert.call(this, node, before)
+  }
+  const next = sources.slice()
+  ;[next[1], next[998]] = [next[998], next[1]]
+  transition(div(next), host)
+  equal(moves, 2)
+  assert(parent.children[1] === original[998] && parent.children[998] === original[1])
+  assert(document.activeElement === focused)
+  equal(focused.value, 'draft')
+  moves = 0
+  const rotated = [...next.slice(1), next[0]]
+  transition(div(rotated), host)
+  equal(moves, 1)
+  assert(document.activeElement === focused)
+  moves = 0
+  transition(div(rotated, div({ key: 1000 }, input())), host)
+  transition(div(rotated.slice(1)), host)
+  equal(moves, 0)
+  assert(document.activeElement === focused)
+})
+
+test('range placement handles rotations, insertions, removals and root replacements', () => {
+  const groups = Array.from({ length: 5 }, (_, key) =>
+    fragment({ key }, span(String(key)), input({ value: String(key) })))
+  const host = mount(fragment(div(groups), span('outside')))
+  const parent = host.querySelector('div'), controls = [...parent.querySelectorAll('input')]
+  const orders = [[4, 0, 1, 2, 3], [3, 2, 1, 0, 4], [1, 3, 0], [4, 2, 0, 1, 3]]
+  for (const order of orders) {
+    transition(fragment(div(order.map(index => groups[index])), span('outside')), host)
+    equal([...parent.querySelectorAll('span')].map(node => node.textContent), order.map(String))
+    equal([...parent.querySelectorAll('input')].map(node => node.value), order.map(String))
+    assert([...parent.querySelectorAll('input')].find(node => node.value === '0') === controls[0])
+    equal(host.lastChild.previousSibling.textContent, 'outside')
+  }
+  // A matched key may replace a range with one element while other ranges move.
+  transition(fragment(div(groups[3], span({ key: 0 }, 'replaced'), groups[1]), span('outside')), host)
+  equal(parent.textContent, '3replaced1')
+  equal(parent.querySelectorAll('input').length, 2)
+})
+
 test('fragments are DOM ranges, including shared observer projections', () => {
   const group = observe((n = 0) => fragment(
     span(n), button({ onclick: () => group(n + 1) }, 'next')))

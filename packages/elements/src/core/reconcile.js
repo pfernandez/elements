@@ -7,10 +7,15 @@ const keyOf = vnode =>
 const identityOf = vnode =>
   keyOf(vnode) == null ? sourceOf(vnode)?.identity : null
 
-const uniqueIndex = values => {
-  const indices = new Map()
-  values.forEach((value, index) =>
-    value != null && indices.set(value, indices.has(value) ? -1 : index))
+const uniqueIndex = (values, key = value => value) => {
+  let indices = null
+  values.forEach((value, index) => {
+    const id = key(value)
+    if (id != null) {
+      indices ||= new Map()
+      indices.set(id, indices.has(id) ? -1 : index)
+    }
+  })
   return indices
 }
 
@@ -19,22 +24,27 @@ const uniqueIndex = values => {
 // retained references distinguish them, otherwise they stay positional.
 // The maps and used set are local scratch space; inputs remain untouched.
 export const matchChildren = (previous, next) => {
-  const references = uniqueIndex(previous)
-  const keys = uniqueIndex(previous.map(keyOf))
-  const identities = uniqueIndex(previous.map(identityOf))
-  const nextIdentities = next.map(identityOf)
-  const uniqueIdentities = uniqueIndex(nextIdentities)
+  if (!next.length) return []
+  if (!previous.length) return next.map(() => -1)
+  if (previous.length === 1 && next.length === 1)
+    return [previous[0] === next[0] || keyOf(previous[0]) === keyOf(next[0]) ? 0 : -1]
+
+  const references = uniqueIndex(previous, value => Array.isArray(value) ? value : null)
+  const keys = uniqueIndex(previous, keyOf)
+  const identities = uniqueIndex(previous, identityOf)
+  const nextIdentities = identities && next.map(identityOf)
+  const uniqueIdentities = nextIdentities && uniqueIndex(nextIdentities)
   const used = new Set()
   const claim = index =>
     index == null || index < 0 || used.has(index)
       ? -1 : (used.add(index), index)
   const referencesMatched = next.map(value =>
-    Array.isArray(value) ? claim(references.get(value)) : -1)
+    Array.isArray(value) ? claim(references?.get(value)) : -1)
   const keysMatched = referencesMatched.map((index, position) =>
-    index !== -1 ? index : claim(keys.get(keyOf(next[position]))))
+    index !== -1 ? index : claim(keys?.get(keyOf(next[position]))))
   const identitiesMatched = keysMatched.map((index, position) =>
     index !== -1 ? index
-      : uniqueIdentities.get(nextIdentities[position]) === position
+      : uniqueIdentities?.get(nextIdentities[position]) === position
         ? claim(identities.get(nextIdentities[position])) : -1)
 
   return identitiesMatched.map((index, position) =>
@@ -42,4 +52,28 @@ export const matchChildren = (previous, next) => {
       : position < previous.length
         && keyOf(previous[position]) == null && keyOf(next[position]) == null
         ? claim(position) : -1)
+}
+
+// Keep a longest increasing sequence of old positions in place. Ordered lists
+// (including appends/removals) need no index allocation or retained-node moves.
+export const stablePositions = matches => {
+  let last = -1
+  if (matches.every(index => index < 0 || index > last && (last = index, true)))
+    return null
+
+  const tails = [], preceding = new Array(matches.length).fill(-1)
+  matches.forEach((value, index) => {
+    if (value < 0) return
+    let low = 0, high = tails.length
+    while (low < high) {
+      const middle = low + high >>> 1
+      matches[tails[middle]] < value ? low = middle + 1 : high = middle
+    }
+    if (low) preceding[index] = tails[low - 1]
+    tails[low] = index
+  })
+  const stable = new Set()
+  for (let index = tails.at(-1); index !== -1; index = preceding[index])
+    stable.add(index)
+  return stable
 }
