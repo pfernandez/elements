@@ -1,6 +1,6 @@
 import { element, fragment, html, mathml, observe, project, svg } from '../../elements.js'
-import { assert, equal, test } from './harness.js'
-import { snapshot, resume } from '../../src/core/observer.js'
+import { assert, equal, test, traverse } from './harness.js'
+import { snapshot, resume, sourceOf } from '../../src/core/observer.js'
 
 const host = () => document.body.appendChild(document.createElement('section'))
 const pause = () => new Promise(resolve => setTimeout(resolve, 0))
@@ -146,6 +146,51 @@ test('vocabularies retain their namespaces in XML documents', () => {
   ])
   assert(xml.documentElement.firstChild.ownerDocument === xml)
   equal(snapshot(xml).size, 2)
+})
+
+test('iframe projections and adopted roots navigate and restore their own document', async () => {
+  const parentURL = location.href
+  const parentBase = document.createElement('base')
+  parentBase.target = '_blank'
+  document.head.append(parentBase)
+  try {
+    for (const adopted of [false, true]) {
+      const frame = document.createElement('iframe')
+      try {
+        await new Promise(resolve => {
+          frame.onload = resolve
+          frame.src = '/packages/elements/test/browser/empty.html'
+          document.body.append(frame)
+        })
+        const doc = frame.contentDocument, window = frame.contentWindow
+        const initialURL = window.location.href
+        const base = doc.createElement('base')
+        base.href = `${location.origin}/embedded/`
+        doc.head.append(base)
+        const counter = observe((n = 0) => html.a({
+          href: `step-${n + 1}`, onclick: async () => counter(n + 1)
+        }, n))
+        const initial = counter()
+        const node = adopted ? project(initial) : project(initial, doc.body)
+        adopted && doc.body.append(node)
+        const identity = sourceOf(initial).identity
+        assert(snapshot(doc).has(identity))
+        assert(!snapshot(document).has(identity), 'adopted roots leave their original document')
+        node.click()
+        await pause()
+        equal(window.location.pathname, '/embedded/step-1')
+        equal(node.textContent, '1')
+        equal(location.href, parentURL)
+        await traverse(-1, window)
+        equal(window.location.href, initialURL)
+        equal(node.textContent, '0')
+        await traverse(1, window)
+        equal(window.location.pathname, '/embedded/step-1')
+        equal(node.textContent, '1')
+        equal(location.href, parentURL)
+      } finally { frame.remove() }
+    }
+  } finally { parentBase.remove() }
 })
 
 test('equal tag names from different vocabularies replace nodes on observer selection', () => {

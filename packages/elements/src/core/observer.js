@@ -4,9 +4,9 @@ import { namespaceOf, withNamespace } from './namespaces.js'
 // mounted projections subscribe at the DOM boundary, never on the source array.
 const sources = new WeakMap()
 const presented = new WeakSet()
-const projections = new WeakMap()
-const retire = ({ listeners, active, reference }) =>
-  (listeners.delete(reference), active.delete(reference))
+const projections = new Set()
+const retire = ({ listeners, reference }) =>
+  (listeners.delete(reference), projections.delete(reference))
 const collected = new FinalizationRegistry(retire)
 
 export const sourceOf = vnode => sources.get(vnode)
@@ -48,22 +48,22 @@ export const resume = (vnode, owner = null) => {
 
 // Observers and history enumerate weak subscriptions. DOM nodes keep their
 // projection records alive; an observer never keeps discarded DOM alive.
-export const subscribe = (identity, projection, document) => {
-  const active = projections.get(document) || new Set()
+export const subscribe = (identity, projection) => {
   const reference = new WeakRef(projection)
-  const registration = { listeners: identity.listeners, active, reference }
-  projections.set(document, active)
-  active.add(reference)
+  const registration = { listeners: identity.listeners, reference }
+  projections.add(reference)
   identity.listeners.add(reference)
   collected.register(projection, registration, reference)
   return () => (collected.unregister(reference), retire(registration))
 }
 
 // History stores observations, never DOM nodes or serialized closures.
+// Read the current document so native adoption moves history participation too.
 export const snapshot = document =>
-  new Map(Array.from(projections.get(document) || []).flatMap(reference => {
+  new Map(Array.from(projections).flatMap(reference => {
     const projection = reference.deref()
-    return projection ? [[projection.identity, projection.identity.current]] : []
+    return projection?.document === document
+      ? [[projection.identity, projection.identity.current]] : []
   }))
 
 export const restore = observations => {

@@ -87,7 +87,7 @@ test('removal during loading does not initialize a disconnected scene', () =>
     assert.equal(reloads(), 1)
   }))
 
-test('head replacement during loading waits for the current assets', () =>
+test('head replacement shares the pending script without waiting for CSS', () =>
   fixture(async ({ nodes, scenes, sync, reloads }) => {
     scenes.push({})
     sync()
@@ -97,13 +97,13 @@ test('head replacement during loading waits for the current assets', () =>
                  'head replacement must share the pending vendor script')
     old.forEach(node => node.loaded())
     await flush()
-    assert.equal(reloads(), 0)
+    assert.equal(reloads(), 1)
     nodes.forEach(node => node.loaded())
     await flush()
     assert.equal(reloads(), 1)
   }))
 
-test('failed assets report errors and can be replaced for a later attempt', () =>
+test('stylesheet failure does not block scenes or replacing the stylesheet', () =>
   fixture(async ({ nodes, scenes, sync, reloads }) => {
     const warn = console.warn, warnings = []
     console.warn = (...args) => warnings.push(args)
@@ -114,11 +114,11 @@ test('failed assets report errors and can be replaced for a later attempt', () =
       nodes[1].loaded()
       await flush()
       assert.equal(warnings.length, 1)
-      assert.equal(reloads(), 0)
+      assert.equal(reloads(), 1)
       nodes.splice(0, 1)
       sync()
       nodes.find(node => node.tag === 'link').loaded()
       await flush()
-      assert.equal(reloads(), 1)
+      assert.equal(reloads(), 2)
     } finally { console.warn = warn }
   }))

@@ -13,7 +13,8 @@ const boundaries = new WeakMap()
 
 /** @typedef {{ source: any, namespace: any, owner: any,
  * node?: any, end?: any, children?: Mount[], projection?: Mount,
- * identity?: any, unsubscribe?: () => void, scope?: Mount, notify?: Function }} Mount */
+ * identity?: any, unsubscribe?: () => void, scope?: Mount, notify?: Function,
+ * document?: any }} Mount */
 
 const tagOf = value => Array.isArray(value) ? value[0] : null
 const propsOf = value => Array.isArray(value) ? value[1] || {} : {}
@@ -71,12 +72,13 @@ const afterChildrenProps = (node, tag, props, owner) =>
 /** @returns {Mount} */
 const mountBoundary = (source, identity, parent, namespace, before, scope = null) => {
   const record = { source, identity, namespace, owner: identity, scope,
-                   projection: null, unsubscribe: null, notify: null }
+                   projection: null, unsubscribe: null, notify: null,
+                   get document() { return documentOf(firstNode(this)) } }
   record.projection = mount(identity.current, parent, namespace, identity, before, record)
   record.notify = next => {
     record.projection = patch(record.projection, next, identity)
   }
-  record.unsubscribe = subscribe(identity, record, documentOf(parent))
+  record.unsubscribe = subscribe(identity, record)
   return record
 }
 
@@ -215,8 +217,9 @@ const patchValue = (record, source, owner, kind) => {
 export const project = (graph, target) => {
   if (target !== undefined && (!target || typeof target.insertBefore !== 'function'))
     throw new TypeError('project() target must be a DOM parent.')
-  watchHistory()
-  const staging = (target ? documentOf(target) : document).createDocumentFragment()
+  const doc = target ? documentOf(target) : document
+  watchHistory(doc.defaultView)
+  const staging = doc.createDocumentFragment()
   const record = mountBoundary(graph, createIdentity(graph), staging, htmlNS, null)
   const first = firstNode(record)
   const projection = first === lastNode(record) ? staging.removeChild(first) : staging

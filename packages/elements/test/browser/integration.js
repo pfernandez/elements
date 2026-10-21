@@ -5,7 +5,7 @@ import { a, body, button, div, form, input, output } from '../../html.js'
 import { assert, equal, mount, test, traverse } from './harness.js'
 
 // Document-level integration runs after the focused browser contracts.
-test('real X3DOM waits for connection and survives head replacement and reconnection', async () => {
+const checkX3DOM = async page => {
   const frame = document.createElement('iframe')
   try {
     await new Promise((resolve, reject) => {
@@ -20,11 +20,17 @@ test('real X3DOM waits for connection and survives head replacement and reconnec
       }
       const timeout = setTimeout(() => finish(new Error('X3DOM integration timed out')), 8000)
       window.addEventListener('message', receive)
-      frame.src = '/packages/elements/test/browser/x3dom.html'
+      frame.src = `/packages/elements/test/browser/${page}`
       document.body.append(frame)
     })
   } finally { frame.remove() }
-})
+}
+
+test('real X3DOM reconnects and initializes later scenes after stylesheet failure', () =>
+  checkX3DOM('x3dom-failure.html'))
+
+test('real X3DOM waits for connection and survives head replacement and reconnection', () =>
+  checkX3DOM('x3dom.html'))
 
 test('the demo Markdown helper renders independent prose and leaves HTML inert', async () => {
   const { markdown } = await import('/examples/views/markdown.js')

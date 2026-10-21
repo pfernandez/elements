@@ -35,12 +35,11 @@ const sessionFor = window => {
 
 // Mounting installs only a listener, not a route registration or history entry.
 // After a reload, old entries have no in-memory continuations: load their URL.
-export const watchHistory = () =>
-  typeof window !== 'undefined' && window.document === globalThis.document
-    && sessionFor(window)
+export const watchHistory = (window = globalThis.window) =>
+  window?.document && sessionFor(window)
 
 /** Commit a link's URL and observation together; construction never visits. */
-export const visit = (url, select) => {
+export const visit = (url, select, window) => {
   const session = sessionFor(window)
   const previous = entryId(session, window.history.state)
   const current = previous ?? session.next++

@@ -1,4 +1,4 @@
-import { linkOf, isPlainClick, navigationURL } from './navigation.js'
+import { linkOf, isPlainClick, navigationURL, windowOf } from './navigation.js'
 import { visit } from './history.js'
 
 /** Events select continuations; merely constructing a vnode has no effects. */
@@ -26,10 +26,11 @@ const eventArgument = (key, event) =>
 export const createDeclarativeEventHandler = ({ el, key, handler, resume }) =>
   event => {
     const anchor = key === 'onclick' && linkOf(el)
+    const window = windowOf(el)
     const url = anchor && navigationURL(anchor, event)
     // Without a browser (e.g. a DOM test), link returns still claim navigation.
     const claimLink = anchor && (url
-      || typeof window === 'undefined' && isPlainClick(event))
+      || !window && isPlainClick(event))
     const claimDefault = key === 'onsubmit' || claimLink
     // Native gestures still reach user handlers, but their returned values must
     // not also advance this document while the browser follows the link.
@@ -44,7 +45,7 @@ export const createDeclarativeEventHandler = ({ el, key, handler, resume }) =>
 
     const settle = vnode =>
       Array.isArray(vnode) && !nativeLink
-        ? (url ? visit(url, () => resume(vnode)) : resume(vnode), vnode)
+        ? (url ? visit(url, () => resume(vnode), window) : resume(vnode), vnode)
         : undefined
 
     return pending ? Promise.resolve(result).then(settle) : settle(result)

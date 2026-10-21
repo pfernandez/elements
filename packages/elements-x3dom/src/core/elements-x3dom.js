@@ -136,10 +136,14 @@ const watchDocument = document => {
     const js = window.x3dom?.reload ? null
       : engineLoad || (engineLoad = asset(document, 'script', 'src', fullUrl))
     if (!added && stylesheet === css.node && script === js?.node) return
+    if (stylesheet !== css.node)
+      css.ready.catch(error => console.warn('x3dom stylesheet failed to load', error))
     stylesheet = css.node
     script = js?.node
     const current = ++revision
-    Promise.all([css.ready, js?.ready]).then(() => {
+    // Styling must not gate runtime bookkeeping: X3DOM also initializes itself
+    // when its script loads, even if the stylesheet request fails.
+    Promise.resolve(js?.ready).then(() => {
       if (current !== revision || !document.querySelector('x3d')) return
       engineLoad = null
       const currentScenes = Array.from(document.querySelectorAll('x3d'))

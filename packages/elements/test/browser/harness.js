@@ -19,13 +19,13 @@ export const mount = vnode => {
   return container
 }
 
-export const traverse = delta => new Promise((resolve, reject) => {
+export const traverse = (delta, window = globalThis.window) => new Promise((resolve, reject) => {
   const timeout = setTimeout(() => reject(new Error('History traversal timed out')), 2000)
   window.addEventListener('popstate', () => {
     clearTimeout(timeout)
     queueMicrotask(resolve)
   }, { once: true })
-  history.go(delta)
+  window.history.go(delta)
 })
 
 export const run = async () =>

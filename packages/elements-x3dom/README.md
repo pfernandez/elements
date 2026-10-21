@@ -42,6 +42,7 @@ in each document that hosts scenes, including iframe documents.
 Later scenes share the loaded engine and stylesheet. Reconnection initializes
 scenes that X3DOM tore down, and a missing stylesheet is restored in the current
 head. Authors do not need to include CSS or transfer assets during root replacement.
+Stylesheet failures are reported without blocking scene initialization or reconnection.
 
 All assets are vendored so apps can run without a CDN or additional runtime
 fetch steps.
