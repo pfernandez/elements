@@ -212,6 +212,7 @@ const writeX3DEntrypointTypes = () => {
     [
       "export * from './src/x3d-base.js';",
       "export * from './src/x3d.js';",
+      "export { DEBUG, element, fragment, observe, project, toHtmlString } from '@pfern/elements';",
       ''
     ].join('\n')
   )

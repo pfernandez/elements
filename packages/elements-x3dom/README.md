@@ -15,9 +15,8 @@ npm i @pfern/elements @pfern/elements-x3dom
 ## Usage
 
 ```js
-import { project } from '@pfern/elements'
 import { div } from '@pfern/elements/html'
-import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
+import { appearance, box, material, project, scene, shape, transform, viewpoint, x3d }
   from '@pfern/elements-x3dom'
 
 export const cubeScene = () =>
@@ -31,6 +30,9 @@ export const cubeScene = () =>
 
 document.body.append(project(div(cubeScene())))
 ```
+
+The package also re-exports the shared `observe`, `project`, `element`,
+`fragment`, `toHtmlString`, and `DEBUG` helpers from `@pfern/elements`.
 
 ## Loading
 

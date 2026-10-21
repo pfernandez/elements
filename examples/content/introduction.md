@@ -107,8 +107,7 @@ If a fixed point is a value that remains unchanged under a given transform, a re
 Along with functions to simplify the creation of DOM elements, the Elements library provides the `observe` helper to define such an observer with the signature `observer = observe(transition)`, where `transition` is a function that describes a state transition and its projection. The example we've been working with can be written
 
 ```js
-import { observe, project } from '@pfern/elements'
-import { button, div, output } from '@pfern/elements/html'
+import { button, div, observe, output, project } from '@pfern/elements/html'
 
 const counter = observe((x = 0) =>
   div({ class: 'container' },
@@ -228,8 +227,7 @@ that state.
 Pass the view to `observe`:
 
 ```js
-import { observe, project } from '@pfern/elements'
-import { button, div, output } from '@pfern/elements/html'
+import { button, div, observe, output, project } from '@pfern/elements/html'
 
 const counter = observe((count = 0) =>
   div(

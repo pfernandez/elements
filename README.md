@@ -17,8 +17,7 @@ A counter has one piece of state: its count. A view can describe the interface
 at that count and the interaction that leads to the next one:
 
 ```js
-import { observe, project } from '@pfern/elements'
-import { button, div, output } from '@pfern/elements/html'
+import { button, div, observe, output, project } from '@pfern/elements/html'
 
 const counter = observe((count = 0) =>
   div(
@@ -51,8 +50,7 @@ a minimal `index.html`:
 Then describe the page in `index.js` and replace the browser-created root:
 
 ```js
-import { project } from '@pfern/elements'
-import { body, h1, head, html, meta, title } from '@pfern/elements/html'
+import { body, h1, head, html, meta, project, title } from '@pfern/elements/html'
 
 const graph = html({ lang: 'en' },
   head(
@@ -350,11 +348,14 @@ Use vocabulary objects from the main entry point, or import helpers directly:
 ```js
 import { html, svg, mathml, fragment } from '@pfern/elements'
 import { div, button } from '@pfern/elements/html'
-import { circle, title as svgTitle } from '@pfern/elements/svg'
+import { circle, project, title as svgTitle } from '@pfern/elements/svg'
 import { math, mfrac } from '@pfern/elements/mathml'
 
 project(circle({ r: 10 }), existingSvg)
 ```
+
+HTML, SVG, MathML, and X3DOM entry points also export `observe`, `project`,
+`element`, `fragment`, `toHtmlString`, and `DEBUG` from the shared core.
 
 Each helper carries its namespace, independently of where it is projected.
 `html.a` and `svg.a` create different kinds of elements. The root constructors
@@ -419,8 +420,7 @@ and an initial `dtMs` of zero, excluding time spent paused.
 Serialize a description as HTML for server rendering or static generation:
 
 ```js
-import { toHtmlString } from '@pfern/elements'
-import { div } from '@pfern/elements/html'
+import { div, toHtmlString } from '@pfern/elements/html'
 
 toHtmlString(div('Hello')) // '<div>Hello</div>'
 ```

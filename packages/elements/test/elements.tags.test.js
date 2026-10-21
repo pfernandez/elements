@@ -1,4 +1,5 @@
 import * as core from '../elements.js'
+import * as helpers from '../src/helpers.js'
 import * as html from '../html.js'
 import * as svg from '../svg.js'
 import * as mathml from '../mathml.js'
@@ -12,6 +13,8 @@ for (const [name, vocabulary, metadata] of [
   ['html', html, htmlElements], ['svg', svg, svgElements], ['mathml', mathml, mathmlElements]
 ]) test(`${name} exposes the same helpers through both import forms`, () => {
   assert.equal(core[name], vocabulary)
+  for (const [name, helper] of Object.entries(helpers))
+    assert.equal(vocabulary[name], helper, `${name} shares the core implementation`)
   for (const { name, tag } of metadata) {
     const vnode = vocabulary[name]({ id: 'x' }, 'content')
     assert.deepEqual(vnode, [tag, { id: 'x' }, 'content'])

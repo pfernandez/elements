@@ -1,5 +1,4 @@
-import { observe } from '@pfern/elements'
-import { button, div, form, input, li, span, ul } from '@pfern/elements/html'
+import { button, div, form, input, li, observe, span, ul } from '@pfern/elements/html'
 
 const demoItems = [{ value: 'Add my first todo', done: true },
                    { value: 'Install elements.js', done: false }]

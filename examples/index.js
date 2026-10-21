@@ -1,5 +1,4 @@
-import { project } from '@pfern/elements'
-import { body, h1, head, header, html, link, meta, style, title }
+import { body, h1, head, header, html, link, meta, project, style, title }
   from '@pfern/elements/html'
 import { app } from './views/app.js'
 import css from './css/style.css?inline'

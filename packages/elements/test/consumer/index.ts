@@ -1,8 +1,14 @@
-import { element, fragment, html, mathml, observe, project, svg as drawing } from '@pfern/elements'
-import { button, div, input } from '@pfern/elements/html'
+import { element, fragment, html, mathml, svg as drawing } from '@pfern/elements'
+import { button, div, input, observe, project } from '@pfern/elements/html'
 import { circle, svg } from '@pfern/elements/svg'
 import { math, mi } from '@pfern/elements/mathml'
 import { box, scene, x3d, type BoxProps, type X3DNode } from '@pfern/elements-x3dom'
+import * as x3dom from '@pfern/elements-x3dom'
+
+type Helpers = Pick<typeof import('@pfern/elements'),
+  'DEBUG' | 'element' | 'fragment' | 'observe' | 'project' | 'toHtmlString'>
+const helpers: Helpers[] = [html, drawing, mathml, x3dom]
+helpers.forEach(({ observe, toHtmlString }) => toHtmlString(observe((n: number) => div(n))(1)))
 
 // Strict TypeScript needs a return annotation for a self-referencing initializer.
 // The JavaScript examples do not need this annotation.
