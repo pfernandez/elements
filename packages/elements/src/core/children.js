@@ -1,4 +1,4 @@
-const vnodes = new WeakSet()
+import { namespaceOf } from './namespaces.js'
 
 const isPropsObject = value =>
   typeof value === 'object'
@@ -7,7 +7,7 @@ const isPropsObject = value =>
 
 const isVNode = value =>
   Array.isArray(value)
-  && (vnodes.has(value)
+  && (namespaceOf(value) !== undefined
     || typeof value[0] === 'string' && isPropsObject(value[1]))
 
 const isVNodeGroup = value =>
@@ -15,11 +15,10 @@ const isVNodeGroup = value =>
   && !isVNode(value)
   && value.every(child => isVNode(child) || isVNodeGroup(child))
 
-export const markVNode = vnode =>
-  (vnodes.add(vnode), vnode)
-
 // Arrays of vnodes compose like argument lists. Other array-valued children
 // retain their existing meaning and shape.
-export const normalizeChildren = values =>
-  values.flatMap(value =>
-    isVNodeGroup(value) ? normalizeChildren(value) : [value])
+export const normalizeChildren = (values, children = []) => {
+  values.forEach(value =>
+    isVNodeGroup(value) ? normalizeChildren(value, children) : children.push(value))
+  return children
+}

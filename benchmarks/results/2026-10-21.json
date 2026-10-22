@@ -1,0 +1,2363 @@
+{
+  "date": "2026-10-21",
+  "collectedAt": "2026-10-22T00:47:08.705Z",
+  "runtimeRevision": "99bad112ff214c23819566023cdd3d3b085ea61e",
+  "harnessRevision": "3ab4ceaf5591771228f83fb5161b9fda7e15934d",
+  "environment": {
+    "browser": "Chrome/155.0.8059.84",
+    "node": "v25.9.0",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+    "platform": "linux",
+    "kernel": "7.0.0-34-generic"
+  },
+  "react": "19.2.0",
+  "methodology": {
+    "interactions": "Production adapters; ten samples, twenty for selection; upstream warmups (partial update 3, others 5); no sample trimming. Total includes rendering. Partial update, selection and swap use 4x CPU slowdown; creation unthrottled.",
+    "memory": "Three samples each; upstream forced GC and performance.measureUserAgentSpecificMemory; MiB; no eager-measurement flag. Page memory, not JS heap alone.",
+    "executionOrder": [
+      "elements-fresh",
+      "elements-retained",
+      "react-hooks",
+      "react-hooks-fresh"
+    ],
+    "limitations": "Fixed order on one local machine; no concurrent benchmark/build/test jobs, but system noise uncontrolled. Not an official submission or general library ranking.",
+    "controls": "Elements fresh disables only row vnode reuse. React fresh removes only Row memoization and retains header memoization. Both Elements variants use one application observer.",
+    "validation": "All four adapters passed keyed create/remove/swap checks; interaction and memory runs completed with successful plausibility checks; diagnostic assertions passed.",
+    "startup": "Pinned Lighthouse worker called directly because general runner assigns STARTUP_MAIN zero iterations; three fresh-browser samples per framework, default simulated mobile throttling. Initial shutdown-port-race attempt discarded; complete run uses distinct ports.",
+    "hashes": "Captured with report; measured runtime and fixtures unchanged. Diagnostics runner gained source-hash metadata after its measured runs."
+  },
+  "sourceSHA256": {
+    "benchmarks/keyed/elements/main.js": "a2bb80e360b8c1c569a26b477d3de72f33a76c6fbeb3b970ce6aa1e0c5c05164",
+    "benchmarks/build.mjs": "67fe8e75db5f15a144cceaece84132f773b750fc1b5adbc659d089b42508f974",
+    "benchmarks/build-react-fresh.mjs": "e45839e21452889a4c63c51a8479246ac769ce5a33f0973475d3dfdcc3054cb5",
+    "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+    "benchmarks/diagnostics.mjs": "12852e74b8772a87ac98b1cbd176cce1c49b15f691af98f77d90fef0d69745ef",
+    "benchmarks/startup.mjs": "69244a83e0ca840eb489708f0f9b03820bbdec221198a2945bc7877753fc1dd5",
+    "packages/elements/src/core/children.js": "33bef98bec6e239373785d394077b020a5a42c67d85ebefa62f83134fc66cdce",
+    "packages/elements/src/core/element.js": "39cff7e5bff07c7a8f74c3e0dd649981c106497a9b4002db442c5923dd9ecd00",
+    "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+    "packages/elements/src/core/dom.js": "66bbd4694f04ee7f3dd0488aa195af38fb0db4f02110d5f20f3827adbac8e3e0",
+    "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+    "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686"
+  },
+  "bundleSHA256": {
+    ".cache/js-framework-benchmark/frameworks/keyed/elements-retained/assets/index-C9jSH10-.js": "bd81de40f71057760d1aa301d6ececa1e1d3db2bc9b1fe918304359a9f8db54a",
+    ".cache/js-framework-benchmark/frameworks/keyed/elements-fresh/assets/index-05NBfWUU.js": "6f3314ef2a48cbe66e874860a304824653f2b24fbea57e1bf5fce30b71f88e0f",
+    ".cache/js-framework-benchmark/frameworks/keyed/react-hooks/dist/main.js": "501f594158cea6a26fa05d25f0bae6b2eb463a55fe0a6975594b5df3e13cd62a",
+    ".cache/js-framework-benchmark/frameworks/keyed/react-hooks-fresh/dist/main.js": "5a0216295a709cbab4c2cde958ac375ab6111277a1ddef18c69531646ea459a4"
+  },
+  "measurements": [
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 50.1,
+          "max": 52.7,
+          "median": 51.9,
+          "mean": 51.589999999999996,
+          "stddev": 0.8837420438114284,
+          "values": [
+            51.9,
+            51.1,
+            51.9,
+            50.4,
+            52.2,
+            52.7,
+            50.1,
+            52.6,
+            51.9,
+            51.1
+          ]
+        },
+        "script": {
+          "min": 15.1,
+          "max": 17.1,
+          "median": 16.4,
+          "mean": 16.259999999999998,
+          "stddev": 0.550151494287407,
+          "values": [
+            16.1,
+            16.4,
+            16.7,
+            16,
+            15.8,
+            17.1,
+            15.1,
+            16.6,
+            16.4,
+            16.4
+          ]
+        },
+        "paint": {
+          "min": 33.9,
+          "max": 35.8,
+          "median": 34.55,
+          "mean": 34.7,
+          "stddev": 0.6411794687223762,
+          "values": [
+            35.3,
+            34.2,
+            34.2,
+            33.9,
+            35.8,
+            35,
+            34.2,
+            35.3,
+            34.9,
+            34.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 48.3,
+          "max": 58.6,
+          "median": 50.75,
+          "mean": 51.65,
+          "stddev": 2.881839690197913,
+          "values": [
+            53.5,
+            50.7,
+            58.6,
+            49.7,
+            52.6,
+            50.2,
+            49.9,
+            50.8,
+            52.2,
+            48.3
+          ]
+        },
+        "script": {
+          "min": 15.1,
+          "max": 21.3,
+          "median": 15.75,
+          "mean": 16.61,
+          "stddev": 1.9249531018818211,
+          "values": [
+            17.9,
+            15.3,
+            21.3,
+            15.4,
+            17.3,
+            15.9,
+            15.6,
+            15.2,
+            17.1,
+            15.1
+          ]
+        },
+        "paint": {
+          "min": 32.8,
+          "max": 36.7,
+          "median": 34.55,
+          "mean": 34.48,
+          "stddev": 1.0336558636434314,
+          "values": [
+            35,
+            34.6,
+            36.7,
+            33.8,
+            34.7,
+            33.9,
+            33.8,
+            35,
+            34.5,
+            32.8
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 42.4,
+          "max": 57.4,
+          "median": 47.3,
+          "mean": 47.12,
+          "stddev": 4.286101569802874,
+          "values": [
+            43.7,
+            57.4,
+            49,
+            47.3,
+            42.4,
+            47.3,
+            48,
+            42.6,
+            47.3,
+            46.2
+          ]
+        },
+        "script": {
+          "min": 9.1,
+          "max": 14.8,
+          "median": 10.05,
+          "mean": 10.35,
+          "stddev": 1.714804815585598,
+          "values": [
+            9.3,
+            14.8,
+            11.3,
+            10.1,
+            9.1,
+            10.2,
+            10.4,
+            9.1,
+            10,
+            9.2
+          ]
+        },
+        "paint": {
+          "min": 32.8,
+          "max": 41.7,
+          "median": 36.6,
+          "mean": 36.19,
+          "stddev": 2.554059948830925,
+          "values": [
+            33.9,
+            41.7,
+            37,
+            36.6,
+            32.8,
+            36.6,
+            37,
+            33.1,
+            36.8,
+            36.4
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "01_run1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 43.8,
+          "max": 50.5,
+          "median": 46.8,
+          "mean": 47.25000000000001,
+          "stddev": 2.3439046245290984,
+          "values": [
+            49.6,
+            43.8,
+            45.4,
+            48.6,
+            50.2,
+            46.6,
+            45.1,
+            50.5,
+            45.7,
+            47
+          ]
+        },
+        "script": {
+          "min": 10.4,
+          "max": 12.8,
+          "median": 11.25,
+          "mean": 11.36,
+          "stddev": 0.7321202087089251,
+          "values": [
+            11,
+            10.4,
+            10.8,
+            11.5,
+            12.8,
+            11.5,
+            10.8,
+            12.3,
+            11,
+            11.5
+          ]
+        },
+        "paint": {
+          "min": 32.9,
+          "max": 38,
+          "median": 34.75,
+          "mean": 35.34,
+          "stddev": 1.7525853918013685,
+          "values": [
+            38,
+            32.9,
+            34.1,
+            36.4,
+            36.9,
+            34.6,
+            33.8,
+            37.6,
+            34.2,
+            34.9
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 30.4,
+          "max": 40.1,
+          "median": 32.95,
+          "mean": 33.53000000000001,
+          "stddev": 2.8456789855654647,
+          "values": [
+            40.1,
+            32,
+            32.9,
+            35.6,
+            30.4,
+            30.5,
+            33,
+            34.2,
+            34.5,
+            32.1
+          ]
+        },
+        "script": {
+          "min": 10.8,
+          "max": 13.2,
+          "median": 11.8,
+          "mean": 11.91,
+          "stddev": 0.842549042423578,
+          "values": [
+            12,
+            12,
+            11.5,
+            12.5,
+            10.8,
+            11.6,
+            13.2,
+            13.2,
+            11.3,
+            11
+          ]
+        },
+        "paint": {
+          "min": 17.3,
+          "max": 24.5,
+          "median": 19.05,
+          "mean": 19.43,
+          "stddev": 2.2000252523803248,
+          "values": [
+            24.5,
+            19,
+            18.8,
+            21.2,
+            17.4,
+            17.4,
+            17.3,
+            19.1,
+            20.5,
+            19.1
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 75.5,
+          "max": 89.5,
+          "median": 83.5,
+          "mean": 82.85000000000001,
+          "stddev": 4.347732486915194,
+          "values": [
+            87.2,
+            89.5,
+            82.6,
+            83.8,
+            84.6,
+            75.5,
+            82.1,
+            83.2,
+            84,
+            76
+          ]
+        },
+        "script": {
+          "min": 55.7,
+          "max": 66.5,
+          "median": 62.1,
+          "mean": 61.61,
+          "stddev": 3.2091708863470902,
+          "values": [
+            62.1,
+            66.5,
+            63.3,
+            61.1,
+            61.9,
+            55.7,
+            62.1,
+            63.4,
+            63.3,
+            56.7
+          ]
+        },
+        "paint": {
+          "min": 17.6,
+          "max": 21.5,
+          "median": 18.549999999999997,
+          "mean": 19.119999999999997,
+          "stddev": 1.5273797461302439,
+          "values": [
+            21.2,
+            21.5,
+            17.6,
+            20.7,
+            19.6,
+            18.2,
+            18.1,
+            17.7,
+            18.9,
+            17.7
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 27.7,
+          "max": 33.3,
+          "median": 29.2,
+          "mean": 29.639999999999997,
+          "stddev": 1.790840894973953,
+          "values": [
+            27.7,
+            27.9,
+            28.3,
+            29.4,
+            31.9,
+            33.3,
+            29,
+            29.5,
+            28.9,
+            30.5
+          ]
+        },
+        "script": {
+          "min": 6.3,
+          "max": 7.6,
+          "median": 6.95,
+          "mean": 6.95,
+          "stddev": 0.46007245806140873,
+          "values": [
+            7.5,
+            6.3,
+            6.8,
+            7.6,
+            7,
+            7.3,
+            6.3,
+            6.9,
+            7.2,
+            6.6
+          ]
+        },
+        "paint": {
+          "min": 18,
+          "max": 22.5,
+          "median": 19.7,
+          "mean": 20.020000000000003,
+          "stddev": 1.458157132212514,
+          "values": [
+            18.5,
+            19.4,
+            18,
+            19.5,
+            21.5,
+            22.5,
+            21.3,
+            19.9,
+            18.8,
+            20.8
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "03_update10th1k_x16",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 36.6,
+          "max": 46.3,
+          "median": 39.400000000000006,
+          "mean": 40.330000000000005,
+          "stddev": 3.285337797616014,
+          "values": [
+            46.3,
+            37.8,
+            39.9,
+            38.8,
+            39.2,
+            44.6,
+            36.6,
+            43.3,
+            37.2,
+            39.6
+          ]
+        },
+        "script": {
+          "min": 16,
+          "max": 19.8,
+          "median": 17.85,
+          "mean": 18,
+          "stddev": 1.4290634073484008,
+          "values": [
+            19.5,
+            18.7,
+            19.8,
+            17.3,
+            17.1,
+            19.8,
+            17.1,
+            16.3,
+            18.4,
+            16
+          ]
+        },
+        "paint": {
+          "min": 16.9,
+          "max": 24.6,
+          "median": 19.7,
+          "mean": 20.080000000000002,
+          "stddev": 2.5801808722129027,
+          "values": [
+            23.3,
+            16.9,
+            18.4,
+            19.5,
+            19.9,
+            21.4,
+            18,
+            24.6,
+            17.3,
+            21.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 9.6,
+          "max": 25.2,
+          "median": 10.899999999999999,
+          "mean": 11.929999999999998,
+          "stddev": 3.389783411804856,
+          "values": [
+            10.3,
+            14.7,
+            12.4,
+            11.8,
+            12.3,
+            10.4,
+            11.1,
+            11.1,
+            13.5,
+            10.7,
+            10.2,
+            11.4,
+            10.6,
+            9.7,
+            10.5,
+            10.6,
+            9.6,
+            12.6,
+            9.9,
+            25.2
+          ]
+        },
+        "script": {
+          "min": 5,
+          "max": 8.8,
+          "median": 5.5,
+          "mean": 5.794999999999999,
+          "stddev": 0.9383496150156403,
+          "values": [
+            5.5,
+            5.2,
+            6.5,
+            6.1,
+            6.7,
+            6,
+            5.6,
+            5.4,
+            7.3,
+            5.8,
+            5.3,
+            5.3,
+            5.1,
+            5,
+            5.5,
+            5,
+            5,
+            5.6,
+            5.2,
+            8.8
+          ]
+        },
+        "paint": {
+          "min": 3.1,
+          "max": 12.5,
+          "median": 4.6,
+          "mean": 4.915000000000001,
+          "stddev": 2.0217957104358595,
+          "values": [
+            4.1,
+            7.2,
+            4.6,
+            4.6,
+            4.7,
+            3.1,
+            3.9,
+            5,
+            4.9,
+            4.5,
+            3.7,
+            5.8,
+            3.6,
+            3.9,
+            4.7,
+            4.7,
+            3.7,
+            5.7,
+            3.4,
+            12.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 58.5,
+          "max": 74,
+          "median": 65.95,
+          "mean": 66.485,
+          "stddev": 4.127861049273009,
+          "values": [
+            65.5,
+            64.7,
+            63.7,
+            58.5,
+            65.6,
+            60.7,
+            65.7,
+            71.2,
+            63.2,
+            74,
+            66.2,
+            67.7,
+            73,
+            68.5,
+            69.4,
+            68.8,
+            68.4,
+            60.1,
+            70.2,
+            64.6
+          ]
+        },
+        "script": {
+          "min": 52,
+          "max": 68.6,
+          "median": 60.1,
+          "mean": 59.999999999999986,
+          "stddev": 4.373123657789221,
+          "values": [
+            57.9,
+            58.1,
+            57.5,
+            52,
+            57.7,
+            54.7,
+            60.2,
+            65.3,
+            55.6,
+            68.6,
+            60,
+            61.7,
+            67.1,
+            61.5,
+            63.7,
+            61.8,
+            61.8,
+            53,
+            62.3,
+            59.5
+          ]
+        },
+        "paint": {
+          "min": 3.8,
+          "max": 6.4,
+          "median": 4.7,
+          "mean": 4.92,
+          "stddev": 0.7626822474178324,
+          "values": [
+            6.1,
+            5,
+            4.4,
+            4.5,
+            6.3,
+            4.9,
+            3.8,
+            4.7,
+            6.4,
+            4.3,
+            4.2,
+            4.7,
+            4.3,
+            4.6,
+            4.6,
+            5.1,
+            5.7,
+            5,
+            5.8,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 8,
+          "max": 12.3,
+          "median": 9.95,
+          "mean": 9.950000000000003,
+          "stddev": 1.1081041182317235,
+          "values": [
+            11.8,
+            11.4,
+            9,
+            10.2,
+            8,
+            10.5,
+            9.9,
+            9.7,
+            9.1,
+            10.9,
+            8.3,
+            9.2,
+            12.3,
+            9.1,
+            10,
+            8.9,
+            10,
+            10.4,
+            9.9,
+            10.4
+          ]
+        },
+        "script": {
+          "min": 3.3,
+          "max": 5.4,
+          "median": 4.3,
+          "mean": 4.3950000000000005,
+          "stddev": 0.532595432515941,
+          "values": [
+            4.8,
+            5.3,
+            4.4,
+            4.8,
+            3.3,
+            4.5,
+            4.3,
+            4.3,
+            4,
+            4.1,
+            4.1,
+            3.7,
+            5.2,
+            4,
+            4.8,
+            4.1,
+            4.1,
+            4.2,
+            4.5,
+            5.4
+          ]
+        },
+        "paint": {
+          "min": 3.2,
+          "max": 5.9,
+          "median": 4.35,
+          "mean": 4.405,
+          "stddev": 0.7337538666624561,
+          "values": [
+            5.9,
+            4.6,
+            3.2,
+            3.5,
+            3.7,
+            4,
+            5,
+            4.2,
+            4,
+            5.2,
+            3.2,
+            4.6,
+            5.7,
+            4.3,
+            4.1,
+            4.2,
+            4.4,
+            5,
+            4.8,
+            4.5
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "04_select1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 20.5,
+          "max": 28.4,
+          "median": 23.450000000000003,
+          "mean": 23.279999999999998,
+          "stddev": 1.827739472394074,
+          "values": [
+            23.6,
+            22,
+            20.5,
+            22,
+            24.1,
+            24.4,
+            20.9,
+            23.8,
+            24.5,
+            21.3,
+            24.2,
+            23.3,
+            25.4,
+            22.3,
+            24.1,
+            21.9,
+            24.5,
+            21.9,
+            22.5,
+            28.4
+          ]
+        },
+        "script": {
+          "min": 15,
+          "max": 23,
+          "median": 17,
+          "mean": 17.365000000000002,
+          "stddev": 1.8333963306560748,
+          "values": [
+            16.7,
+            17,
+            15,
+            16.4,
+            18.7,
+            17,
+            15.8,
+            17.5,
+            18.2,
+            15.6,
+            17.8,
+            17,
+            19.8,
+            16.4,
+            18.1,
+            15.2,
+            19,
+            16.1,
+            17,
+            23
+          ]
+        },
+        "paint": {
+          "min": 3.3,
+          "max": 6,
+          "median": 4.45,
+          "mean": 4.505000000000001,
+          "stddev": 0.6476475649773206,
+          "values": [
+            5,
+            3.3,
+            4.6,
+            4.4,
+            4.3,
+            5.9,
+            4,
+            3.8,
+            4.7,
+            4.4,
+            4.7,
+            4.9,
+            3.7,
+            4.7,
+            4.5,
+            6,
+            4.6,
+            4.4,
+            4.1,
+            4.1
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 28.7,
+          "max": 36.8,
+          "median": 31,
+          "mean": 31.580000000000002,
+          "stddev": 2.378047752067041,
+          "values": [
+            31.1,
+            34.3,
+            30.4,
+            36.8,
+            30.9,
+            31.9,
+            29.8,
+            31.9,
+            30,
+            28.7
+          ]
+        },
+        "script": {
+          "min": 5.1,
+          "max": 6.7,
+          "median": 5.55,
+          "mean": 5.740000000000001,
+          "stddev": 0.5853773711604051,
+          "values": [
+            5.4,
+            5.6,
+            5.5,
+            6.7,
+            5.4,
+            6.7,
+            5.1,
+            6.2,
+            5.2,
+            5.6
+          ]
+        },
+        "paint": {
+          "min": 21,
+          "max": 27.9,
+          "median": 23.700000000000003,
+          "mean": 23.87,
+          "stddev": 1.9978043503361937,
+          "values": [
+            24.1,
+            26.5,
+            23.8,
+            27.9,
+            23.6,
+            23.8,
+            22.5,
+            22.7,
+            22.8,
+            21
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 81.7,
+          "max": 100.7,
+          "median": 92.1,
+          "mean": 91.91,
+          "stddev": 6.526603676917692,
+          "values": [
+            100.7,
+            96.1,
+            81.7,
+            92.4,
+            99.5,
+            91.8,
+            97.3,
+            85.2,
+            85.2,
+            89.2
+          ]
+        },
+        "script": {
+          "min": 58.5,
+          "max": 72.8,
+          "median": 64.80000000000001,
+          "mean": 66.19,
+          "stddev": 5.250703656548224,
+          "values": [
+            72.4,
+            71,
+            58.5,
+            64.9,
+            71,
+            64.6,
+            72.8,
+            60.7,
+            61.3,
+            64.7
+          ]
+        },
+        "paint": {
+          "min": 21.3,
+          "max": 25.8,
+          "median": 22.6,
+          "mean": 23.29,
+          "stddev": 1.794714461968811,
+          "values": [
+            25.4,
+            21.3,
+            21.5,
+            25.7,
+            25.8,
+            24.1,
+            22.7,
+            22.1,
+            22.5,
+            21.8
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 159.8,
+          "max": 199.3,
+          "median": 174.9,
+          "mean": 175.17,
+          "stddev": 10.835645907015524,
+          "values": [
+            172.3,
+            182.1,
+            199.3,
+            177.5,
+            179,
+            177.5,
+            167.2,
+            169.9,
+            167.1,
+            159.8
+          ]
+        },
+        "script": {
+          "min": 25.3,
+          "max": 35,
+          "median": 27.9,
+          "mean": 28.770000000000003,
+          "stddev": 2.7936634649784784,
+          "values": [
+            27.6,
+            27.9,
+            35,
+            27.9,
+            27,
+            30.2,
+            26.4,
+            31.1,
+            29.3,
+            25.3
+          ]
+        },
+        "paint": {
+          "min": 131.1,
+          "max": 159.8,
+          "median": 143.8,
+          "mean": 143.48999999999998,
+          "stddev": 8.379929726568255,
+          "values": [
+            142.5,
+            150.8,
+            159.8,
+            146.9,
+            147.6,
+            145.1,
+            138.1,
+            136.8,
+            136.2,
+            131.1
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "05_swap1k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 173.3,
+          "max": 197.3,
+          "median": 185.45,
+          "mean": 185.49999999999997,
+          "stddev": 9.124448232937459,
+          "values": [
+            196,
+            191,
+            179.6,
+            173.3,
+            195.1,
+            178,
+            184.9,
+            186,
+            173.8,
+            197.3
+          ]
+        },
+        "script": {
+          "min": 37.7,
+          "max": 45.8,
+          "median": 41.2,
+          "mean": 41.05,
+          "stddev": 2.4153444658865713,
+          "values": [
+            40.4,
+            39.6,
+            38.8,
+            37.7,
+            42.2,
+            42,
+            43,
+            42,
+            39,
+            45.8
+          ]
+        },
+        "paint": {
+          "min": 132.4,
+          "max": 153.2,
+          "median": 139,
+          "mean": 141.32999999999998,
+          "stddev": 7.927175481286576,
+          "values": [
+            153.2,
+            149.1,
+            137.4,
+            132.6,
+            149.2,
+            133,
+            138.4,
+            139.6,
+            132.4,
+            148.4
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 526.9,
+          "max": 557.1,
+          "median": 539.25,
+          "mean": 541.71,
+          "stddev": 10.127130777163794,
+          "values": [
+            551.8,
+            541.1,
+            535.8,
+            557.1,
+            534.4,
+            545.2,
+            554.6,
+            526.9,
+            532.8,
+            537.4
+          ]
+        },
+        "script": {
+          "min": 140.6,
+          "max": 150,
+          "median": 145.10000000000002,
+          "mean": 145.69,
+          "stddev": 3.2644380152723946,
+          "values": [
+            145.9,
+            143.6,
+            142.5,
+            150,
+            144.3,
+            148.2,
+            149.8,
+            140.6,
+            148.4,
+            143.6
+          ]
+        },
+        "paint": {
+          "min": 379.7,
+          "max": 402.1,
+          "median": 390.5,
+          "mean": 391.14,
+          "stddev": 7.9246731443286915,
+          "values": [
+            401.2,
+            392.4,
+            388.6,
+            402.1,
+            385.1,
+            391.8,
+            399.7,
+            381.6,
+            379.7,
+            389.2
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 529.2,
+          "max": 557.8,
+          "median": 542.25,
+          "mean": 542.6000000000001,
+          "stddev": 8.456949804746358,
+          "values": [
+            557.8,
+            529.2,
+            548.9,
+            544.9,
+            542.1,
+            549.8,
+            535.2,
+            542.2,
+            533.6,
+            542.3
+          ]
+        },
+        "script": {
+          "min": 140.3,
+          "max": 150,
+          "median": 142.75,
+          "mean": 143.89000000000001,
+          "stddev": 3.3633481995046415,
+          "values": [
+            148,
+            143.5,
+            150,
+            146.8,
+            144.6,
+            140.3,
+            141.5,
+            141.7,
+            140.5,
+            142
+          ]
+        },
+        "paint": {
+          "min": 380.4,
+          "max": 404.7,
+          "median": 393.65,
+          "mean": 393.7099999999999,
+          "stddev": 7.223334102445738,
+          "values": [
+            404.7,
+            380.4,
+            394,
+            393.3,
+            392.3,
+            404.2,
+            389.2,
+            395.6,
+            388,
+            395.4
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 605.2,
+          "max": 704.7,
+          "median": 619.3,
+          "mean": 640.64,
+          "stddev": 38.90324750797376,
+          "values": [
+            641,
+            610.4,
+            611.6,
+            616.6,
+            618,
+            605.2,
+            620.6,
+            676.8,
+            704.7,
+            701.5
+          ]
+        },
+        "script": {
+          "min": 202.7,
+          "max": 299.2,
+          "median": 212.2,
+          "mean": 230.57,
+          "stddev": 37.806115025658656,
+          "values": [
+            230,
+            205.1,
+            206,
+            202.7,
+            204.9,
+            204.1,
+            218.4,
+            237.1,
+            299.2,
+            298.2
+          ]
+        },
+        "paint": {
+          "min": 396.4,
+          "max": 428.7,
+          "median": 400,
+          "mean": 404.10999999999996,
+          "stddev": 9.668097595241328,
+          "values": [
+            405.1,
+            399,
+            400.7,
+            408.6,
+            407.8,
+            396.4,
+            397.2,
+            428.7,
+            399.3,
+            398.3
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "07_create10k",
+      "type": "cpu",
+      "values": {
+        "total": {
+          "min": 550.3,
+          "max": 708.3,
+          "median": 604.45,
+          "mean": 620.5000000000001,
+          "stddev": 53.74774413870781,
+          "values": [
+            609.6,
+            670.6,
+            686.8,
+            640.7,
+            597,
+            577,
+            550.3,
+            708.3,
+            565.4,
+            599.3
+          ]
+        },
+        "script": {
+          "min": 162.6,
+          "max": 314.4,
+          "median": 192.14999999999998,
+          "mean": 219.39000000000001,
+          "stddev": 53.452833829877015,
+          "values": [
+            191.1,
+            265.6,
+            285,
+            244.4,
+            182.4,
+            172.6,
+            162.6,
+            314.4,
+            182.6,
+            193.2
+          ]
+        },
+        "paint": {
+          "min": 378.1,
+          "max": 413.1,
+          "median": 397.55,
+          "mean": 395.77,
+          "stddev": 10.948977628578445,
+          "values": [
+            413.1,
+            398.1,
+            397,
+            391.3,
+            409.6,
+            398.5,
+            383,
+            388.4,
+            378.1,
+            400.6
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "21_ready-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 0.6358919143676758,
+          "max": 0.6418218612670898,
+          "median": 0.6378383636474609,
+          "mean": 0.6385173797607422,
+          "stddev": 0.0030227247177074023,
+          "values": [
+            0.6378383636474609,
+            0.6358919143676758,
+            0.6418218612670898
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "21_ready-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 0.6185894012451172,
+          "max": 0.6417551040649414,
+          "median": 0.6416482925415039,
+          "mean": 0.6339975992838541,
+          "stddev": 0.01334399779961344,
+          "values": [
+            0.6416482925415039,
+            0.6417551040649414,
+            0.6185894012451172
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "21_ready-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 1.1800460815429688,
+          "max": 1.1836366653442383,
+          "median": 1.183497428894043,
+          "mean": 1.1823933919270833,
+          "stddev": 0.002034022179523828,
+          "values": [
+            1.1800460815429688,
+            1.1836366653442383,
+            1.183497428894043
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "21_ready-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 1.180419921875,
+          "max": 1.1812896728515625,
+          "median": 1.181222915649414,
+          "mean": 1.180977503458659,
+          "stddev": 0.00048403207314836965,
+          "values": [
+            1.181222915649414,
+            1.1812896728515625,
+            1.180419921875
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "22_run-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 3.5244550704956055,
+          "max": 3.5306453704833984,
+          "median": 3.5248212814331055,
+          "mean": 3.5266405741373696,
+          "stddev": 0.0034730855075220148,
+          "values": [
+            3.5244550704956055,
+            3.5306453704833984,
+            3.5248212814331055
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "22_run-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 3.4860382080078125,
+          "max": 3.4913692474365234,
+          "median": 3.4874095916748047,
+          "mean": 3.4882723490397134,
+          "stddev": 0.0027682590288204624,
+          "values": [
+            3.4874095916748047,
+            3.4913692474365234,
+            3.4860382080078125
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "22_run-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 4.385284423828125,
+          "max": 4.4200592041015625,
+          "median": 4.418619155883789,
+          "mean": 4.407987594604492,
+          "stddev": 0.019674702213579955,
+          "values": [
+            4.418619155883789,
+            4.385284423828125,
+            4.4200592041015625
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "22_run-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 4.31473445892334,
+          "max": 4.320504188537598,
+          "median": 4.320250511169434,
+          "mean": 4.318496386210124,
+          "stddev": 0.0032603927271214364,
+          "values": [
+            4.320504188537598,
+            4.320250511169434,
+            4.31473445892334
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-retained-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "25_run-clear-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 1.9608268737792969,
+          "max": 1.9687309265136719,
+          "median": 1.9680099487304688,
+          "mean": 1.9658559163411458,
+          "stddev": 0.004370172085585918,
+          "values": [
+            1.9680099487304688,
+            1.9608268737792969,
+            1.9687309265136719
+          ]
+        }
+      }
+    },
+    {
+      "framework": "elements-fresh-v99bad11-keyed",
+      "keyed": true,
+      "benchmark": "25_run-clear-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 1.8889522552490234,
+          "max": 1.903219223022461,
+          "median": 1.8968086242675781,
+          "mean": 1.8963267008463542,
+          "stddev": 0.007145682612600366,
+          "values": [
+            1.903219223022461,
+            1.8889522552490234,
+            1.8968086242675781
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "25_run-clear-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 1.973581314086914,
+          "max": 1.9795846939086914,
+          "median": 1.9739770889282227,
+          "mean": 1.9757143656412761,
+          "stddev": 0.0033576390670259698,
+          "values": [
+            1.973581314086914,
+            1.9795846939086914,
+            1.9739770889282227
+          ]
+        }
+      }
+    },
+    {
+      "framework": "react-hooks-fresh-v19.2.0-keyed",
+      "keyed": true,
+      "benchmark": "25_run-clear-memory",
+      "type": "memory",
+      "values": {
+        "DEFAULT": {
+          "min": 1.9660911560058594,
+          "max": 1.9747123718261719,
+          "median": 1.9709968566894531,
+          "mean": 1.9706001281738281,
+          "stddev": 0.00432427863249284,
+          "values": [
+            1.9747123718261719,
+            1.9709968566894531,
+            1.9660911560058594
+          ]
+        }
+      }
+    }
+  ],
+  "diagnostics": {
+    "recordedAt": "2026-10-21T19:51:04.636Z",
+    "revision": "99bad112ff214c23819566023cdd3d3b085ea61e",
+    "environment": {
+      "browser": "Chrome/155.0.8059.84",
+      "node": "v25.9.0",
+      "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+      "platform": "linux",
+      "kernel": "7.0.0-34-generic"
+    },
+    "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+    "measurements": [
+      {
+        "name": "freshTable",
+        "args": [
+          1000
+        ],
+        "result": {
+          "count": 1000,
+          "construction": {
+            "median": 2.899999976158142,
+            "samples": [
+              2.1999999284744263,
+              7.299999952316284,
+              5.899999976158142,
+              2,
+              4.199999928474426,
+              2.399999976158142,
+              2.9000000953674316,
+              2.5,
+              2.9000000953674316,
+              2.100000023841858,
+              8.799999952316284,
+              3.399999976158142,
+              2.0999999046325684,
+              2.899999976158142,
+              2.899999976158142
+            ],
+            "operationsPerSample": 1
+          },
+          "update": {
+            "median": 8.700000047683716,
+            "samples": [
+              9.199999928474426,
+              10,
+              8.699999928474426,
+              8.600000023841858,
+              17.09999990463257,
+              11.399999976158142,
+              7.100000023841858,
+              7.100000023841858,
+              8.700000047683716,
+              15.5,
+              7.399999976158142,
+              8.799999952316284,
+              6.699999928474426,
+              9.400000095367432,
+              7.300000071525574
+            ],
+            "operationsPerSample": 1
+          }
+        }
+      },
+      {
+        "name": "freshTable",
+        "args": [
+          10000
+        ],
+        "result": {
+          "count": 10000,
+          "construction": {
+            "median": 39.299999952316284,
+            "samples": [
+              92.89999997615814,
+              25.600000023841858,
+              39.299999952316284,
+              60.699999928474426,
+              31.299999952316284,
+              30.800000071525574,
+              120,
+              56.799999952316284,
+              29.299999952316284,
+              31.199999928474426,
+              53.60000002384186,
+              56.700000047683716,
+              32.199999928474426,
+              34,
+              55.5
+            ],
+            "operationsPerSample": 1
+          },
+          "update": {
+            "median": 80.69999992847443,
+            "samples": [
+              72.29999995231628,
+              72.79999995231628,
+              74.60000002384186,
+              72.89999997615814,
+              182.10000002384186,
+              76.89999997615814,
+              80.69999992847443,
+              75.70000004768372,
+              75.5,
+              82.79999995231628,
+              85.29999995231628,
+              102.10000002384186,
+              97.79999995231628,
+              85.40000009536743,
+              154.10000002384186
+            ],
+            "operationsPerSample": 1
+          }
+        }
+      },
+      {
+        "name": "independent",
+        "args": [
+          1000
+        ],
+        "result": {
+          "count": 1000,
+          "median": 0.01100000023841858,
+          "samples": [
+            0.011999999284744262,
+            0.019000000953674316,
+            0.01100000023841858,
+            0.009000000953674316,
+            0.01,
+            0.01100000023841858,
+            0.02600000023841858,
+            0.01100000023841858,
+            0.01,
+            0.01100000023841858,
+            0.008999999761581421,
+            0.008999999761581421,
+            0.01100000023841858,
+            0.01,
+            0.08800000071525574
+          ],
+          "operationsPerSample": 100
+        }
+      },
+      {
+        "name": "independent",
+        "args": [
+          10000
+        ],
+        "result": {
+          "count": 10000,
+          "median": 0.012999999523162841,
+          "samples": [
+            0.010999999046325683,
+            0.02,
+            0.011999999284744262,
+            0.01100000023841858,
+            0.01,
+            0.01100000023841858,
+            0.011999999284744262,
+            0.012999999523162841,
+            0.014000000953674317,
+            0.015,
+            0.017999999523162842,
+            0.012999999523162841,
+            0.01399999976158142,
+            0.012999999523162841,
+            0.011999999284744262
+          ],
+          "operationsPerSample": 100
+        }
+      },
+      {
+        "name": "fanout",
+        "args": [
+          100,
+          false
+        ],
+        "result": {
+          "count": 100,
+          "fresh": false,
+          "notifications": 100,
+          "median": 0.2999999523162842,
+          "samples": [
+            0.20000004768371582,
+            0.20000004768371582,
+            0.20000004768371582,
+            0.20000004768371582,
+            0.20000004768371582,
+            0.2999999523162842,
+            0.30000007152557373,
+            0.20000004768371582,
+            0.30000007152557373,
+            0.2999999523162842,
+            0.40000009536743164,
+            0.3999999761581421,
+            0.6000000238418579,
+            0.3999999761581421,
+            0.5999999046325684
+          ],
+          "operationsPerSample": 1
+        }
+      },
+      {
+        "name": "fanout",
+        "args": [
+          100,
+          true
+        ],
+        "result": {
+          "count": 100,
+          "fresh": true,
+          "notifications": 10000,
+          "median": 3.5,
+          "samples": [
+            4.300000071525574,
+            3.5,
+            3.5,
+            3.899999976158142,
+            3,
+            3.299999952316284,
+            3.5,
+            3.700000047683716,
+            3.799999952316284,
+            3.3000000715255737,
+            3.5999999046325684,
+            2.6999999284744263,
+            2.700000047683716,
+            2.399999976158142,
+            3
+          ],
+          "operationsPerSample": 1
+        }
+      },
+      {
+        "name": "fanout",
+        "args": [
+          500,
+          false
+        ],
+        "result": {
+          "count": 500,
+          "fresh": false,
+          "notifications": 500,
+          "median": 1.0999999046325684,
+          "samples": [
+            0.5,
+            0.6999999284744263,
+            0.7999999523162842,
+            0.6000000238418579,
+            0.7000000476837158,
+            1.2000000476837158,
+            1.0999999046325684,
+            1.2999999523162842,
+            1.1999999284744263,
+            0.6999999284744263,
+            1.0999999046325684,
+            1.100000023841858,
+            1.5,
+            1,
+            1.4000000953674316
+          ],
+          "operationsPerSample": 1
+        }
+      },
+      {
+        "name": "fanout",
+        "args": [
+          500,
+          true
+        ],
+        "result": {
+          "count": 500,
+          "fresh": true,
+          "notifications": 250000,
+          "median": 60,
+          "samples": [
+            61.700000047683716,
+            57.300000071525574,
+            56.699999928474426,
+            57.60000002384186,
+            58.200000047683716,
+            60.199999928474426,
+            60.200000047683716,
+            59,
+            58.5,
+            62.89999997615814,
+            60,
+            60.5,
+            60.200000047683716,
+            60.60000002384186,
+            58.5
+          ],
+          "operationsPerSample": 1
+        }
+      },
+      {
+        "name": "memory",
+        "retain": false,
+        "before": {
+          "usedSize": 855020,
+          "totalSize": 1310720,
+          "embedderHeapUsedSize": 899352,
+          "backingStorageSize": 15847
+        },
+        "mounted": {
+          "usedSize": 26095684,
+          "totalSize": 27062272,
+          "embedderHeapUsedSize": 88169680,
+          "backingStorageSize": 15918
+        },
+        "detached": {
+          "usedSize": 12495696,
+          "totalSize": 13262848,
+          "embedderHeapUsedSize": 1258056,
+          "backingStorageSize": 15918
+        },
+        "mountedSubscriptions": 10001,
+        "state": {
+          "rootAlive": false,
+          "subscriptions": 0
+        }
+      },
+      {
+        "name": "memory",
+        "retain": true,
+        "before": {
+          "usedSize": 855044,
+          "totalSize": 1572864,
+          "embedderHeapUsedSize": 896248,
+          "backingStorageSize": 15847
+        },
+        "mounted": {
+          "usedSize": 26091484,
+          "totalSize": 27848704,
+          "embedderHeapUsedSize": 88142520,
+          "backingStorageSize": 15918
+        },
+        "detached": {
+          "usedSize": 26096280,
+          "totalSize": 28110848,
+          "embedderHeapUsedSize": 12098816,
+          "backingStorageSize": 15918
+        },
+        "mountedSubscriptions": 10001,
+        "state": {
+          "rootAlive": true,
+          "subscriptions": 10001
+        }
+      }
+    ]
+  },
+  "profile": {
+    "recordedAt": "2026-10-21T19:51:19.003Z",
+    "revision": "99bad112ff214c23819566023cdd3d3b085ea61e",
+    "environment": {
+      "browser": "Chrome/155.0.8059.84",
+      "node": "v25.9.0",
+      "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+      "platform": "linux",
+      "kernel": "7.0.0-34-generic"
+    },
+    "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+    "measurements": [],
+    "profile": {
+      "minified": false,
+      "sampleIntervalMicroseconds": 100,
+      "topSelfSamples": [
+        [
+          "(program)",
+          12800
+        ],
+        [
+          "(garbage collector)",
+          5115
+        ],
+        [
+          "markVNode",
+          3603
+        ],
+        [
+          "(anonymous)",
+          3367
+        ],
+        [
+          "withNamespace",
+          2830
+        ],
+        [
+          "normalizeChildren",
+          1453
+        ],
+        [
+          "patchValue",
+          1041
+        ],
+        [
+          "patchChildren",
+          444
+        ],
+        [
+          "isVNode",
+          376
+        ],
+        [
+          "(idle)",
+          315
+        ],
+        [
+          "assignProperties",
+          298
+        ],
+        [
+          "matchChildren",
+          297
+        ],
+        [
+          "namespaceAt",
+          256
+        ],
+        [
+          "keyOf",
+          206
+        ],
+        [
+          "remove",
+          130
+        ],
+        [
+          "changedProps",
+          119
+        ],
+        [
+          "insertBefore",
+          114
+        ],
+        [
+          "row",
+          110
+        ],
+        [
+          "mountValue",
+          104
+        ],
+        [
+          "childrenOf",
+          84
+        ],
+        [
+          "removeMissingProps",
+          76
+        ],
+        [
+          "patch",
+          75
+        ],
+        [
+          "isPropsObject",
+          72
+        ],
+        [
+          "validateProps",
+          68
+        ],
+        [
+          "tagOf",
+          68
+        ],
+        [
+          "createElementNS",
+          56
+        ],
+        [
+          "namespaceOf",
+          52
+        ],
+        [
+          "uniqueIndex",
+          50
+        ],
+        [
+          "claim",
+          46
+        ],
+        [
+          "kindOf",
+          36
+        ]
+      ]
+    }
+  },
+  "startup": {
+    "recordedAt": "2026-10-22T00:45:40.282Z",
+    "lighthouse": "13.4.0",
+    "methodology": "Pinned harness Lighthouse implementation and defaults; three fresh-browser runs per framework; no warmups.",
+    "measurements": [
+      {
+        "framework": "elements-retained-v99bad11-keyed",
+        "sample": 0,
+        "audits": [
+          {
+            "id": "31_startup-ci",
+            "property": "interactive",
+            "milliseconds": 1954.2130000000002
+          },
+          {
+            "id": "32_startup-bt",
+            "property": "bootup-time",
+            "milliseconds": 27.167999999999985
+          },
+          {
+            "id": "33_startup-mainthreadcost",
+            "property": "mainthread-work-breakdown",
+            "milliseconds": 161.748
+          },
+          {
+            "id": "34_startup-interactive",
+            "property": "interactive",
+            "milliseconds": 1954.2130000000002
+          }
+        ]
+      },
+      {
+        "framework": "elements-retained-v99bad11-keyed",
+        "sample": 1,
+        "audits": [
+          {
+            "id": "31_startup-ci",
+            "property": "interactive",
+            "milliseconds": 1952.6476000000002
+          },
+          {
+            "id": "32_startup-bt",
+            "property": "bootup-time",
+            "milliseconds": 21.483999999999984
+          },
+          {
+            "id": "33_startup-mainthreadcost",
+            "property": "mainthread-work-breakdown",
+            "milliseconds": 141.29199999999997
+          },
+          {
+            "id": "34_startup-interactive",
+            "property": "interactive",
+            "milliseconds": 1952.6476000000002
+          }
+        ]
+      },
+      {
+        "framework": "elements-retained-v99bad11-keyed",
+        "sample": 2,
+        "audits": [
+          {
+            "id": "31_startup-ci",
+            "property": "interactive",
+            "milliseconds": 1953.5164000000002
+          },
+          {
+            "id": "32_startup-bt",
+            "property": "bootup-time",
+            "milliseconds": 23.33199999999998
+          },
+          {
+            "id": "33_startup-mainthreadcost",
+            "property": "mainthread-work-breakdown",
+            "milliseconds": 167.11599999999996
+          },
+          {
+            "id": "34_startup-interactive",
+            "property": "interactive",
+            "milliseconds": 1953.5164000000002
+          }
+        ]
+      },
+      {
+        "framework": "react-hooks-v19.2.0-keyed",
+        "sample": 0,
+        "audits": [
+          {
+            "id": "31_startup-ci",
+            "property": "interactive",
+            "milliseconds": 2702.8536000000004
+          },
+          {
+            "id": "32_startup-bt",
+            "property": "bootup-time",
+            "milliseconds": 11.515999999999998
+          },
+          {
+            "id": "33_startup-mainthreadcost",
+            "property": "mainthread-work-breakdown",
+            "milliseconds": 212.8559999999999
+          },
+          {
+            "id": "34_startup-interactive",
+            "property": "interactive",
+            "milliseconds": 2702.8536000000004
+          }
+        ]
+      },
+      {
+        "framework": "react-hooks-v19.2.0-keyed",
+        "sample": 1,
+        "audits": [
+          {
+            "id": "31_startup-ci",
+            "property": "interactive",
+            "milliseconds": 3001.7403
+          },
+          {
+            "id": "32_startup-bt",
+            "property": "bootup-time",
+            "milliseconds": 66.74399999999997
+          },
+          {
+            "id": "33_startup-mainthreadcost",
+            "property": "mainthread-work-breakdown",
+            "milliseconds": 228.28
+          },
+          {
+            "id": "34_startup-interactive",
+            "property": "interactive",
+            "milliseconds": 3001.7403
+          }
+        ]
+      },
+      {
+        "framework": "react-hooks-v19.2.0-keyed",
+        "sample": 2,
+        "audits": [
+          {
+            "id": "31_startup-ci",
+            "property": "interactive",
+            "milliseconds": 3001.6493
+          },
+          {
+            "id": "32_startup-bt",
+            "property": "bootup-time",
+            "milliseconds": 69.68799999999999
+          },
+          {
+            "id": "33_startup-mainthreadcost",
+            "property": "mainthread-work-breakdown",
+            "milliseconds": 220.56000000000003
+          },
+          {
+            "id": "34_startup-interactive",
+            "property": "interactive",
+            "milliseconds": 3001.6493
+          }
+        ]
+      }
+    ]
+  }
+}

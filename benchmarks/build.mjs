@@ -7,6 +7,8 @@ import path from 'node:path'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const name = process.argv[2] || 'elements'
 const sourceRoot = process.argv[3] ? path.resolve(process.argv[3]) : root
+const mode = process.argv[4] || 'retained'
+if (!['retained', 'fresh'].includes(mode)) throw new Error('Use retained or fresh row mode.')
 if (!/^[a-z0-9-]+$/.test(name)) throw new Error('Use a lowercase framework name.')
 const output = path.join(root, '.cache/js-framework-benchmark/frameworks/keyed', name)
 const revision = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: sourceRoot, encoding: 'utf8' }).trim()
@@ -15,6 +17,7 @@ const dirty = execFileSync('git', ['status', '--porcelain', '--', 'packages/elem
 
 await build({
   root: path.join(root, 'benchmarks/keyed/elements'), configFile: false, base: './',
+  define: { 'import.meta.env.ELEMENTS_FRESH_ROWS': mode === 'fresh' },
   resolve: { alias: [
     { find: '@pfern/elements/html', replacement: path.join(sourceRoot, 'packages/elements/html.js') },
     { find: '@pfern/elements', replacement: path.join(sourceRoot, 'packages/elements/elements.js') }

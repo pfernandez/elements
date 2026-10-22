@@ -26,7 +26,7 @@ const swap = data => {
 // item and selected flag are unchanged. The cache does not own discarded data.
 const rows = new WeakMap()
 const row = (item, selected) => {
-  const previous = rows.get(item)
+  const previous = import.meta.env.ELEMENTS_FRESH_ROWS ? null : rows.get(item)
   const source = previous?.selected === selected ? previous.source
     : tr({ key: item.id, class: selected ? 'danger' : '' },
          td({ class: 'col-md-1' }, item.id),
@@ -34,7 +34,7 @@ const row = (item, selected) => {
          td({ class: 'col-md-1' },
             a(span({ class: 'glyphicon glyphicon-remove', 'aria-hidden': 'true' }))),
          td({ class: 'col-md-6' }))
-  rows.set(item, { selected, source })
+  if (!import.meta.env.ELEMENTS_FRESH_ROWS) rows.set(item, { selected, source })
   return source
 }
 const action = (id, title, onclick) =>

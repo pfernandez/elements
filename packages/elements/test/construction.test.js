@@ -1,7 +1,9 @@
 import { transition } from './transition.js'
 import { element, observe } from '../elements.js'
 import { a, body, button, div, form, input, output, pre, span } from '../html.js'
-import { svg } from '../svg.js'
+import { svg, title as svgTitle } from '../svg.js'
+import { mi } from '../mathml.js'
+import { namespaceOf } from '../src/core/namespaces.js'
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
@@ -35,6 +37,37 @@ describe("construction", () => {
       ['span', {}, 'one'],
       ['span', {}, 'two']
     ])
+  })
+
+  test('Nested groups preserve literal, vocabulary and observer vnode references', () => {
+    const props = Object.freeze({ id: 'literal' })
+    const literal = Object.freeze(['custom', props, 'text'])
+    const observed = observe(() => svgTitle('observed'))()
+    const children = [literal, svgTitle('svg'), mi('x'), observed,
+                      element('custom', 'urn:custom')(), element('plain', null)()]
+    children.forEach(Object.freeze)
+    const group = Object.freeze([[], Object.freeze(children), [[span('last')]]])
+    const vnode = div(props, group)
+    assert.equal(vnode[1], props)
+    children.forEach((child, index) => assert.equal(vnode[index + 2], child))
+    assert.deepEqual(vnode.at(-1), span('last'))
+    assert.deepEqual(children.map(namespaceOf), [undefined,
+      'http://www.w3.org/2000/svg', 'http://www.w3.org/1998/Math/MathML',
+      'http://www.w3.org/2000/svg', 'urn:custom', null])
+  })
+
+  test('Mixed arrays stay intact while empty and sparse vnode groups compose', () => {
+    const child = span('child')
+    const mixed = Object.freeze([child, 'text'])
+    const nestedMixed = Object.freeze([[child], mixed])
+    const sparse = []
+    sparse[2] = child
+    const vnode = div([], [[], sparse], mixed, nestedMixed, undefined, null, false, 0)
+    assert.deepEqual(vnode, ['div', {}, child, mixed, nestedMixed, undefined, null, false, 0])
+    assert.equal(vnode[3], mixed)
+    assert.equal(vnode[4], nestedMixed)
+    assert.equal(sparse.length, 3)
+    assert.equal(0 in sparse, false)
   })
 
   test('element() constructs custom vocabularies with the same vnode contract', () => {

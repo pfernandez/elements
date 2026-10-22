@@ -1,5 +1,5 @@
 import { htmlNS, withNamespace } from './namespaces.js'
-import { markVNode, normalizeChildren } from './children.js'
+import { normalizeChildren } from './children.js'
 
 const isPropsObject = value =>
   typeof value === 'object'
@@ -20,16 +20,9 @@ const isPropsObject = value =>
  */
 export const element = (tag, namespace = htmlNS) =>
   /** @type {import('./types.js').ElementsElementForTag<Tag>} */ ((...args) => {
-  const hasFirstArg = args.length > 0
-  const [propsOrChild, ...children] = args
-  const props = hasFirstArg && isPropsObject(propsOrChild) ? propsOrChild : {}
-  const actualChildren = !hasFirstArg
-    ? []
-    : props === propsOrChild
-      ? children
-      : [propsOrChild].concat(children)
+  const props = isPropsObject(args[0]) ? args.shift() : {}
 
-  return withNamespace(markVNode(/** @type {import('./types.js').ElementsVNode} */ (
-    [tag, props].concat(normalizeChildren(actualChildren))
-  )), namespace)
+  return withNamespace(/** @type {import('./types.js').ElementsVNode} */ (
+    normalizeChildren(args, [tag, props])
+  ), namespace)
 })
