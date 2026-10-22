@@ -17,6 +17,10 @@ The [follow-up investigation](./results/2026-10-21.md) compares fresh descriptio
 memory, startup, independent observers and shared projections.
 The [construction optimization](./results/2026-10-21-construction.md) measures
 the subsequent metadata and child-normalization changes against that baseline.
+The [observer selection characterization](./results/2026-10-21-observer-selection.md)
+records ordering, callback visibility and the original reentrant update defect.
+The [synchronous reentry fix](./results/2026-10-22-reentrant-updates.md) records
+the correction, regression checks and its performance cost.
 
 ## Setup
 
@@ -101,6 +105,10 @@ node benchmarks/diagnostics.mjs
 node benchmarks/diagnostics.mjs --profile
 node benchmarks/startup.mjs
 ```
+
+Use `--source-root /path/to/checkout` to run the same diagnostic fixture against
+another runtime, and `--output /path/to/results` to keep its results separately.
+The output includes hashes of every core runtime module.
 
 These use the harness's installed `puppeteer-core` and local Chrome; set
 `CHROME_BIN` if necessary. Results go to `.cache/elements-diagnostics/`.

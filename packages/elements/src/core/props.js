@@ -11,6 +11,7 @@
 import { createDeclarativeEventHandler, isEventProp } from './events.js'
 import { startTickLoop, stopTickLoop } from './tick.js'
 import { attributeValue, validateProps } from './attributes.js'
+import { checkpoint } from './update.js'
 
 const isObject = x =>
   typeof x === 'object'
@@ -87,6 +88,15 @@ const clearProp = (el, key) =>
           : key.startsWith('on') ? clearEventProp(el, key)
             : removeAttribute(el, key)
 
+// Record the value before a native callback can reenter. Failed assignments
+// restore the bookkeeping and still propagate the original error.
+const applying = (applied, key, value, assign) => {
+  const undo = applied?.(key, value)
+  try { assign() }
+  catch (error) { undo?.(); throw error }
+  checkpoint()
+}
+
 /**
  * Remove props that existed previously but are absent in the next vnode.
  *
@@ -96,20 +106,24 @@ const clearProp = (el, key) =>
  * @param {any} el
  * @param {Record<string, any>} prevProps
  * @param {Record<string, any>} nextProps
+ * @param {(key: string, value: any) => (() => void) | void} [applied]
  */
-export const removeMissingProps = (el, prevProps, nextProps) => {
+export const removeMissingProps = (el, prevProps, nextProps, applied = () => {}) => {
   const prevStyle = prevProps?.style
   const nextStyle = nextProps?.style
-  typeof prevStyle === 'string' && isObject(nextStyle) && clearStyle(el)
+  if (typeof prevStyle === 'string' && isObject(nextStyle)) {
+    applying(applied, 'style', {}, () => clearStyle(el))
+  }
   if (isObject(prevStyle) && isObject(nextStyle) && el?.style) {
+    const style = { ...prevStyle }
     const keys = Object.keys(prevStyle)
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]
       if (key in nextStyle) continue
 
-      key.startsWith('--')
-        ? el.style.removeProperty(key)
-        : el.style[key] = ''
+      delete style[key]
+      applying(applied, 'style', { ...style }, () =>
+        key.startsWith('--') ? el.style.removeProperty(key) : el.style[key] = '')
     }
   }
 
@@ -119,8 +133,9 @@ export const removeMissingProps = (el, prevProps, nextProps) => {
     if (key === 'key') continue
     if (key in nextProps) continue
 
-    clearProp(el, key)
+    applying(applied, key, undefined, () => clearProp(el, key))
   }
+  checkpoint()
 }
 
 /**
@@ -130,76 +145,46 @@ export const removeMissingProps = (el, prevProps, nextProps) => {
  * @param {Record<string, any>} props
  * @param {{
  *   svgNS: string,
- *   resume: (vnode: any) => void
+ *   resume: (vnode: any) => void,
+ *   applied?: (key: string, value: any) => (() => void) | void,
+ *   style?: any
  * }} env
  */
 export const assignProperties = (el, props, env) => {
   validateProps(props)
   const isSvg = el.namespaceURI === env.svgNS
   const keys = Object.keys(props)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    const value = props[key]
-
+  for (const key of keys) {
+    checkpoint()
     if (key === 'key') continue
-
-    if (value == null) {
-      clearProp(el, key)
-      continue
-    }
-
-    if (key === 'ontick' && typeof value === 'function') {
-      el.ontick = value
-      startTickLoop(el, value, { ready: isX3DOMReadyFor })
-      continue
-    }
-
-    if (Object.hasOwn(propertyExceptions, key) && key in el) {
-      el[propertyExceptions[key]] = value
-      continue
-    }
-
-    if (isEventProp(key, value)) {
-      el[key] = createDeclarativeEventHandler({
-        el,
-        key,
-        handler: value,
-        resume: env.resume
-      })
-      continue
-    }
-
-    if (key === 'style') {
-      if (isObject(value) && el?.style) {
-        const styleKeys = Object.keys(value)
-        for (let i = 0; i < styleKeys.length; i++) {
-          const styleKey = styleKeys[i]
-          const styleValue = value[styleKey]
-
-          if (styleValue == null) {
-            styleKey.startsWith('--')
-              ? el.style.removeProperty(styleKey)
-              : el.style[styleKey] = ''
-            continue
-          }
-
-          styleKey.startsWith('--')
-            ? el.style.setProperty(styleKey, String(styleValue))
-            : el.style[styleKey] = styleValue
-        }
-
-        continue
+    const value = props[key]
+    if (key === 'style' && isObject(value) && el?.style) {
+      const style = { ...isObject(env.style) ? env.style : {} }
+      for (const styleKey of Object.keys(value)) {
+        const styleValue = value[styleKey]
+        style[styleKey] = styleValue
+        applying(env.applied, 'style', { ...style }, () =>
+          styleValue == null
+            ? styleKey.startsWith('--') ? el.style.removeProperty(styleKey) : el.style[styleKey] = ''
+            : styleKey.startsWith('--') ? el.style.setProperty(styleKey, String(styleValue))
+              : el.style[styleKey] = styleValue)
       }
-    }
-
-    if (key === 'innerHTML') {
-      el.innerHTML = value
-      continue
-    }
-
-    const text = attributeValue(key, value)
-    text == null ? removeAttribute(el, key)
-      : isSvg ? el.setAttributeNS(null, key, text)
-        : el.setAttribute(key, text)
+    } else applying(env.applied, key, value, () => {
+      if (value == null) clearProp(el, key)
+      else if (key === 'ontick' && typeof value === 'function') {
+        el.ontick = value
+        startTickLoop(el, value, { ready: isX3DOMReadyFor })
+      } else if (Object.hasOwn(propertyExceptions, key) && key in el)
+        el[propertyExceptions[key]] = value
+      else if (isEventProp(key, value))
+        el[key] = createDeclarativeEventHandler({ el, key, handler: value, resume: env.resume })
+      else if (key === 'innerHTML') el.innerHTML = value
+      else {
+        const text = attributeValue(key, value)
+        text == null ? removeAttribute(el, key)
+          : isSvg ? el.setAttributeNS(null, key, text) : el.setAttribute(key, text)
+      }
+    })
   }
+  checkpoint()
 }

@@ -1,0 +1,39 @@
+{
+  "browser": "Chrome/155.0.8059.84",
+  "recordedAt": "2026-10-22T01:10:46.906Z",
+  "result": [
+    {
+      "point": "inside callback after nested event",
+      "text": [
+        "2",
+        "2"
+      ]
+    },
+    {
+      "point": "after outer event",
+      "text": [
+        "1",
+        "2"
+      ],
+      "attributes": [
+        "2",
+        "2"
+      ]
+    },
+    {
+      "point": "after replaying the same newer source",
+      "text": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "point": "after a fresh newer source",
+      "text": [
+        "2",
+        "2"
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -2,7 +2,7 @@ import { build, preview } from 'vite'
 import { createRequire } from 'node:module'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
@@ -13,9 +13,21 @@ const { default: puppeteer } = await import(pathToFileURL(require.resolve('puppe
   paths: [path.join(root, '.cache/js-framework-benchmark/webdriver-ts')]
 })))
 const profiling = process.argv.includes('--profile')
-const output = path.join(root, '.cache/elements-diagnostics', profiling ? 'profile' : 'timing')
+const option = name => {
+  const index = process.argv.indexOf(name)
+  if (index !== -1 && !process.argv[index + 1]) throw new Error(`Missing value for ${name}`)
+  return index === -1 ? undefined : process.argv[index + 1]
+}
+const sourceRoot = path.resolve(option('--source-root') || root)
+const output = path.resolve(option('--output')
+  || path.join(root, '.cache/elements-diagnostics', profiling ? 'profile' : 'timing'))
+const core = 'packages/elements/src/core'
 const config = {
   root: path.join(root, 'benchmarks/diagnostics'), configFile: false, base: './',
+  resolve: { alias: {
+    '@pfern/elements/html': path.join(sourceRoot, 'packages/elements/html.js'),
+    '../../packages/elements/src/core/observer.js': path.join(sourceRoot, core, 'observer.js')
+  } },
   build: { outDir: path.join(output, 'dist'), emptyOutDir: true, minify: profiling ? false : 'esbuild' },
   preview: { host: '127.0.0.1', port: 0 }, logLevel: 'error'
 }
@@ -42,13 +54,16 @@ try {
   const results = {
     recordedAt: new Date().toISOString(),
     revision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
+    sourceRoot,
     environment: { browser: await browser.version(), node: process.version,
       cpu: os.cpus()[0].model, platform: os.platform(), kernel: os.release() },
     methodology: 'Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.',
-    sourceSHA256: Object.fromEntries(['benchmarks/diagnostics/main.js',
-      ...['children', 'element', 'observer', 'dom', 'reconcile', 'namespaces']
-        .map(name => `packages/elements/src/core/${name}.js`)]
-      .map(name => [name, createHash('sha256').update(readFileSync(path.join(root, name))).digest('hex')])),
+    sourceSHA256: Object.fromEntries([
+      ['benchmarks/diagnostics/main.js', root],
+      ...readdirSync(path.join(sourceRoot, core)).filter(name => name.endsWith('.js'))
+        .map(name => [`${core}/${name}`, sourceRoot])
+    ].map(([name, directory]) =>
+      [name, createHash('sha256').update(readFileSync(path.join(directory, name))).digest('hex')])),
     measurements: []
   }
   if (profiling) {
