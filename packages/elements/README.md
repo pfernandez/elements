@@ -273,7 +273,7 @@ npm install @pfern/elements
 The runtime requires `WeakRef` and `FinalizationRegistry` support.
 
 Explore the [live demo](https://pfernandez.github.io/elements), its
-[examples](https://github.com/pfernandez/elements/blob/main/examples), and the longer article on
+[examples](https://github.com/pfernandez/elements/tree/main/examples), and the longer article on
 [recursive state observers](https://github.com/pfernandez/elements/blob/main/examples/content/introduction.md).
 
 ## Events and forms
