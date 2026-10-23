@@ -1,0 +1,1815 @@
+{
+  "baselineRevision": "8c30686",
+  "runOrder": [
+    "before",
+    "after",
+    "after-repeat",
+    "before-repeat"
+  ],
+  "baseline": [
+    {
+      "recordedAt": "2026-10-22T17:04:22.742Z",
+      "revision": "8c3068675a3b7e79ba0584dcaa690897ae75a5b1",
+      "sourceRoot": "/tmp/elements-notification-baseline",
+      "environment": {
+        "browser": "Chrome/155.0.8059.84",
+        "node": "v25.9.0",
+        "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+        "platform": "linux",
+        "kernel": "7.0.0-34-generic"
+      },
+      "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+      "sourceSHA256": {
+        "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+        "packages/elements/src/core/attributes.js": "949a3c8305f5656ebfc55c2b11a967d5ff197f7b7ebce823877050bf497f6be0",
+        "packages/elements/src/core/children.js": "86124bf5b8cee423486af618009ab9c1a007c21c61f90c87b67e1520f60a7296",
+        "packages/elements/src/core/dom.js": "5d5582c34ddabe95231033cb47cf6e321fdb328b659f6bf0e17bafc6a93da79f",
+        "packages/elements/src/core/element.js": "0b7914bc74e0d245b2783d37be50d1ac107ad965d1f1ad541b930951aa49835c",
+        "packages/elements/src/core/elements.js": "72da7f586ce182dbceb9f7b993b7d3311cb7fbfd30700c1ed442b53784a15d09",
+        "packages/elements/src/core/events.js": "ab5124c2c585b9e4be0b292b869c4664ed515fa030a084c369e93e004feaa2f3",
+        "packages/elements/src/core/history.js": "184bd0536dd9d7acc021ddaacee2f567b4340b246578b9e69fa4bb56349f5038",
+        "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686",
+        "packages/elements/src/core/navigation.js": "99cbf2fae48ad97e8de14e24b5c956521255f5a44db6d7bc8ab2d63f703dbeae",
+        "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+        "packages/elements/src/core/props.js": "733cf364c440565f750be459c794055bceac0a19950d1da15b25578198927042",
+        "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+        "packages/elements/src/core/tags.js": "af6d25511d2eaf169bc0c603330461934d06eaa7d88476379a633175f55abd26",
+        "packages/elements/src/core/tick.js": "19fa9de7178c95981820743b02d563cfba5962f71bb10a13fb073829c68a2112",
+        "packages/elements/src/core/types.js": "d414facd21e1a2a956ed80fa38cd8a1ad2b2f638a58c22a1348ba5d9211425af",
+        "packages/elements/src/core/update.js": "fe647bfbe195e4eeb6fa52d8b6668607af36ad37f197331db5073f95f6a53a1a"
+      },
+      "measurements": [
+        {
+          "name": "freshTable",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "construction": {
+              "median": 1,
+              "samples": [
+                2.3000000715255737,
+                1,
+                0.7999999523162842,
+                2.5,
+                1,
+                1.1999999284744263,
+                1.5,
+                1,
+                0.9000000953674316,
+                1.2000000476837158,
+                0.5,
+                0.7999999523162842,
+                1,
+                3.399999976158142,
+                3.200000047683716
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 7,
+              "samples": [
+                7.699999928474426,
+                7.700000047683716,
+                7.899999976158142,
+                5.5,
+                7,
+                5,
+                5.400000095367432,
+                7.700000047683716,
+                4.5,
+                5.200000047683716,
+                7.400000095367432,
+                8.800000071525574,
+                18.700000047683716,
+                5.200000047683716,
+                5.099999904632568
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "freshTable",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "construction": {
+              "median": 12.799999952316284,
+              "samples": [
+                65.10000002384186,
+                10,
+                11.800000071525574,
+                11.399999976158142,
+                11.700000047683716,
+                11.600000023841858,
+                44.39999997615814,
+                19.899999976158142,
+                11.599999904632568,
+                12.799999952316284,
+                13.5,
+                13.700000047683716,
+                13.800000071525574,
+                15.199999928474426,
+                12.299999952316284
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 64,
+              "samples": [
+                61.5,
+                55.39999997615814,
+                63.799999952316284,
+                64,
+                117,
+                68.10000002384186,
+                57.700000047683716,
+                65.39999997615814,
+                71.5,
+                57,
+                51.700000047683716,
+                72.89999997615814,
+                67,
+                57.60000002384186,
+                115
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "median": 0.008999999761581421,
+            "samples": [
+              0.01,
+              0.01699999928474426,
+              0.008999999761581421,
+              0.008999999761581421,
+              0.006999999284744263,
+              0.007999999523162842,
+              0.007999999523162842,
+              0.0070000004768371584,
+              0.008999999761581421,
+              0.010999999046325683,
+              0.010999999046325683,
+              0.010999999046325683,
+              0.008999999761581421,
+              0.07199999928474426,
+              0.008999999761581421
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "median": 0.008999999761581421,
+            "samples": [
+              0.011999999284744262,
+              0.007999999523162842,
+              0.007999999523162842,
+              0.006999999284744263,
+              0.008999999761581421,
+              0.015,
+              0.01,
+              0.009000000953674316,
+              0.01100000023841858,
+              0.007999999523162842,
+              0.008999999761581421,
+              0.01,
+              0.008999999761581421,
+              0.008000000715255737,
+              0.008999999761581421
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            false
+          ],
+          "result": {
+            "count": 100,
+            "fresh": false,
+            "notifications": 100,
+            "median": 0.2999999523162842,
+            "samples": [
+              0.19999992847442627,
+              0.30000007152557373,
+              0.20000004768371582,
+              0.2999999523162842,
+              0.10000002384185791,
+              0.2999999523162842,
+              0.19999992847442627,
+              0.09999990463256836,
+              0.2999999523162842,
+              0.19999992847442627,
+              0.40000009536743164,
+              0.2999999523162842,
+              0.5,
+              0.5,
+              0.6000000238418579
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            true
+          ],
+          "result": {
+            "count": 100,
+            "fresh": true,
+            "notifications": 10000,
+            "median": 3.3000000715255737,
+            "samples": [
+              5.100000023841858,
+              4.300000071525574,
+              3.200000047683716,
+              3.200000047683716,
+              3.399999976158142,
+              3.200000047683716,
+              3.3000000715255737,
+              3.5,
+              3.200000047683716,
+              3.100000023841858,
+              3.3000000715255737,
+              3.5,
+              3.3000000715255737,
+              3.3000000715255737,
+              3
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            false
+          ],
+          "result": {
+            "count": 500,
+            "fresh": false,
+            "notifications": 500,
+            "median": 0.8999999761581421,
+            "samples": [
+              0.8999999761581421,
+              0.9000000953674316,
+              1,
+              0.7000000476837158,
+              0.6000000238418579,
+              0.7999999523162842,
+              0.6000000238418579,
+              0.8999999761581421,
+              0.7000000476837158,
+              0.7999999523162842,
+              0.7999999523162842,
+              0.9000000953674316,
+              1,
+              1,
+              1
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            true
+          ],
+          "result": {
+            "count": 500,
+            "fresh": true,
+            "notifications": 250000,
+            "median": 68.20000004768372,
+            "samples": [
+              70.80000007152557,
+              73.10000002384186,
+              68.29999995231628,
+              67.60000002384186,
+              68.20000004768372,
+              68.20000004768372,
+              65,
+              66.39999997615814,
+              66.79999995231628,
+              67.39999997615814,
+              67.80000007152557,
+              70.90000009536743,
+              72.80000007152557,
+              71,
+              73.80000007152557
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "memory",
+          "retain": false,
+          "before": {
+            "usedSize": 855848,
+            "totalSize": 1572864,
+            "embedderHeapUsedSize": 903720,
+            "backingStorageSize": 17941
+          },
+          "mounted": {
+            "usedSize": 37508388,
+            "totalSize": 38592512,
+            "embedderHeapUsedSize": 88205856,
+            "backingStorageSize": 18012
+          },
+          "detached": {
+            "usedSize": 15423056,
+            "totalSize": 16142336,
+            "embedderHeapUsedSize": 1249136,
+            "backingStorageSize": 18012
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": false,
+            "subscriptions": 0
+          }
+        },
+        {
+          "name": "memory",
+          "retain": true,
+          "before": {
+            "usedSize": 855904,
+            "totalSize": 1572864,
+            "embedderHeapUsedSize": 897576,
+            "backingStorageSize": 17941
+          },
+          "mounted": {
+            "usedSize": 37509164,
+            "totalSize": 38330368,
+            "embedderHeapUsedSize": 88096480,
+            "backingStorageSize": 18012
+          },
+          "detached": {
+            "usedSize": 37513960,
+            "totalSize": 38592512,
+            "embedderHeapUsedSize": 12067328,
+            "backingStorageSize": 18012
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": true,
+            "subscriptions": 10001
+          }
+        }
+      ]
+    },
+    {
+      "recordedAt": "2026-10-22T17:05:10.532Z",
+      "revision": "8c3068675a3b7e79ba0584dcaa690897ae75a5b1",
+      "sourceRoot": "/tmp/elements-notification-baseline",
+      "environment": {
+        "browser": "Chrome/155.0.8059.84",
+        "node": "v25.9.0",
+        "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+        "platform": "linux",
+        "kernel": "7.0.0-34-generic"
+      },
+      "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+      "sourceSHA256": {
+        "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+        "packages/elements/src/core/attributes.js": "949a3c8305f5656ebfc55c2b11a967d5ff197f7b7ebce823877050bf497f6be0",
+        "packages/elements/src/core/children.js": "86124bf5b8cee423486af618009ab9c1a007c21c61f90c87b67e1520f60a7296",
+        "packages/elements/src/core/dom.js": "5d5582c34ddabe95231033cb47cf6e321fdb328b659f6bf0e17bafc6a93da79f",
+        "packages/elements/src/core/element.js": "0b7914bc74e0d245b2783d37be50d1ac107ad965d1f1ad541b930951aa49835c",
+        "packages/elements/src/core/elements.js": "72da7f586ce182dbceb9f7b993b7d3311cb7fbfd30700c1ed442b53784a15d09",
+        "packages/elements/src/core/events.js": "ab5124c2c585b9e4be0b292b869c4664ed515fa030a084c369e93e004feaa2f3",
+        "packages/elements/src/core/history.js": "184bd0536dd9d7acc021ddaacee2f567b4340b246578b9e69fa4bb56349f5038",
+        "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686",
+        "packages/elements/src/core/navigation.js": "99cbf2fae48ad97e8de14e24b5c956521255f5a44db6d7bc8ab2d63f703dbeae",
+        "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+        "packages/elements/src/core/props.js": "733cf364c440565f750be459c794055bceac0a19950d1da15b25578198927042",
+        "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+        "packages/elements/src/core/tags.js": "af6d25511d2eaf169bc0c603330461934d06eaa7d88476379a633175f55abd26",
+        "packages/elements/src/core/tick.js": "19fa9de7178c95981820743b02d563cfba5962f71bb10a13fb073829c68a2112",
+        "packages/elements/src/core/types.js": "d414facd21e1a2a956ed80fa38cd8a1ad2b2f638a58c22a1348ba5d9211425af",
+        "packages/elements/src/core/update.js": "fe647bfbe195e4eeb6fa52d8b6668607af36ad37f197331db5073f95f6a53a1a"
+      },
+      "measurements": [
+        {
+          "name": "freshTable",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "construction": {
+              "median": 1.100000023841858,
+              "samples": [
+                2.4000000953674316,
+                1.100000023841858,
+                0.8999999761581421,
+                2.6999999284744263,
+                0.8999999761581421,
+                1.100000023841858,
+                1.2000000476837158,
+                1.5,
+                0.8999999761581421,
+                1,
+                0.6000000238418579,
+                1.2000000476837158,
+                1,
+                3.700000047683716,
+                3.0999999046325684
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 6.399999976158142,
+              "samples": [
+                5.399999976158142,
+                9.299999952316284,
+                5.799999952316284,
+                6.799999952316284,
+                7.200000047683716,
+                5.200000047683716,
+                5,
+                6.399999976158142,
+                4.899999976158142,
+                6.399999976158142,
+                6.100000023841858,
+                9.299999952316284,
+                9.5,
+                13.5,
+                5.900000095367432
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "freshTable",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "construction": {
+              "median": 12,
+              "samples": [
+                24.600000023841858,
+                30.100000023841858,
+                6.400000095367432,
+                10.200000047683716,
+                10.299999952316284,
+                19.899999976158142,
+                8.599999904632568,
+                13.899999976158142,
+                10,
+                8,
+                44.89999997615814,
+                12.5,
+                12.100000023841858,
+                9.099999904632568,
+                12
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 64.30000007152557,
+              "samples": [
+                67.5,
+                110,
+                68.40000009536743,
+                64.69999992847443,
+                74.70000004768372,
+                77,
+                63,
+                59.39999997615814,
+                64.30000007152557,
+                61.60000002384186,
+                164.60000002384186,
+                55.89999997615814,
+                58.89999997615814,
+                62.89999997615814,
+                58.39999997615814
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "median": 0.008999999761581421,
+            "samples": [
+              0.009000000953674316,
+              0.01399999976158142,
+              0.008999999761581421,
+              0.01,
+              0.007999999523162842,
+              0.0070000004768371584,
+              0.008000000715255737,
+              0.008999999761581421,
+              0.008999999761581421,
+              0.008999999761581421,
+              0.01,
+              0.01,
+              0.008999999761581421,
+              0.08,
+              0.007999999523162842
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "median": 0.008999999761581421,
+            "samples": [
+              0.01100000023841858,
+              0.01,
+              0.008999999761581421,
+              0.008000000715255737,
+              0.007999999523162842,
+              0.008999999761581421,
+              0.015,
+              0.008999999761581421,
+              0.009000000953674316,
+              0.007999999523162842,
+              0.007999999523162842,
+              0.01,
+              0.009000000953674316,
+              0.009000000953674316,
+              0.008999999761581421
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            false
+          ],
+          "result": {
+            "count": 100,
+            "fresh": false,
+            "notifications": 100,
+            "median": 0.30000007152557373,
+            "samples": [
+              0.20000004768371582,
+              0.30000007152557373,
+              0.5,
+              0.2999999523162842,
+              0.3999999761581421,
+              0.30000007152557373,
+              0.20000004768371582,
+              0.20000004768371582,
+              0.19999992847442627,
+              0.19999992847442627,
+              0.3999999761581421,
+              0.40000009536743164,
+              0.3999999761581421,
+              0.5999999046325684,
+              0.6000000238418579
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            true
+          ],
+          "result": {
+            "count": 100,
+            "fresh": true,
+            "notifications": 10000,
+            "median": 3.3000000715255737,
+            "samples": [
+              4.400000095367432,
+              3.600000023841858,
+              3.0999999046325684,
+              3.6999999284744263,
+              3.5999999046325684,
+              3.299999952316284,
+              3.399999976158142,
+              3.299999952316284,
+              3.100000023841858,
+              3.799999952316284,
+              3.700000047683716,
+              3.3000000715255737,
+              3.1999999284744263,
+              3.1999999284744263,
+              3.1999999284744263
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            false
+          ],
+          "result": {
+            "count": 500,
+            "fresh": false,
+            "notifications": 500,
+            "median": 0.8000000715255737,
+            "samples": [
+              0.7999999523162842,
+              0.8000000715255737,
+              0.7000000476837158,
+              0.6999999284744263,
+              0.7000000476837158,
+              0.8999999761581421,
+              0.8000000715255737,
+              0.7999999523162842,
+              0.7999999523162842,
+              0.7999999523162842,
+              0.8999999761581421,
+              0.8999999761581421,
+              0.9000000953674316,
+              1.100000023841858,
+              0.9000000953674316
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            true
+          ],
+          "result": {
+            "count": 500,
+            "fresh": true,
+            "notifications": 250000,
+            "median": 71.80000007152557,
+            "samples": [
+              77.20000004768372,
+              76,
+              73.79999995231628,
+              73.79999995231628,
+              73.79999995231628,
+              72.80000007152557,
+              71.30000007152557,
+              71.60000002384186,
+              71.5,
+              71.70000004768372,
+              72.20000004768372,
+              71.80000007152557,
+              71,
+              70.5,
+              71.60000002384186
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "memory",
+          "retain": false,
+          "before": {
+            "usedSize": 855848,
+            "totalSize": 1310720,
+            "embedderHeapUsedSize": 903720,
+            "backingStorageSize": 17941
+          },
+          "mounted": {
+            "usedSize": 37509060,
+            "totalSize": 38592512,
+            "embedderHeapUsedSize": 88144880,
+            "backingStorageSize": 18012
+          },
+          "detached": {
+            "usedSize": 15423728,
+            "totalSize": 16142336,
+            "embedderHeapUsedSize": 1225304,
+            "backingStorageSize": 18012
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": false,
+            "subscriptions": 0
+          }
+        },
+        {
+          "name": "memory",
+          "retain": true,
+          "before": {
+            "usedSize": 855904,
+            "totalSize": 1572864,
+            "embedderHeapUsedSize": 897608,
+            "backingStorageSize": 17941
+          },
+          "mounted": {
+            "usedSize": 37509164,
+            "totalSize": 38068224,
+            "embedderHeapUsedSize": 88080632,
+            "backingStorageSize": 18012
+          },
+          "detached": {
+            "usedSize": 37513960,
+            "totalSize": 38330368,
+            "embedderHeapUsedSize": 12072768,
+            "backingStorageSize": 18012
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": true,
+            "subscriptions": 10001
+          }
+        }
+      ]
+    }
+  ],
+  "optimized": [
+    {
+      "recordedAt": "2026-10-22T17:04:33.840Z",
+      "revision": "8c3068675a3b7e79ba0584dcaa690897ae75a5b1",
+      "sourceRoot": "/home/paul/elements",
+      "environment": {
+        "browser": "Chrome/155.0.8059.84",
+        "node": "v25.9.0",
+        "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+        "platform": "linux",
+        "kernel": "7.0.0-34-generic"
+      },
+      "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+      "sourceSHA256": {
+        "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+        "packages/elements/src/core/attributes.js": "949a3c8305f5656ebfc55c2b11a967d5ff197f7b7ebce823877050bf497f6be0",
+        "packages/elements/src/core/children.js": "86124bf5b8cee423486af618009ab9c1a007c21c61f90c87b67e1520f60a7296",
+        "packages/elements/src/core/dom.js": "9ac42f4bff13ca63eee806d50e6c6f24f466d3e4e29e83c79fd35f9ebc6b10cd",
+        "packages/elements/src/core/element.js": "0b7914bc74e0d245b2783d37be50d1ac107ad965d1f1ad541b930951aa49835c",
+        "packages/elements/src/core/elements.js": "72da7f586ce182dbceb9f7b993b7d3311cb7fbfd30700c1ed442b53784a15d09",
+        "packages/elements/src/core/events.js": "ab5124c2c585b9e4be0b292b869c4664ed515fa030a084c369e93e004feaa2f3",
+        "packages/elements/src/core/history.js": "184bd0536dd9d7acc021ddaacee2f567b4340b246578b9e69fa4bb56349f5038",
+        "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686",
+        "packages/elements/src/core/navigation.js": "99cbf2fae48ad97e8de14e24b5c956521255f5a44db6d7bc8ab2d63f703dbeae",
+        "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+        "packages/elements/src/core/props.js": "733cf364c440565f750be459c794055bceac0a19950d1da15b25578198927042",
+        "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+        "packages/elements/src/core/tags.js": "af6d25511d2eaf169bc0c603330461934d06eaa7d88476379a633175f55abd26",
+        "packages/elements/src/core/tick.js": "19fa9de7178c95981820743b02d563cfba5962f71bb10a13fb073829c68a2112",
+        "packages/elements/src/core/types.js": "d414facd21e1a2a956ed80fa38cd8a1ad2b2f638a58c22a1348ba5d9211425af",
+        "packages/elements/src/core/update.js": "fe647bfbe195e4eeb6fa52d8b6668607af36ad37f197331db5073f95f6a53a1a"
+      },
+      "measurements": [
+        {
+          "name": "freshTable",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "construction": {
+              "median": 1.2999999523162842,
+              "samples": [
+                5.299999952316284,
+                1.0999999046325684,
+                1,
+                2.399999976158142,
+                0.8999999761581421,
+                1.2999999523162842,
+                1.2999999523162842,
+                1.2999999523162842,
+                1.2999999523162842,
+                1.100000023841858,
+                0.5,
+                0.5999999046325684,
+                1,
+                3.8000000715255737,
+                3
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 5.5,
+              "samples": [
+                4.699999928474426,
+                4.5,
+                6.5,
+                6.399999976158142,
+                5.300000071525574,
+                5.899999976158142,
+                5.5,
+                4.799999952316284,
+                4.600000023841858,
+                4.5,
+                6.200000047683716,
+                5.699999928474426,
+                10.5,
+                11.299999952316284,
+                5
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "freshTable",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "construction": {
+              "median": 10.799999952316284,
+              "samples": [
+                67.59999990463257,
+                5.200000047683716,
+                5.700000047683716,
+                7.600000023841858,
+                10.700000047683716,
+                21.90000009536743,
+                12.5,
+                9.300000071525574,
+                10.799999952316284,
+                7.300000071525574,
+                44.299999952316284,
+                10.899999976158142,
+                11.5,
+                9,
+                11.600000023841858
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 56,
+              "samples": [
+                52.299999952316284,
+                109.10000002384186,
+                50.199999928474426,
+                58.5,
+                59.799999952316284,
+                54.299999952316284,
+                52.89999997615814,
+                54,
+                56,
+                56,
+                59.90000009536743,
+                113.90000009536743,
+                50.39999997615814,
+                59.59999990463257,
+                57.10000002384186
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "median": 0.008000000715255737,
+            "samples": [
+              0.009000000953674316,
+              0.013000000715255738,
+              0.01,
+              0.0070000004768371584,
+              0.01,
+              0.006999999284744263,
+              0.006999999284744263,
+              0.008000000715255737,
+              0.0070000004768371584,
+              0.007999999523162842,
+              0.007999999523162842,
+              0.008999999761581421,
+              0.008000000715255737,
+              0.01,
+              0.010999999046325683
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "median": 0.008999999761581421,
+            "samples": [
+              0.011999999284744262,
+              0.008999999761581421,
+              0.008000000715255737,
+              0.008999999761581421,
+              0.007999999523162842,
+              0.015,
+              0.008999999761581421,
+              0.008000000715255737,
+              0.01,
+              0.008999999761581421,
+              0.012000000476837159,
+              0.008999999761581421,
+              0.01,
+              0.009000000953674316,
+              0.009000000953674316
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            false
+          ],
+          "result": {
+            "count": 100,
+            "fresh": false,
+            "notifications": 100,
+            "median": 0.20000004768371582,
+            "samples": [
+              0.20000004768371582,
+              0.20000004768371582,
+              0.10000002384185791,
+              0.09999990463256836,
+              0.20000004768371582,
+              0.3999999761581421,
+              0.19999992847442627,
+              0.20000004768371582,
+              0.19999992847442627,
+              0.20000004768371582,
+              0.30000007152557373,
+              0.3999999761581421,
+              0.30000007152557373,
+              0.3999999761581421,
+              0.5
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            true
+          ],
+          "result": {
+            "count": 100,
+            "fresh": true,
+            "notifications": 10000,
+            "median": 2.5,
+            "samples": [
+              3.200000047683716,
+              2.799999952316284,
+              2.5,
+              2.799999952316284,
+              2.5,
+              3,
+              3.200000047683716,
+              3.3000000715255737,
+              2.5,
+              2.4000000953674316,
+              2.399999976158142,
+              2.5999999046325684,
+              2.299999952316284,
+              2.399999976158142,
+              2.399999976158142
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            false
+          ],
+          "result": {
+            "count": 500,
+            "fresh": false,
+            "notifications": 500,
+            "median": 0.7000000476837158,
+            "samples": [
+              0.6000000238418579,
+              0.6000000238418579,
+              0.7999999523162842,
+              0.7000000476837158,
+              0.6000000238418579,
+              0.8000000715255737,
+              0.6000000238418579,
+              0.5999999046325684,
+              0.6000000238418579,
+              0.7999999523162842,
+              0.7000000476837158,
+              0.8999999761581421,
+              1,
+              0.7999999523162842,
+              0.7999999523162842
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            true
+          ],
+          "result": {
+            "count": 500,
+            "fresh": true,
+            "notifications": 250000,
+            "median": 50,
+            "samples": [
+              52.199999928474426,
+              51,
+              54,
+              50,
+              49.300000071525574,
+              51.5,
+              47.699999928474426,
+              49.10000002384186,
+              48.60000002384186,
+              47.699999928474426,
+              48.799999952316284,
+              47.60000002384186,
+              50.300000071525574,
+              50.800000071525574,
+              53
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "memory",
+          "retain": false,
+          "before": {
+            "usedSize": 855952,
+            "totalSize": 1310720,
+            "embedderHeapUsedSize": 903720,
+            "backingStorageSize": 18124
+          },
+          "mounted": {
+            "usedSize": 37509324,
+            "totalSize": 38592512,
+            "embedderHeapUsedSize": 88162376,
+            "backingStorageSize": 18195
+          },
+          "detached": {
+            "usedSize": 15424060,
+            "totalSize": 16404480,
+            "embedderHeapUsedSize": 1271448,
+            "backingStorageSize": 18195
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": false,
+            "subscriptions": 0
+          }
+        },
+        {
+          "name": "memory",
+          "retain": true,
+          "before": {
+            "usedSize": 856008,
+            "totalSize": 1572864,
+            "embedderHeapUsedSize": 897608,
+            "backingStorageSize": 18124
+          },
+          "mounted": {
+            "usedSize": 37495208,
+            "totalSize": 38592512,
+            "embedderHeapUsedSize": 88166968,
+            "backingStorageSize": 18195
+          },
+          "detached": {
+            "usedSize": 37500004,
+            "totalSize": 38592512,
+            "embedderHeapUsedSize": 12088184,
+            "backingStorageSize": 18195
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": true,
+            "subscriptions": 10001
+          }
+        }
+      ]
+    },
+    {
+      "recordedAt": "2026-10-22T17:04:59.843Z",
+      "revision": "8c3068675a3b7e79ba0584dcaa690897ae75a5b1",
+      "sourceRoot": "/home/paul/elements",
+      "environment": {
+        "browser": "Chrome/155.0.8059.84",
+        "node": "v25.9.0",
+        "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+        "platform": "linux",
+        "kernel": "7.0.0-34-generic"
+      },
+      "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+      "sourceSHA256": {
+        "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+        "packages/elements/src/core/attributes.js": "949a3c8305f5656ebfc55c2b11a967d5ff197f7b7ebce823877050bf497f6be0",
+        "packages/elements/src/core/children.js": "86124bf5b8cee423486af618009ab9c1a007c21c61f90c87b67e1520f60a7296",
+        "packages/elements/src/core/dom.js": "9ac42f4bff13ca63eee806d50e6c6f24f466d3e4e29e83c79fd35f9ebc6b10cd",
+        "packages/elements/src/core/element.js": "0b7914bc74e0d245b2783d37be50d1ac107ad965d1f1ad541b930951aa49835c",
+        "packages/elements/src/core/elements.js": "72da7f586ce182dbceb9f7b993b7d3311cb7fbfd30700c1ed442b53784a15d09",
+        "packages/elements/src/core/events.js": "ab5124c2c585b9e4be0b292b869c4664ed515fa030a084c369e93e004feaa2f3",
+        "packages/elements/src/core/history.js": "184bd0536dd9d7acc021ddaacee2f567b4340b246578b9e69fa4bb56349f5038",
+        "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686",
+        "packages/elements/src/core/navigation.js": "99cbf2fae48ad97e8de14e24b5c956521255f5a44db6d7bc8ab2d63f703dbeae",
+        "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+        "packages/elements/src/core/props.js": "733cf364c440565f750be459c794055bceac0a19950d1da15b25578198927042",
+        "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+        "packages/elements/src/core/tags.js": "af6d25511d2eaf169bc0c603330461934d06eaa7d88476379a633175f55abd26",
+        "packages/elements/src/core/tick.js": "19fa9de7178c95981820743b02d563cfba5962f71bb10a13fb073829c68a2112",
+        "packages/elements/src/core/types.js": "d414facd21e1a2a956ed80fa38cd8a1ad2b2f638a58c22a1348ba5d9211425af",
+        "packages/elements/src/core/update.js": "fe647bfbe195e4eeb6fa52d8b6668607af36ad37f197331db5073f95f6a53a1a"
+      },
+      "measurements": [
+        {
+          "name": "freshTable",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "construction": {
+              "median": 2,
+              "samples": [
+                2.5,
+                1.3000000715255737,
+                0.9000000953674316,
+                3,
+                2.1999999284744263,
+                1.899999976158142,
+                1.5,
+                2,
+                2.200000047683716,
+                2.700000047683716,
+                1,
+                1.5999999046325684,
+                1.899999976158142,
+                5.599999904632568,
+                6
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 5.900000095367432,
+              "samples": [
+                5.199999928474426,
+                4.799999952316284,
+                7.5,
+                6.899999976158142,
+                5.800000071525574,
+                6.200000047683716,
+                7.200000047683716,
+                7.100000023841858,
+                5.399999976158142,
+                4.899999976158142,
+                7.899999976158142,
+                12.400000095367432,
+                4.200000047683716,
+                4.5,
+                5.900000095367432
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "freshTable",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "construction": {
+              "median": 13.399999976158142,
+              "samples": [
+                65.5,
+                10.300000071525574,
+                12.799999952316284,
+                13.600000023841858,
+                15.100000023841858,
+                11.200000047683716,
+                45.40000009536743,
+                22.799999952316284,
+                12.200000047683716,
+                13.800000071525574,
+                12.700000047683716,
+                13.599999904632568,
+                13.399999976158142,
+                13.399999976158142,
+                12.700000047683716
+              ],
+              "operationsPerSample": 1
+            },
+            "update": {
+              "median": 53.700000047683716,
+              "samples": [
+                52.59999990463257,
+                62.39999997615814,
+                50.89999997615814,
+                50.5,
+                110.80000007152557,
+                53.39999997615814,
+                53.200000047683716,
+                51,
+                56.39999997615814,
+                58.39999997615814,
+                53.700000047683716,
+                55.60000002384186,
+                53.300000071525574,
+                56.200000047683716,
+                121.5
+              ],
+              "operationsPerSample": 1
+            }
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            1000
+          ],
+          "result": {
+            "count": 1000,
+            "median": 0.008999999761581421,
+            "samples": [
+              0.009000000953674316,
+              0.015,
+              0.008999999761581421,
+              0.006999999284744263,
+              0.01100000023841858,
+              0.007999999523162842,
+              0.008999999761581421,
+              0.007999999523162842,
+              0.006999999284744263,
+              0.01,
+              0.01100000023841858,
+              0.012000000476837159,
+              0.01,
+              0.007999999523162842,
+              0.008000000715255737
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "independent",
+          "args": [
+            10000
+          ],
+          "result": {
+            "count": 10000,
+            "median": 0.01,
+            "samples": [
+              0.011999999284744262,
+              0.008999999761581421,
+              0.008000000715255737,
+              0.008999999761581421,
+              0.01,
+              0.017000000476837158,
+              0.01100000023841858,
+              0.008999999761581421,
+              0.01,
+              0.008999999761581421,
+              0.008999999761581421,
+              0.01,
+              0.01,
+              0.01,
+              0.01100000023841858
+            ],
+            "operationsPerSample": 100
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            false
+          ],
+          "result": {
+            "count": 100,
+            "fresh": false,
+            "notifications": 100,
+            "median": 0.30000007152557373,
+            "samples": [
+              0.20000004768371582,
+              0.30000007152557373,
+              0.2999999523162842,
+              0.19999992847442627,
+              0.2999999523162842,
+              0.6999999284744263,
+              0.30000007152557373,
+              0.6999999284744263,
+              0.2999999523162842,
+              0.30000007152557373,
+              0.30000007152557373,
+              0.30000007152557373,
+              0.40000009536743164,
+              0.5,
+              0.2999999523162842
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            100,
+            true
+          ],
+          "result": {
+            "count": 100,
+            "fresh": true,
+            "notifications": 10000,
+            "median": 2.600000023841858,
+            "samples": [
+              2.899999976158142,
+              2.399999976158142,
+              2.5,
+              3,
+              2.600000023841858,
+              2.9000000953674316,
+              2.799999952316284,
+              3.200000047683716,
+              2.600000023841858,
+              2.5,
+              2.600000023841858,
+              2.899999976158142,
+              2.700000047683716,
+              2.600000023841858,
+              2.5
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            false
+          ],
+          "result": {
+            "count": 500,
+            "fresh": false,
+            "notifications": 500,
+            "median": 0.7999999523162842,
+            "samples": [
+              0.6000000238418579,
+              0.6000000238418579,
+              0.6000000238418579,
+              2.100000023841858,
+              0.7999999523162842,
+              0.7999999523162842,
+              0.7000000476837158,
+              0.5999999046325684,
+              0.6000000238418579,
+              0.7000000476837158,
+              0.8000000715255737,
+              1.3000000715255737,
+              1.5,
+              1.5,
+              1.2999999523162842
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "fanout",
+          "args": [
+            500,
+            true
+          ],
+          "result": {
+            "count": 500,
+            "fresh": true,
+            "notifications": 250000,
+            "median": 53.10000002384186,
+            "samples": [
+              54.700000047683716,
+              52.40000009536743,
+              52.10000002384186,
+              56,
+              53.60000002384186,
+              53.299999952316284,
+              49.300000071525574,
+              52.10000002384186,
+              52.299999952316284,
+              52.699999928474426,
+              53.10000002384186,
+              52.700000047683716,
+              54.40000009536743,
+              53.300000071525574,
+              56
+            ],
+            "operationsPerSample": 1
+          }
+        },
+        {
+          "name": "memory",
+          "retain": false,
+          "before": {
+            "usedSize": 855952,
+            "totalSize": 1572864,
+            "embedderHeapUsedSize": 903720,
+            "backingStorageSize": 18124
+          },
+          "mounted": {
+            "usedSize": 37509960,
+            "totalSize": 38068224,
+            "embedderHeapUsedSize": 88164840,
+            "backingStorageSize": 18195
+          },
+          "detached": {
+            "usedSize": 15424696,
+            "totalSize": 16404480,
+            "embedderHeapUsedSize": 1226832,
+            "backingStorageSize": 18195
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": false,
+            "subscriptions": 0
+          }
+        },
+        {
+          "name": "memory",
+          "retain": true,
+          "before": {
+            "usedSize": 856008,
+            "totalSize": 1310720,
+            "embedderHeapUsedSize": 897576,
+            "backingStorageSize": 18124
+          },
+          "mounted": {
+            "usedSize": 37495172,
+            "totalSize": 38068224,
+            "embedderHeapUsedSize": 88234864,
+            "backingStorageSize": 18195
+          },
+          "detached": {
+            "usedSize": 37499968,
+            "totalSize": 38330368,
+            "embedderHeapUsedSize": 12089400,
+            "backingStorageSize": 18195
+          },
+          "mountedSubscriptions": 10001,
+          "state": {
+            "rootAlive": true,
+            "subscriptions": 10001
+          }
+        }
+      ]
+    }
+  ],
+  "profiles": {
+    "baseline": {
+      "recordedAt": "2026-10-22T17:02:48.200Z",
+      "revision": "8c3068675a3b7e79ba0584dcaa690897ae75a5b1",
+      "sourceRoot": "/home/paul/elements",
+      "environment": {
+        "browser": "Chrome/155.0.8059.84",
+        "node": "v25.9.0",
+        "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+        "platform": "linux",
+        "kernel": "7.0.0-34-generic"
+      },
+      "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+      "sourceSHA256": {
+        "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+        "packages/elements/src/core/attributes.js": "949a3c8305f5656ebfc55c2b11a967d5ff197f7b7ebce823877050bf497f6be0",
+        "packages/elements/src/core/children.js": "86124bf5b8cee423486af618009ab9c1a007c21c61f90c87b67e1520f60a7296",
+        "packages/elements/src/core/dom.js": "5d5582c34ddabe95231033cb47cf6e321fdb328b659f6bf0e17bafc6a93da79f",
+        "packages/elements/src/core/element.js": "0b7914bc74e0d245b2783d37be50d1ac107ad965d1f1ad541b930951aa49835c",
+        "packages/elements/src/core/elements.js": "72da7f586ce182dbceb9f7b993b7d3311cb7fbfd30700c1ed442b53784a15d09",
+        "packages/elements/src/core/events.js": "ab5124c2c585b9e4be0b292b869c4664ed515fa030a084c369e93e004feaa2f3",
+        "packages/elements/src/core/history.js": "184bd0536dd9d7acc021ddaacee2f567b4340b246578b9e69fa4bb56349f5038",
+        "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686",
+        "packages/elements/src/core/navigation.js": "99cbf2fae48ad97e8de14e24b5c956521255f5a44db6d7bc8ab2d63f703dbeae",
+        "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+        "packages/elements/src/core/props.js": "733cf364c440565f750be459c794055bceac0a19950d1da15b25578198927042",
+        "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+        "packages/elements/src/core/tags.js": "af6d25511d2eaf169bc0c603330461934d06eaa7d88476379a633175f55abd26",
+        "packages/elements/src/core/tick.js": "19fa9de7178c95981820743b02d563cfba5962f71bb10a13fb073829c68a2112",
+        "packages/elements/src/core/types.js": "d414facd21e1a2a956ed80fa38cd8a1ad2b2f638a58c22a1348ba5d9211425af",
+        "packages/elements/src/core/update.js": "fe647bfbe195e4eeb6fa52d8b6668607af36ad37f197331db5073f95f6a53a1a"
+      },
+      "measurements": [],
+      "profile": {
+        "case": "fanout",
+        "minified": false,
+        "sampleIntervalMicroseconds": 100,
+        "topSelfSamples": [
+          [
+            "(anonymous)",
+            3268
+          ],
+          [
+            "patchChildren",
+            1977
+          ],
+          [
+            "patch",
+            951
+          ],
+          [
+            "patchValue",
+            939
+          ],
+          [
+            "notify",
+            640
+          ],
+          [
+            "childrenOf",
+            529
+          ],
+          [
+            "finishMount",
+            523
+          ],
+          [
+            "updating",
+            517
+          ],
+          [
+            "(garbage collector)",
+            378
+          ],
+          [
+            "(idle)",
+            260
+          ],
+          [
+            "(program)",
+            257
+          ],
+          [
+            "checkpoint",
+            194
+          ],
+          [
+            "matchChildren",
+            169
+          ],
+          [
+            "namespaceOf",
+            141
+          ],
+          [
+            "validateProps",
+            129
+          ],
+          [
+            "record.notify",
+            102
+          ],
+          [
+            "tagOf",
+            99
+          ],
+          [
+            "propsOf",
+            84
+          ],
+          [
+            "kindOf",
+            81
+          ],
+          [
+            "firstNode",
+            75
+          ],
+          [
+            "namespaceAt",
+            58
+          ],
+          [
+            "stablePositions",
+            44
+          ],
+          [
+            "sourceOf",
+            26
+          ],
+          [
+            "withNamespace",
+            23
+          ],
+          [
+            "childNamespace",
+            18
+          ],
+          [
+            "mountValue",
+            12
+          ],
+          [
+            "present",
+            9
+          ],
+          [
+            "projection.notify",
+            6
+          ],
+          [
+            "fanout",
+            4
+          ],
+          [
+            "mountBoundary",
+            4
+          ]
+        ]
+      }
+    },
+    "optimized": {
+      "recordedAt": "2026-10-22T17:05:41.289Z",
+      "revision": "8c3068675a3b7e79ba0584dcaa690897ae75a5b1",
+      "sourceRoot": "/home/paul/elements",
+      "environment": {
+        "browser": "Chrome/155.0.8059.84",
+        "node": "v25.9.0",
+        "cpu": "12th Gen Intel(R) Core(TM) i7-1270P",
+        "platform": "linux",
+        "kernel": "7.0.0-34-generic"
+      },
+      "methodology": "Synchronous JS and DOM only; 5 warmups, 15 samples, no CPU throttling. Fresh page per case.",
+      "sourceSHA256": {
+        "benchmarks/diagnostics/main.js": "c1436a30020f1cbb008eb6053e7ea8f8bd4296a624ee2505bb4f10c54608dc26",
+        "packages/elements/src/core/attributes.js": "949a3c8305f5656ebfc55c2b11a967d5ff197f7b7ebce823877050bf497f6be0",
+        "packages/elements/src/core/children.js": "86124bf5b8cee423486af618009ab9c1a007c21c61f90c87b67e1520f60a7296",
+        "packages/elements/src/core/dom.js": "9ac42f4bff13ca63eee806d50e6c6f24f466d3e4e29e83c79fd35f9ebc6b10cd",
+        "packages/elements/src/core/element.js": "0b7914bc74e0d245b2783d37be50d1ac107ad965d1f1ad541b930951aa49835c",
+        "packages/elements/src/core/elements.js": "72da7f586ce182dbceb9f7b993b7d3311cb7fbfd30700c1ed442b53784a15d09",
+        "packages/elements/src/core/events.js": "ab5124c2c585b9e4be0b292b869c4664ed515fa030a084c369e93e004feaa2f3",
+        "packages/elements/src/core/history.js": "184bd0536dd9d7acc021ddaacee2f567b4340b246578b9e69fa4bb56349f5038",
+        "packages/elements/src/core/namespaces.js": "05d90556b7c0ae0fdc0b4783f99102e02d593755cbe48793b9c353e3902e5686",
+        "packages/elements/src/core/navigation.js": "99cbf2fae48ad97e8de14e24b5c956521255f5a44db6d7bc8ab2d63f703dbeae",
+        "packages/elements/src/core/observer.js": "f73f713bd551425ab9e708ca5bb5fdb4551a8ccf59ee2b750d04ce83dc82b9a9",
+        "packages/elements/src/core/props.js": "733cf364c440565f750be459c794055bceac0a19950d1da15b25578198927042",
+        "packages/elements/src/core/reconcile.js": "31c4f2789f011cffa48041b9aef75f36036c755f61c6b956f5d87b2fd3074fc8",
+        "packages/elements/src/core/tags.js": "af6d25511d2eaf169bc0c603330461934d06eaa7d88476379a633175f55abd26",
+        "packages/elements/src/core/tick.js": "19fa9de7178c95981820743b02d563cfba5962f71bb10a13fb073829c68a2112",
+        "packages/elements/src/core/types.js": "d414facd21e1a2a956ed80fa38cd8a1ad2b2f638a58c22a1348ba5d9211425af",
+        "packages/elements/src/core/update.js": "fe647bfbe195e4eeb6fa52d8b6668607af36ad37f197331db5073f95f6a53a1a"
+      },
+      "measurements": [],
+      "profile": {
+        "case": "fanout",
+        "minified": false,
+        "sampleIntervalMicroseconds": 100,
+        "topSelfSamples": [
+          [
+            "(anonymous)",
+            2078
+          ],
+          [
+            "patch",
+            1196
+          ],
+          [
+            "patchChildren",
+            1160
+          ],
+          [
+            "notify",
+            864
+          ],
+          [
+            "updating",
+            575
+          ],
+          [
+            "patchValue",
+            545
+          ],
+          [
+            "finishMount",
+            530
+          ],
+          [
+            "childrenOf",
+            460
+          ],
+          [
+            "(program)",
+            251
+          ],
+          [
+            "(idle)",
+            250
+          ],
+          [
+            "(garbage collector)",
+            210
+          ],
+          [
+            "propsOf",
+            137
+          ],
+          [
+            "namespaceOf",
+            131
+          ],
+          [
+            "validateProps",
+            120
+          ],
+          [
+            "checkpoint",
+            114
+          ],
+          [
+            "record.notify",
+            112
+          ],
+          [
+            "namespaceAt",
+            91
+          ],
+          [
+            "kindOf",
+            81
+          ],
+          [
+            "tagOf",
+            80
+          ],
+          [
+            "isText",
+            60
+          ],
+          [
+            "childNamespace",
+            33
+          ],
+          [
+            "withNamespace",
+            27
+          ],
+          [
+            "sourceOf",
+            24
+          ],
+          [
+            "present",
+            9
+          ],
+          [
+            "mountValue",
+            6
+          ],
+          [
+            "matchChildren",
+            6
+          ],
+          [
+            "projection.notify",
+            5
+          ],
+          [
+            "fanout",
+            3
+          ],
+          [
+            "isVNodeGroup",
+            3
+          ],
+          [
+            "mountBoundary",
+            3
+          ]
+        ]
+      }
+    }
+  }
+}

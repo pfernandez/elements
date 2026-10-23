@@ -21,6 +21,8 @@ The [observer selection characterization](./results/2026-10-21-observer-selectio
 records ordering, callback visibility and the original reentrant update defect.
 The [synchronous reentry fix](./results/2026-10-22-reentrant-updates.md) records
 the correction, regression checks and its performance cost.
+The [leaf reconciliation optimization](./results/2026-10-22-notification-cost.md)
+reduces work per notification while retaining every selection.
 
 ## Setup
 
@@ -103,6 +105,7 @@ For focused runtime diagnostics, return to the repository root:
 ```sh
 node benchmarks/diagnostics.mjs
 node benchmarks/diagnostics.mjs --profile
+node benchmarks/diagnostics.mjs --profile --profile-case fanout
 node benchmarks/startup.mjs
 ```
 

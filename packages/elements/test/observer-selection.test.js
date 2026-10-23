@@ -161,3 +161,18 @@ test('reapplying select values does not write to authored props', () => {
   assert.equal(root.textContent, '1')
   assert.equal(root.value, 'a')
 })
+
+test('fresh text leaves retain native edits until their authored value changes', () => {
+  const view = observe(n => span(n))
+  const root = project(view(0)), text = root.firstChild
+  text.nodeValue = 'native'
+  selectWithEvent(view(0))
+  assert.equal(root.textContent, 'native')
+  selectWithEvent(view(1))
+  assert.equal(root.firstChild, text)
+  assert.equal(root.textContent, '1')
+  root.removeChild(text)
+  selectWithEvent(view(2))
+  assert.equal(root.firstChild, text)
+  assert.equal(root.textContent, '2')
+})

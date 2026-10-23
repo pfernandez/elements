@@ -19,6 +19,9 @@ const option = name => {
   return index === -1 ? undefined : process.argv[index + 1]
 }
 const sourceRoot = path.resolve(option('--source-root') || root)
+const profileCase = option('--profile-case') || 'fresh-table'
+if (!['fresh-table', 'fanout'].includes(profileCase))
+  throw new Error(`Unknown profile case: ${profileCase}`)
 const output = path.resolve(option('--output')
   || path.join(root, '.cache/elements-diagnostics', profiling ? 'profile' : 'timing'))
 const core = 'packages/elements/src/core'
@@ -71,15 +74,17 @@ try {
     await client.send('Profiler.enable')
     await client.send('Profiler.setSamplingInterval', { interval: 100 })
     await client.send('Profiler.start')
-    await page.evaluate(() => window.diagnostics.freshTable(10000))
+    await page.evaluate(name => name === 'fanout'
+      ? window.diagnostics.fanout(500, true)
+      : window.diagnostics.freshTable(10000), profileCase)
     const { profile } = await client.send('Profiler.stop')
-    writeFileSync(path.join(output, 'fresh-table.cpuprofile'), JSON.stringify(profile))
+    writeFileSync(path.join(output, `${profileCase}.cpuprofile`), JSON.stringify(profile))
     const totals = new Map()
     for (const node of profile.nodes) {
       const name = node.callFrame.functionName || '(anonymous)'
       totals.set(name, (totals.get(name) || 0) + (node.hitCount || 0))
     }
-    results.profile = { minified: false, sampleIntervalMicroseconds: 100,
+    results.profile = { case: profileCase, minified: false, sampleIntervalMicroseconds: 100,
       topSelfSamples: [...totals].sort((a, b) => b[1] - a[1]).slice(0, 30) }
   } else {
     for (const [name, args] of [

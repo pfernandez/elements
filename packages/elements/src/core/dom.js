@@ -22,8 +22,9 @@ const tagOf = value => Array.isArray(value) ? value[0] : null
 const propsOf = value => Array.isArray(value) ? value[1] || {} : {}
 const childrenOf = value =>
   'innerHTML' in propsOf(value) ? [] : value.slice(2)
+const isText = value => typeof value === 'string' || typeof value === 'number'
 const kindOf = value =>
-  typeof value === 'string' || typeof value === 'number' ? 'text'
+  isText(value) ? 'text'
     : typeof tagOf(value) === 'string' ? tagOf(value) : 'empty'
 const documentOf = node =>
   node.nodeType === 9 ? node : node.ownerDocument || document
@@ -180,6 +181,15 @@ const patchChildren = (record, sources, owner, namespace) => {
   if (record.reordering) record.children = orderedChildren(record, parent)
   record.reordering = false
   const previous = record.children
+  // Empty leaves and a single text child need no sibling matching or placement.
+  if (!previous.length && !sources.length) return previous
+  if (previous.length === 1 && sources.length === 1
+      && isText(previous[0].source) && isText(sources[0])
+      && previous[0].namespace === namespace && previous[0].node.parentNode === parent) {
+    patch(previous[0], sources[0], owner)
+    checkpoint()
+    return previous
+  }
   const matches = matchChildren(previous.map(child => child.source), sources)
   if (previous.length !== sources.length || matches.includes(-1))
     record.children = previous.slice()
