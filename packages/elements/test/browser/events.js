@@ -1,5 +1,5 @@
 
-import { observe } from '../../elements.js'
+import { observe, project } from '../../elements.js'
 import { a, button, div, form, head, input, output, span } from '../../html.js'
 
 import { assert, equal, mount, test } from './harness.js'
@@ -9,6 +9,7 @@ test('form handlers receive native controls while input and change receive targe
   const host = mount(form({ onsubmit: (value, event) => {
     controls = value
     submittedEvent = event
+    event.preventDefault()
   } }, input({ name: 'todo', value: 'native value',
                oninput: (target, event) => { inputTarget = target; inputEvent = event },
                onchange: (target, event) => { changeTarget = target; changeEvent = event } })))
@@ -50,9 +51,11 @@ test('input targets support terse value and checked destructuring', () => {
 
 test('passive submit values do not cancel native submission', () => {
   ;[undefined, null, false, '', 0].forEach(value => {
-    const host = mount(form({ onsubmit: () => value }))
+    // Firefox performs the native submit default for a connected synthetic
+    // submit event. Keep this cancellation check detached from navigation.
+    const node = project(form({ onsubmit: () => value }))
     const event = new Event('submit', { cancelable: true })
-    host.firstChild.dispatchEvent(event)
+    node.dispatchEvent(event)
     equal(event.defaultPrevented, false)
   })
 })

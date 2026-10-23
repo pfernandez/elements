@@ -1,13 +1,18 @@
-import './projection.js'
-import './events.js'
-import './observers.js'
-import './observer-selection.js'
-import './project.js'
-import './integration.js'
 import { run } from './harness.js'
 
-const results = await run()
-const report = document.createElement('pre')
-report.id = 'results'
-report.textContent = encodeURIComponent(JSON.stringify(results))
-document.body.replaceChildren(report)
+const groups = ['projection', 'events', 'observers', 'observer-selection', 'project', 'integration']
+const group = new URL(location.href).searchParams.get('group')
+if (group && !groups.includes(group)) throw new Error(`Unknown browser check group: ${group}`)
+for (const name of group ? [group] : groups) await import(`./${name}.js`)
+
+const report = async () => {
+  const results = await run()
+  const output = document.createElement('pre')
+  output.id = 'results'
+  output.textContent = encodeURIComponent(JSON.stringify(results))
+  document.body.replaceChildren(output)
+}
+
+// Start interaction checks after the initial page load.
+document.readyState === 'complete' ? report()
+  : window.addEventListener('load', report, { once: true })

@@ -29,8 +29,10 @@ export const traverse = (delta, window = globalThis.window) => new Promise((reso
 })
 
 export const run = async () =>
-  checks.reduce(async (pending, { name, run }) => {
+  checks.filter(({ name }) => !globalThis.browserCheckFilter || name.includes(globalThis.browserCheckFilter))
+  .reduce(async (pending, { name, run }) => {
     const results = await pending
+    globalThis.reportBrowserCheck?.(name)
     try { await run(); return [...results, { name }] }
-    catch (error) { return [...results, { name, error: error.stack || String(error) }] }
+    catch (error) { return [...results, { name, error: `${error}\n${error.stack || ''}` }] }
   }, Promise.resolve([]))

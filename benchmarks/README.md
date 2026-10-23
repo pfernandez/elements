@@ -23,6 +23,59 @@ The [synchronous reentry fix](./results/2026-10-22-reentrant-updates.md) records
 the correction, regression checks and its performance cost.
 The [leaf reconciliation optimization](./results/2026-10-22-notification-cost.md)
 reduces work per notification while retaining every selection.
+The [renderer review](./results/2026-10-22-renderer-review.md) and
+[release validation](./results/2026-10-23-release-validation.md) cover the reviewed
+runtime, refreshed React comparison and three-engine application checks.
+
+## Release validation
+
+Build both Elements row modes from a clean committed checkout, then refresh the
+React controls and keep the benchmark server running:
+
+```sh
+node benchmarks/build.mjs elements-release-retained /path/to/checkout retained
+node benchmarks/build.mjs elements-release-fresh /path/to/checkout fresh
+npm --prefix .cache/js-framework-benchmark/frameworks/keyed/react-hooks run build-prod
+node benchmarks/build-react-fresh.mjs
+```
+
+Check row identity with `dist/isKeyed.js` using these four adapter names, then collect:
+
+```sh
+node benchmarks/release.mjs .cache/elements-validation/release
+```
+
+The runner performs all nine interaction workloads twice, reversing framework
+order, then collects memory, startup and entry-script size evidence. It saves
+each completed step and resumes from those results if interrupted. Bundle hashes
+must match when resuming; use a new output directory after changing a bundle.
+Keep the machine free of concurrent builds, tests and other benchmarks.
+
+Cross-engine checks use the pinned harness's Playwright dependency. Install its
+Firefox/WebKit browsers and required host libraries through Playwright, then run:
+
+```sh
+node .cache/js-framework-benchmark/webdriver-ts/node_modules/playwright/cli.js install firefox webkit
+npm run test:browsers
+node benchmarks/application.mjs
+```
+
+Both runners accept a subset of `chromium firefox webkit` as positional arguments;
+Chromium uses the local Chrome executable. `PLAYWRIGHT_BROWSERS_PATH` selects an
+alternate browser cache. Results are saved under `.cache/elements-validation/`.
+The full browser checks use separate pages for test groups to isolate history.
+`ELEMENTS_BROWSER_FILTER` optionally selects check names containing that text.
+
+The production application fixture combines 500 independent forms, two shared
+projections, navigation/history and an animation hook. It checks native typing,
+focus/caret, submission, Back/Forward and animation reconnection, then measures
+synchronous input/shared updates and entering/leaving the editor separately.
+It also measures a fresh-page plain-DOM control that rebuilds the same form
+structure without Elements or history snapshots.
+Frame intervals are sampled afterwards, not during concurrent typing. Set
+`ELEMENTS_PROFILE_APPLICATION=1` to capture an unminified Chrome CPU profile in a
+separate output directory; those timings are diagnostic rather than comparable
+production measurements.
 
 ## Setup
 

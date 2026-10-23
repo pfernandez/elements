@@ -1,6 +1,6 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { spawn, spawnSync } from 'node:child_process'
-import { createServer } from 'vite'
+import { browserServer } from './browser-server.js'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { tmpdir } from 'node:os'
@@ -13,26 +13,7 @@ const chrome = [process.env.CHROME_BIN, 'google-chrome', 'chromium', 'chromium-b
 if (!chrome) throw new Error('Set CHROME_BIN to a Chrome or Chromium executable.')
 
 // Exercise demo dependencies and ?raw imports through the same server as dev.
-const server = await createServer({
-  root,
-  configFile: false,
-  logLevel: 'error',
-  server: { host: '127.0.0.1', port: 0 },
-  plugins: [{
-    name: 'x3dom-stylesheet-failure',
-    configureServer(server) {
-      let failed = false
-      server.middlewares.use((request, response, next) => {
-        if (!failed && request.url?.endsWith('/vendor/x3dom.css')
-            && request.headers.referer?.endsWith('/x3dom-failure.html')) {
-          failed = true
-          response.writeHead(503, { 'Cache-Control': 'no-store' })
-          response.end('Stylesheet temporarily unavailable')
-        } else next()
-      })
-    }
-  }]
-})
+const server = await browserServer(root)
 await server.listen()
 const address = /** @type {import('node:net').AddressInfo} */ (server.httpServer.address())
 const profile = mkdtempSync(path.join(tmpdir(), 'elements-browser-'))

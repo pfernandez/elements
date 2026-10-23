@@ -15,6 +15,7 @@
     "build:types": "npm --prefix packages/elements run -s build:types && npm --prefix packages/elements-x3dom run -s build:types",
     "test": "npm --prefix packages/elements test",
     "test:browser": "node scripts/test-browser.js",
+    "test:browsers": "node scripts/test-browsers.mjs",
     "test:pages": "node scripts/test-pages.js",
     "test:packages": "node scripts/test-packages.js",
     "test:coverage": "npm --prefix packages/elements run -s test:coverage",

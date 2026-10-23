@@ -8,9 +8,14 @@ const { initializeFrameworks } = await import(pathToFileURL(path.join(driver, 'd
 const { executeBenchmark } = await import(pathToFileURL(path.join(driver, 'dist/forkedBenchmarkRunnerLighthouse.js')))
 const options = { host: 'localhost', port: 8080, remoteDebuggingPort: 9999,
   chromeBinaryPath: process.env.CHROME_BIN || '/usr/bin/google-chrome', headless: true }
-const names = ['keyed/elements-retained', 'keyed/react-hooks']
+const args = process.argv.slice(2)
+const outputIndex = args.indexOf('--output')
+if (outputIndex !== -1 && !args[outputIndex + 1]) throw new Error('Missing --output directory')
+const output = outputIndex === -1 ? path.join(root, '.cache/elements-diagnostics/startup')
+  : path.resolve(args.splice(outputIndex, 2)[1])
+const names = args.length ? args : ['keyed/elements-retained', 'keyed/react-hooks']
 const frameworks = await initializeFrameworks(options, name => names.includes(name))
-if (frameworks.length !== names.length) throw new Error('Build both comparison adapters first.')
+if (frameworks.length !== names.length) throw new Error('Build all requested comparison adapters first.')
 const results = {
   recordedAt: new Date().toISOString(),
   lighthouse: JSON.parse(readFileSync(path.join(driver, 'node_modules/lighthouse/package.json'))).version,
@@ -32,7 +37,6 @@ for (const framework of frameworks)
       audits: response.result.map(({ benchmark, result }) => ({ id: benchmark.id,
         property: benchmark.property, milliseconds: Number.isFinite(result) ? result : null })) })
   }
-const output = path.join(root, '.cache/elements-diagnostics/startup')
 mkdirSync(output, { recursive: true })
 writeFileSync(path.join(output, 'results.json'), JSON.stringify(results, null, 2) + '\n')
 console.log(`Saved ${output}/results.json`)

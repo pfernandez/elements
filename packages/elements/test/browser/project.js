@@ -252,7 +252,14 @@ test('native removal permits collection while retained DOM and observer state su
   const abandoned = discard()
   const discardTick = () =>
     new WeakRef(project(html.div({ ontick: el => ({ element: el }) })))
-  const ticking = discardTick()
+  // Keep a frame pending without repeatedly dereferencing its WeakRef between
+  // explicit collections; a dereference keeps the target alive for that job.
+  const request = window.requestAnimationFrame
+  let queued, ticking
+  try {
+    window.requestAnimationFrame = callback => (queued = callback, 0)
+    ticking = discardTick()
+  } finally { window.requestAnimationFrame = request }
   const move = () => {
     const previous = document.createElement('section')
     const node = project(initial, previous)
@@ -267,12 +274,13 @@ test('native removal permits collection while retained DOM and observer state su
   const history = snapshot(document)
   for (let i = 0; i < 30; i++) {
     await pause()
-    globalThis.gc()
+    await globalThis.gc()
     await pause()
     if (!abandoned.deref() && !ticking.deref() && !previousParent.deref()) break
   }
   assert(!abandoned.deref(), 'observer/history must not retain discarded DOM')
   assert(!ticking.deref(), 'a waiting tick must not retain discarded DOM')
+  queued(performance.now())
   assert(!previousParent.deref(), 'a moved projection must not retain its former parent')
   resume(counter(8))
   equal([kept.textContent, target.lastChild.textContent], ['8', '8'])
