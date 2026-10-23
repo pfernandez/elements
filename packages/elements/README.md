@@ -9,7 +9,7 @@ calling a setter. `observe(view)` gives those successive observations one stable
 identity, and Elements projects the selected one into the DOM.
 
 State is ordinary JavaScript data passed through function arguments and
-closures.
+closures. No JSX, hooks, or state containers are required.
 
 ## Start with a transition
 
@@ -37,6 +37,18 @@ new count, ready for the next click.
 Call `project(graph, target?)` once for each placement, normally at startup.
 Each call creates a new projection; event returns drive subsequent transitions.
 
+### A different state model from React
+
+React developers will recognize a function of state returning an interface
+description. The difference is how the next state is selected. Instead of
+calling `setCount` or relying on component hooks, the event handler returns
+`counter(count + 1)`. The view describes the interface; the browser work
+happens at the projection boundary.
+
+This keeps state explicit, composition ordinary, and views testable as
+**data in, data out**. Event handlers may perform side effects, but the view
+doesn't need to mutate the DOM.
+
 ## Compose the whole document
 
 The document itself can be composed with `html`, `head`, and `body`. Start with
@@ -54,14 +66,15 @@ Then describe the page in `index.js` and replace the browser-created root:
 import { project } from '@pfern/elements'
 import { body, h1, head, html, meta, title } from '@pfern/elements/html'
 
-const graph = html({ lang: 'en' },
-  head(
-    meta({ charset: 'utf-8' }),
-    title('My app')),
-  body(h1('Hello')))
+const page = project(
+  html({ lang: 'en' },
+    head(
+      meta({ charset: 'utf-8' }),
+      title('My app')),
+    body(
+      h1('Hello'))))
 
-const tree = project(graph)
-document.documentElement.replaceWith(tree)
+document.documentElement.replaceWith(page)
 ```
 
 The doctype remains in place. Stylesheets can also belong to the graph. With Vite,
@@ -193,7 +206,18 @@ ul(items.map(item =>
 Elements never rewrites the source arrays. The browser renderer interprets them
 as DOM; `toHtmlString()` can interpret the same data as HTML.
 
-## Recursive observers form a transition graph
+## Recursion, identity, and the transition graph
+
+A recursive definition can refer to the function being defined. In the counter,
+the event handler calls the same `counter` function with a new state. This is
+related to the mathematical idea of a *fixed point*: what remains unchanged
+under a transformation. Here the count changes, but the observer's identity
+does not. This is an identity invariant, not a claim that the count itself has
+a fixed point.
+
+Elements also uses the familiar [Observer pattern](https://en.wikipedia.org/wiki/Observer_pattern):
+DOM projections subscribe to the state observer and update when its selected
+observation changes.
 
 The vnode nesting describes where things appear, so it forms a tree. JavaScript
 references describe where interaction can continue.
@@ -212,9 +236,11 @@ return another observation of the same observer.
 
 A handler can instead return an observation of a different observer. The
 resulting transition graph can therefore cross the visible nesting tree.
-Elements does not materialize every possible future state; ordinary references
-and closures describe the possible next steps, and observations are constructed
-when they are needed.
+In ordinary JavaScript, closures describe the possible next steps and
+observations are constructed when needed. But the description is still data:
+another program could construct those observations or compile their
+relationships in advance. A graph machine can then select existing states
+without reevaluating the view. That is a separate layer from Elements itself.
 
 ## State and the DOM
 
@@ -247,7 +273,7 @@ npm install @pfern/elements
 The runtime requires `WeakRef` and `FinalizationRegistry` support.
 
 Explore the [live demo](https://pfernandez.github.io/elements), its
-[examples](https://github.com/pfernandez/elements/tree/main/examples), and the longer article on
+[examples](https://github.com/pfernandez/elements/blob/main/examples), and the longer article on
 [recursive state observers](https://github.com/pfernandez/elements/blob/main/examples/content/introduction.md).
 
 ## Events and forms
