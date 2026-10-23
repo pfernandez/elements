@@ -11,6 +11,7 @@ import { htmlNS, svgNS, namespaceAt, childNamespace } from './namespaces.js'
 // Every projected node retains its boundary, including the outer boundaries.
 // The reverse subscription edges are weak, so native removal permits collection.
 const boundaries = new WeakMap()
+const textKind = Symbol('text'), emptyKind = Symbol('empty')
 
 /** @typedef {{ source: any, namespace: any, owner: any,
  * node?: any, end?: any, children?: Mount[], projection?: Mount,
@@ -24,8 +25,8 @@ const childrenOf = value =>
   'innerHTML' in propsOf(value) ? [] : value.slice(2)
 const isText = value => typeof value === 'string' || typeof value === 'number'
 const kindOf = value =>
-  isText(value) ? 'text'
-    : typeof tagOf(value) === 'string' ? tagOf(value) : 'empty'
+  isText(value) ? textKind
+    : typeof tagOf(value) === 'string' ? tagOf(value) : emptyKind
 const documentOf = node =>
   node.nodeType === 9 ? node : node.ownerDocument || document
 const firstNode = record =>
@@ -87,11 +88,8 @@ const finishMount = record => {
     location.parent.insertBefore(firstNode(record), location.before)
     checkpoint()
   }
-  while (record.retired?.length) {
-    const node = record.retired.shift()
-    node.parentNode?.removeChild(node)
-    checkpoint()
-  }
+  if (record.retired)
+    mutateRange(record.retired, node => node.parentNode?.removeChild(node))
   record.location = null
   record.retired = null
 }
@@ -138,8 +136,8 @@ const mountValue = (source, parent, namespace, owner, before, scope, publish, re
   const props = propsOf(source)
   const ownNamespace = kind === 'fragment' ? namespace : namespaceAt(source, namespace)
   const doc = documentOf(parent)
-  const node = kind === 'text' ? doc.createTextNode(String(source))
-    : kind === 'empty' || kind === 'fragment' ? doc.createComment('')
+  const node = kind === textKind ? doc.createTextNode(String(source))
+    : kind === emptyKind || kind === 'fragment' ? doc.createComment('')
       : doc.createElementNS(ownNamespace, kind)
   checkpoint()
   /** @type {Mount} */
@@ -155,7 +153,7 @@ const mountValue = (source, parent, namespace, owner, before, scope, publish, re
     childrenOf(source).forEach(child =>
       mount(child, parent, namespace, owner, record.end, scope,
             child => { record.children.push(child) }))
-  } else if (kind !== 'text' && kind !== 'empty') {
+  } else if (kind !== textKind && kind !== emptyKind) {
     assignProperties(node, beforeChildrenProps(kind, props), propsEnv(owner, record))
     childrenOf(source).forEach(child =>
       mount(child, node, childNamespace(kind, props, ownNamespace), owner, null, scope,
@@ -276,8 +274,8 @@ const patchValue = (record, source, owner, kind) => {
   record.dirty = true
   const namespace = kind === 'fragment' ? record.namespace : namespaceAt(source, record.namespace)
   validateProps(props)
-  if (kind === 'text') record.node.nodeValue = String(source)
-  else if (kind !== 'empty') {
+  if (kind === textKind) record.node.nodeValue = String(source)
+  else if (kind !== emptyKind) {
     if (kind !== 'fragment') {
       // Release managed children before assigning innerHTML removes their DOM.
       if ('innerHTML' in props) {

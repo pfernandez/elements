@@ -218,3 +218,20 @@ test('a nested selection finishes removing a fragment without leaving orphaned n
     equal([during, root.textContent, root.childNodes.length], ['2', '2', 1])
   } finally { disconnected = null; host.remove() }
 })
+
+test('a nested root replacement finishes retiring the old fragment', () => {
+  const host = document.body.appendChild(document.createElement('section'))
+  const view = observe(n => n === 0 ? fragment(probe('old'), span('tail'))
+    : n === 1 ? div('one') : span('two'))
+  project(view(0), host)
+  let during
+  disconnected = () => {
+    disconnected = null
+    project(button({ onclick: () => view(2) })).click()
+    during = host.textContent
+  }
+  try {
+    project(button({ onclick: () => view(1) })).click()
+    equal([during, host.textContent, host.childNodes.length], ['two', 'two', 1])
+  } finally { disconnected = null; host.remove() }
+})

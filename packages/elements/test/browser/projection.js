@@ -1,9 +1,24 @@
 import { transition } from '../transition.js'
-import { observe, toHtmlString, fragment } from '../../elements.js'
+import { observe, project, toHtmlString, fragment } from '../../elements.js'
 import { a, button, div, html, input, option, select, span } from '../../html.js'
-import { svg, circle, rect } from '../../svg.js'
+import { svg, circle, rect, text as svgText } from '../../svg.js'
 import { annotationXml, math, mi } from '../../mathml.js'
 import { assert, equal, mount, test } from './harness.js'
+
+test('standalone SVG text can be inserted, updated and replaced in an SVG host', () => {
+  const host = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  document.body.append(host)
+  const label = observe(n => n === 2 ? circle({ r: 2 }) : svgText({ x: n }, `Label ${n}`))
+  const node = project(label(0))
+  host.append(node)
+  equal([node.nodeType, node.localName, node.namespaceURI], [1, 'text', host.namespaceURI])
+  project(button({ onclick: () => label(1) })).click()
+  assert(host.firstChild === node)
+  equal([node.getAttribute('x'), node.textContent], ['1', 'Label 1'])
+  project(button({ onclick: () => label(2) })).click()
+  equal(host.firstChild.localName, 'circle')
+  host.remove()
+})
 
 test('SVG and MathML insertions retain their namespace', () => {
   const drawing = mount(svg())
