@@ -26,6 +26,8 @@ reduces work per notification while retaining every selection.
 The [renderer review](./results/2026-10-22-renderer-review.md) and
 [release validation](./results/2026-10-23-release-validation.md) cover the reviewed
 runtime, refreshed React comparison and three-engine application checks.
+The [mounted-memory investigation](./results/2026-10-23-allocation.md) attributes
+the increase and reduces retained bookkeeping with similar interaction timings.
 
 ## Release validation
 
@@ -159,12 +161,16 @@ For focused runtime diagnostics, return to the repository root:
 node benchmarks/diagnostics.mjs
 node benchmarks/diagnostics.mjs --profile
 node benchmarks/diagnostics.mjs --profile --profile-case fanout
+node benchmarks/diagnostics.mjs --memory --heap
+node benchmarks/summarize-mount-heap.mjs .cache/elements-diagnostics/memory/mounted.heapsnapshot
 node benchmarks/startup.mjs
 ```
 
 Use `--source-root /path/to/checkout` to run the same diagnostic fixture against
 another runtime, and `--output /path/to/results` to keep its results separately.
 The output includes hashes of every core runtime module.
+Use `--case freshTable`, `--case independent` or `--case fanout` for an isolated
+timing investigation; those runs omit the separate lifetime probe.
 
 These use the harness's installed `puppeteer-core` and local Chrome; set
 `CHROME_BIN` if necessary. Results go to `.cache/elements-diagnostics/`.
@@ -180,6 +186,14 @@ both with and without a retained DOM reference. It checks subscription counts
 through internal diagnostics. This is a targeted retention check, not a general
 leak detector. `--profile` uses an unminified build for readable function names;
 its CPU samples identify candidates for investigation, not production speedups.
+
+`--memory` measures a single-observer 1,000-row table in three fresh-page samples,
+with forced GC before mounting, after mounting and after native removal. It
+retains the graph and checks that detached DOM and subscriptions are collected.
+`--heap` additionally saves the first mounted Chrome heap snapshot. The summary
+script groups record-shaped objects and their arrays by property names; V8
+templates can also match. Its shallow object/backing-store sizes and the CDP JS
+heap measurements are distinct from the harness's whole-page memory estimates.
 
 Startup uses the pinned harness's Lighthouse implementation and default mobile
 simulation, with three fresh-browser runs for retained Elements and React Hooks.

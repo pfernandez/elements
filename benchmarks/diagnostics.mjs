@@ -13,17 +13,21 @@ const { default: puppeteer } = await import(pathToFileURL(require.resolve('puppe
   paths: [path.join(root, '.cache/js-framework-benchmark/webdriver-ts')]
 })))
 const profiling = process.argv.includes('--profile')
+const memoryOnly = process.argv.includes('--memory')
 const option = name => {
   const index = process.argv.indexOf(name)
   if (index !== -1 && !process.argv[index + 1]) throw new Error(`Missing value for ${name}`)
   return index === -1 ? undefined : process.argv[index + 1]
 }
 const sourceRoot = path.resolve(option('--source-root') || root)
+const diagnosticCase = option('--case')
+if (diagnosticCase && !['freshTable', 'independent', 'fanout'].includes(diagnosticCase))
+  throw new Error(`Unknown diagnostic case: ${diagnosticCase}`)
 const profileCase = option('--profile-case') || 'fresh-table'
 if (!['fresh-table', 'fanout'].includes(profileCase))
   throw new Error(`Unknown profile case: ${profileCase}`)
 const output = path.resolve(option('--output')
-  || path.join(root, '.cache/elements-diagnostics', profiling ? 'profile' : 'timing'))
+  || path.join(root, '.cache/elements-diagnostics', profiling ? 'profile' : memoryOnly ? 'memory' : 'timing'))
 const core = 'packages/elements/src/core'
 const config = {
   root: path.join(root, 'benchmarks/diagnostics'), configFile: false, base: './',
@@ -57,6 +61,7 @@ try {
   const results = {
     recordedAt: new Date().toISOString(),
     revision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
+    revisionNote: 'Revision identifies the runner checkout; sourceRoot and sourceSHA256 identify the measured runtime.',
     sourceRoot,
     environment: { browser: await browser.version(), node: process.version,
       cpu: os.cpus()[0].model, platform: os.platform(), kernel: os.release() },
@@ -86,17 +91,45 @@ try {
     }
     results.profile = { case: profileCase, minified: false, sampleIntervalMicroseconds: 100,
       topSelfSamples: [...totals].sort((a, b) => b[1] - a[1]).slice(0, 30) }
+  } else if (memoryOnly) {
+    results.methodology = 'Three fresh-page samples; 1,000-row single-observer table; forced GC before and after mount. JS heap and embedder memory are separate from the framework benchmark page-memory estimates.'
+    for (let sample = 0; sample < 3; sample++) {
+      await reset()
+      const before = await client.send('Runtime.getHeapUsage')
+      const state = await page.evaluate(() => window.diagnostics.setupTableMemory(1000))
+      if (state.elements !== 6002 || state.subscriptions !== 2)
+        throw new Error(`Unexpected mounted table: ${JSON.stringify(state)}`)
+      await client.send('HeapProfiler.collectGarbage')
+      const mounted = await client.send('Runtime.getHeapUsage')
+      if (sample === 0 && process.argv.includes('--heap')) {
+        const chunks = []
+        const receive = ({ chunk }) => chunks.push(chunk)
+        client.on('HeapProfiler.addHeapSnapshotChunk', receive)
+        await client.send('HeapProfiler.takeHeapSnapshot')
+        client.off('HeapProfiler.addHeapSnapshotChunk', receive)
+        writeFileSync(path.join(output, 'mounted.heapsnapshot'), chunks.join(''))
+      }
+      await page.evaluate(() => window.diagnostics.detachMemory(false))
+      for (let i = 0; i < 5; i++) {
+        await client.send('HeapProfiler.collectGarbage')
+        await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)))
+      }
+      const detached = await client.send('Runtime.getHeapUsage')
+      const lifetime = await page.evaluate(() => window.diagnostics.inspectMemory())
+      if (lifetime.rootAlive || lifetime.subscriptions) throw new Error(`Unexpected lifetime: ${JSON.stringify(lifetime)}`)
+      results.measurements.push({ name: 'mounted-table', sample, state, before, mounted, detached, lifetime })
+    }
   } else {
     for (const [name, args] of [
       ['freshTable', [1000]], ['freshTable', [10000]],
       ['independent', [1000]], ['independent', [10000]],
       ...[100, 500].flatMap(count => [false, true].map(fresh => ['fanout', [count, fresh]]))
-    ]) {
+    ].filter(([name]) => !diagnosticCase || name === diagnosticCase)) {
       const result = await run(name, args)
       results.measurements.push({ name, args, result })
       console.log(name, args, JSON.stringify(result))
     }
-    for (const retain of [false, true]) {
+    for (const retain of diagnosticCase ? [] : [false, true]) {
       await reset()
       const before = await client.send('Runtime.getHeapUsage')
       const mountedSubscriptions = await page.evaluate(() => window.diagnostics.setupMemory(10000))

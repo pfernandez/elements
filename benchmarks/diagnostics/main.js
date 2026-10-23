@@ -76,10 +76,18 @@ const setupMemory = count => {
   window.memoryWeak = new WeakRef(window.memoryRoot)
   return snapshot(document).size
 }
+const setupTableMemory = count => {
+  const view = observe(() => table(tbody(Array.from({ length: count }, (_, id) => row(id, 0)))))
+  window.memoryGraph = view()
+  window.memoryRoot = project(window.memoryGraph, document.body)
+  window.memoryWeak = new WeakRef(window.memoryRoot)
+  return { subscriptions: snapshot(document).size,
+    elements: window.memoryRoot.querySelectorAll('*').length + 1 }
+}
 const detachMemory = retain => {
   window.memoryRoot.remove()
   if (!retain) window.memoryRoot = null
 }
 const inspectMemory = () => ({ rootAlive: !!window.memoryWeak.deref(), subscriptions: snapshot(document).size })
 
-window.diagnostics = { independent, fanout, freshTable, setupMemory, detachMemory, inspectMemory }
+window.diagnostics = { independent, fanout, freshTable, setupMemory, setupTableMemory, detachMemory, inspectMemory }

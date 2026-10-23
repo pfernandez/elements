@@ -12,6 +12,8 @@ import { htmlNS, svgNS, namespaceAt, childNamespace } from './namespaces.js'
 // The reverse subscription edges are weak, so native removal permits collection.
 const boundaries = new WeakMap()
 const textKind = Symbol('text'), emptyKind = Symbol('empty')
+const emptyProps = Object.freeze({}), emptyChildren = []
+Object.freeze(emptyChildren)
 
 /** @typedef {{ source: any, namespace: any, owner: any,
  * node?: any, end?: any, children?: Mount[], projection?: Mount,
@@ -20,7 +22,7 @@ const textKind = Symbol('text'), emptyKind = Symbol('empty')
  * location?: any, retired?: any[], reordering?: boolean }} Mount */
 
 const tagOf = value => Array.isArray(value) ? value[0] : null
-const propsOf = value => Array.isArray(value) ? value[1] || {} : {}
+const propsOf = value => Array.isArray(value) ? value[1] || emptyProps : emptyProps
 const childrenOf = value =>
   'innerHTML' in propsOf(value) ? [] : value.slice(2)
 const isText = value => typeof value === 'string' || typeof value === 'number'
@@ -141,7 +143,9 @@ const mountValue = (source, parent, namespace, owner, before, scope, publish, re
       : doc.createElementNS(ownNamespace, kind)
   checkpoint()
   /** @type {Mount} */
-  const record = { source, namespace, owner, node, children: [], scope, props: {}, dirty: true,
+  const record = { source, namespace, owner, node,
+                   children: kind === textKind || kind === emptyKind ? emptyChildren : [],
+                   scope, props: {}, dirty: true,
                    location: { parent, before }, retired }
   boundaries.set(node, scope)
   publish(record)
@@ -161,6 +165,8 @@ const mountValue = (source, parent, namespace, owner, before, scope, publish, re
     afterChildrenProps(node, kind, props, owner, record)
   }
   finishMount(record)
+  // Incremental publication permits reentry; compact its spare capacity once complete.
+  if (record.children.length) record.children = record.children.slice()
   record.props = props
   record.dirty = false
   return record
