@@ -195,9 +195,9 @@ const patchChildren = (record, sources, owner, namespace) => {
     return previous
   }
   const matches = matchChildren(previous.map(child => child.source), sources)
-  if (previous.length !== sources.length || matches.includes(-1))
-    record.children = previous.slice()
-  const used = previous.length > 1 ? new Set(matches) : null
+  const allMatched = previous.length === sources.length && !matches.includes(-1)
+  if (!allMatched) record.children = previous.slice()
+  const used = !allMatched && previous.length > 1 ? new Set(matches) : null
   const next = sources.map((source, index) => {
     checkpoint()
     const slot = matches[index] === -1 ? record.children.length : matches[index]
@@ -211,7 +211,7 @@ const patchChildren = (record, sources, owner, namespace) => {
     return child
   })
   let discarded
-  previous.forEach((child, index) => {
+  if (!allMatched) previous.forEach((child, index) => {
     checkpoint()
     if (!(used ? used.has(index) : matches.includes(index))) {
       record.children[index] = null

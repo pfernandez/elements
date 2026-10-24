@@ -10,9 +10,11 @@ export const withNamespace = (vnode, namespace) =>
   (namespace !== undefined && namespaces.set(vnode, namespace), vnode)
 
 // Literal arrays inherit their graph context. Vocabulary helpers are explicit.
-export const namespaceAt = (source, parent = htmlNS) =>
-  namespaceOf(source) !== undefined ? namespaceOf(source)
+export const namespaceAt = (source, parent = htmlNS) => {
+  const namespace = namespaceOf(source)
+  return namespace !== undefined ? namespace
     : source?.[0] === 'svg' ? svgNS : source?.[0] === 'math' ? mathNS : parent
+}
 export const childNamespace = (tag, props, namespace) =>
   namespace === svgNS && tag === 'foreignObject'
   || namespace === mathNS && tag === 'annotation-xml'

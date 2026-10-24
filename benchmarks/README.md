@@ -28,6 +28,8 @@ The [renderer review](./results/2026-10-22-renderer-review.md) and
 runtime, refreshed React comparison and three-engine application checks.
 The [mounted-memory investigation](./results/2026-10-23-allocation.md) attributes
 the increase and reduces retained bookkeeping with similar interaction timings.
+The [reconciliation follow-up](./results/2026-10-23-reconciliation.md) checks
+smaller matching, removal-tracking and namespace costs against that checkpoint.
 
 ## Release validation
 
@@ -161,6 +163,7 @@ For focused runtime diagnostics, return to the repository root:
 node benchmarks/diagnostics.mjs
 node benchmarks/diagnostics.mjs --profile
 node benchmarks/diagnostics.mjs --profile --profile-case fanout
+node benchmarks/profile-selection.mjs
 node benchmarks/diagnostics.mjs --memory --heap
 node benchmarks/summarize-mount-heap.mjs .cache/elements-diagnostics/memory/mounted.heapsnapshot
 node benchmarks/startup.mjs
@@ -186,6 +189,13 @@ both with and without a retained DOM reference. It checks subscription counts
 through internal diagnostics. This is a targeted retention check, not a general
 leak detector. `--profile` uses an unminified build for readable function names;
 its CPU samples identify candidates for investigation, not production speedups.
+
+`profile-selection.mjs` profiles the actual fresh-row adapter after mounting
+1,000 rows and warming up 20 selections. Keep the benchmark server running;
+it serves the unminified adapter and shared CSS. The profile covers 100 synchronous
+selections alternating between two rows, with no CPU throttling. Results and
+anonymous callback locations go to `.cache/elements-diagnostics/selection-profile/`.
+Use this to locate remaining work, separately from production timing runs.
 
 `--memory` measures a single-observer 1,000-row table in three fresh-page samples,
 with forced GC before mounting, after mounting and after native removal. It

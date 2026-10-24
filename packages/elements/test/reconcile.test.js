@@ -34,6 +34,19 @@ const permutations = values => values.length
   ? values.flatMap((value, index) => permutations(values.filter((_, i) => i !== index))
     .map(rest => [value, ...rest])) : [[]]
 
+test('plain child matching reserves moved references before filling positions', () => {
+  const left = div(), right = div(), fresh = () => div()
+  assert.deepEqual(matchChildren([left, right], [fresh(), fresh()]), [0, 1])
+  assert.deepEqual(matchChildren([left, right], [left, fresh(), fresh()]), [0, 1, -1])
+  assert.deepEqual(matchChildren([left, right], [right, fresh()]), [1, -1])
+  assert.deepEqual(matchChildren([left, right], [fresh(), left]), [-1, 0])
+  assert.deepEqual(matchChildren([left, right], [left, left]), [0, 1])
+  assert.deepEqual(matchChildren([left, left], [left, fresh()]), [0, 1])
+  assert.deepEqual(matchChildren([left, right], [fresh(), div({ key: 'new' })]), [0, -1])
+  const observed = observe(() => div())
+  assert.deepEqual(matchChildren([observed(), right], [fresh(), observed()]), [-1, 0])
+})
+
 test('placement retains a maximum ordered subsequence for every five-child permutation', () => {
   for (const values of permutations([0, 1, 2, 3, 4])) {
     // Exhaustive subsets form an independent oracle for the minimum move count.

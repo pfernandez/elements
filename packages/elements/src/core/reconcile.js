@@ -32,6 +32,13 @@ export const matchChildren = (previous, next) => {
   const references = uniqueIndex(previous, value => Array.isArray(value) ? value : null)
   const keys = uniqueIndex(previous, keyOf)
   const identities = uniqueIndex(previous, identityOf)
+  // Plain unkeyed children stay positional unless a retained reference moves.
+  // Check the entire list before reserving positions for fresh descriptions.
+  if (!keys && !identities && next.every((value, index) => {
+    const reference = references?.get(value)
+    return keyOf(value) == null && (reference == null || reference < 0 || reference === index)
+  })) return next.map((_, index) => index < previous.length ? index : -1)
+
   const nextIdentities = identities && next.map(identityOf)
   const uniqueIdentities = nextIdentities && uniqueIndex(nextIdentities)
   const used = new Set()
