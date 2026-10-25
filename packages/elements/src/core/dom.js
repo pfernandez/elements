@@ -1,6 +1,6 @@
 import { assignProperties, removeMissingProps } from './props.js'
 import { createIdentity, present, resume, sourceOf, subscribe } from './observer.js'
-import { matchChildren, stablePositions } from './reconcile.js'
+import { matchChildren, matchesSingleChild, stablePositions } from './reconcile.js'
 import { stopTickLoop } from './tick.js'
 import { checkpoint, mutateRange, updating } from './update.js'
 import { validateProps } from './attributes.js'
@@ -179,21 +179,30 @@ const orderedChildren = (record, parent) => {
   return Array.from(parent.childNodes).flatMap(node => children.has(node) ? [children.get(node)] : [])
 }
 
-const patchChildren = (record, sources, owner, namespace) => {
+const patchChildren = (record, source, owner, namespace) => {
   checkpoint()
   const parent = record.end ? record.node.parentNode : record.node
   if (record.reordering) record.children = orderedChildren(record, parent)
   record.reordering = false
   const previous = record.children
-  // Empty leaves and a single text child need no sibling matching or placement.
-  if (!previous.length && !sources.length) return previous
-  if (previous.length === 1 && sources.length === 1
-      && isText(previous[0].source) && isText(sources[0])
-      && previous[0].namespace === namespace && previous[0].node.parentNode === parent) {
-    patch(previous[0], sources[0], owner)
+  // Empty leaves and a matched single child need no sibling arrays.
+  if (!previous.length && source.length <= 2) return previous
+  const single = source.length === 3 && 2 in source
+  const childSource = single ? source[2] : undefined
+  if (previous.length === 1 && single
+      && matchesSingleChild(previous[0].source, childSource)
+      && previous[0].namespace === namespace && firstNode(previous[0]).parentNode === parent) {
+    const child = patch(previous[0], childSource, owner,
+                        child => { record.children[0] = child })
     checkpoint()
-    return previous
+    record.reordering = true
+    if (firstNode(child).parentNode !== parent && !inPlace(child, parent, record.end || null))
+      moveBefore(child, parent, record.end || null)
+    checkpoint()
+    record.reordering = false
+    return record.children
   }
+  const sources = single ? [childSource] : childrenOf(source)
   const matches = matchChildren(previous.map(child => child.source), sources)
   const allMatched = previous.length === sources.length && !matches.includes(-1)
   if (!allMatched) record.children = previous.slice()
@@ -298,7 +307,7 @@ const patchValue = (record, source, owner, kind) => {
       }
     }
     const children = 'innerHTML' in props ? []
-      : patchChildren(record, childrenOf(source), owner,
+      : patchChildren(record, source, owner,
                       childNamespace(kind, props, namespace))
     record.children = children
     afterChildrenProps(record.node, kind, props, owner, record)

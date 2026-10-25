@@ -56,6 +56,17 @@ test('style changes clear keys across string and object forms', () => {
   equal(host.firstChild.style.cssText, '')
 })
 
+test('single-child accessors are read once when retaining or replacing their child', () => {
+  const host = mount(div(div(span('initial'))))
+  for (const key of [undefined, 'replacement', 'replacement']) {
+    let reads = 0
+    const child = span({ key }, 'next'), nested = ['div', {}]
+    Object.defineProperty(nested, 2, { get: () => { reads++; return child } })
+    transition(div(nested), host)
+    equal([reads, host.textContent], [1, 'next'])
+  }
+})
+
 test('raw HTML owns its children in both renderers', () => {
   const vnode = div({ innerHTML: '<b>raw</b>' }, span('ignored'))
   const host = mount(vnode)

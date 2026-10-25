@@ -30,6 +30,8 @@ The [mounted-memory investigation](./results/2026-10-23-allocation.md) attribute
 the increase and reduces retained bookkeeping with similar interaction timings.
 The [reconciliation follow-up](./results/2026-10-23-reconciliation.md) checks
 smaller matching, removal-tracking and namespace costs against that checkpoint.
+The [single-child traversal](./results/2026-10-24-single-child.md) avoids
+temporary sibling arrays while preserving native callbacks and synchronous selection.
 
 ## Release validation
 

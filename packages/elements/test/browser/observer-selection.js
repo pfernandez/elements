@@ -13,6 +13,40 @@ customElements.define('elements-selection-probe', class extends HTMLElement {
 })
 const probe = element('elements-selection-probe')
 
+test('a matched single child moved by an attribute callback is restored to its parent', () => {
+  const host = document.body.appendChild(document.createElement('section'))
+  const foreign = document.body.appendChild(document.createElement('aside'))
+  const view = observe(n => div(probe({ 'data-state': n }, span(n))))
+  const root = project(view(0), host), child = root.firstChild
+  child.onState = value => { if (value === '1') foreign.append(child) }
+  try {
+    project(button({ onclick: () => view(1) })).click()
+    assert(root.firstChild === child && !foreign.firstChild)
+    equal(root.textContent, '1')
+  } finally { host.remove(); foreign.remove() }
+})
+
+test('reconnection of a matched single child can synchronously supersede its update', () => {
+  const host = document.body.appendChild(document.createElement('section'))
+  const foreign = document.body.appendChild(document.createElement('aside'))
+  const view = observe(n => div(probe({ 'data-state': n }, span(n))))
+  const root = project(view(0), host), child = root.firstChild
+  child.onState = value => { if (value === '1') foreign.append(child) }
+  let during
+  connected = node => {
+    if (node === child && node.parentNode === root) {
+      connected = null
+      project(button({ onclick: () => view(2) })).click()
+      during = root.textContent
+    }
+  }
+  try {
+    project(button({ onclick: () => view(1) })).click()
+    assert(root.firstChild === child && !foreign.firstChild)
+    equal([during, root.textContent], ['2', '2'])
+  } finally { connected = null; host.remove(); foreign.remove() }
+})
+
 test('custom element callbacks see intermediate selections before an event finishes', () => {
   const child = observe(n => probe({ 'data-state': n }, n))
   const parent = observe(values => div(values.map(child)))
