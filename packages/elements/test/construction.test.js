@@ -26,6 +26,20 @@ describe("construction", () => {
     assert.deepEqual(vnode, ['div', {}, ['div', {}, 'nested']])
   })
 
+  test('empty and scalar children preserve slots, props and vocabulary namespaces', () => {
+    for (const helper of [div, svgTitle, mi, element('plain', null)]) {
+      const props = Object.freeze({ id: 'test' }), empty = helper()
+      assert.equal(empty.length, 2)
+      assert.notEqual(empty[1], helper()[1])
+      assert.equal(helper(props)[1], props)
+      for (const value of [undefined, null, false, 0, '', 'text']) {
+        const vnode = helper(props, value)
+        assert.deepEqual(vnode, [empty[0], props, value])
+        assert.equal(namespaceOf(vnode), namespaceOf(empty))
+      }
+    }
+  })
+
   test('Child arrays compose without spread syntax', () => {
     const vnode = div([
       span('one'),

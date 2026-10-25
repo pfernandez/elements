@@ -32,6 +32,8 @@ The [reconciliation follow-up](./results/2026-10-23-reconciliation.md) checks
 smaller matching, removal-tracking and namespace costs against that checkpoint.
 The [single-child traversal](./results/2026-10-24-single-child.md) avoids
 temporary sibling arrays while preserving native callbacks and synchronous selection.
+The [constructor experiment](./results/2026-10-25-construction.md) records a
+rejected allocation tradeoff and refreshes the React fresh-row comparison.
 
 ## Release validation
 
