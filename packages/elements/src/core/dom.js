@@ -6,7 +6,7 @@ import { checkpoint, mutateRange, updating } from './update.js'
 import { validateProps } from './attributes.js'
 import { watchHistory } from './history.js'
 import { isEventProp } from './events.js'
-import { htmlNS, svgNS, namespaceAt, childNamespace } from './namespaces.js'
+import { childNamespace, htmlNS, namespaceAt, svgNS } from './namespaces.js'
 
 // Every projected node retains its boundary, including the outer boundaries.
 // The reverse subscription edges are weak, so native removal permits collection.
@@ -45,7 +45,7 @@ const release = record => {
   record.unsubscribe?.()
   record.projection ? release(record.projection)
     : (boundaries.delete(record.node), record.end && boundaries.delete(record.end),
-       stopTickLoop(record.node), record.children?.forEach(release))
+      stopTickLoop(record.node), record.children?.forEach(release))
 }
 
 const discardedNodes = record =>
@@ -63,7 +63,7 @@ const appliedProps = record => (key, value) => {
   return () => { if (record.props === props) props[key] = previous }
 }
 const propsEnv = (owner, record) => ({ svgNS, resume: result => resume(result, owner),
-  applied: record && appliedProps(record), style: record?.props?.style })
+                                       applied: record && appliedProps(record), style: record?.props?.style })
 const equalProp = (key, left, right) =>
   left === right || key === 'style' && left && right
     && typeof left === 'object' && typeof right === 'object'
@@ -80,7 +80,7 @@ const beforeChildrenProps = (tag, props) =>
 const afterChildrenProps = (node, tag, props, owner, record) =>
   tag === 'select' && 'value' in props
     && (record.props = { ...record.props },
-        assignProperties(node, { value: props.value }, propsEnv(owner, record)))
+    assignProperties(node, { value: props.value }, propsEnv(owner, record)))
 
 // Publish in-progress records before native callbacks can select another observation.
 // Placement information is temporary: finished projections never retain former parents.
