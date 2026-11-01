@@ -326,6 +326,8 @@ const patchValue = (record, source, owner, kind) => {
  * Observer event returns update all projections of that identity; plain vnode
  * returns update their captured boundary. Fresh observations select immediately.
  * Each call creates independent DOM and preserves existing target children.
+ * Without a target, HTML html, head, and body roots replace their document
+ * counterparts; other roots remain detached.
  * Vocabulary helpers determine namespaces independently of the target.
  * Returns the root element, or a DocumentFragment for an explicit fragment.
  * Inserting a fragment empties it. Replacing an observer's root does not change
@@ -345,6 +347,13 @@ export const project = (graph, target) => {
   updating({}, () => { record = mountBoundary(graph, createIdentity(graph), staging, htmlNS, null) })
   const first = firstNode(record)
   const projection = first === lastNode(record) ? staging.removeChild(first) : staging
-  target?.insertBefore(projection, null)
+  const tag = projection.namespaceURI === htmlNS ? projection.tagName?.toLowerCase() : null
+  if (target) target.insertBefore(projection, null)
+  else if (tag === 'html' || tag === 'head' || tag === 'body') {
+    const previous = tag === 'html' ? doc.documentElement : doc[tag]
+    const parent = tag === 'html' ? doc : doc.documentElement
+    previous ? parent.replaceChild(projection, previous)
+      : parent.insertBefore(projection, tag === 'head' ? parent.firstChild : null)
+  }
   return projection
 }

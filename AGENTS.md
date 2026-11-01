@@ -7,7 +7,9 @@ necessary imperative DOM boundary with care.
 ### Design Invariants
 
 - **Single page-load mount:** typical apps call `project(graph, target?)` once per placement at startup.
-  Each call returns fresh DOM and optionally appends it; event returns select subsequent observations.
+  Each call returns fresh DOM and optionally appends it. Without a target, HTML
+  html/head/body roots replace their document counterparts; other roots stay detached.
+  Event returns select subsequent observations.
 - **Declarative updates via events:** observer calls are pure; returned
   observer vnodes select their identity's observation across all projections.
   Plain vnode returns patch the closest observer boundary. Independent state

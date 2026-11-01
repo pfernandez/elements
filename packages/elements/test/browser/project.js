@@ -227,14 +227,61 @@ test('parallel fragment ranges and independent nested hosts retain their boundar
   equal([...target.querySelectorAll('span')].map(node => node.textContent), ['gone', 'gone'])
 })
 
-test('document tags create local elements without adopting the document shell', () => {
+test('explicit targets keep document elements local', () => {
   const target = host(), body = document.body, head = document.head
   project(html.html(html.head(html.title('local')), html.body('local')), target)
   assert(target.firstChild !== document.documentElement)
   assert(document.body === body && document.head === head)
   equal(target.querySelector('body').textContent, 'local')
-  const detached = project(html.body())
-  assert(detached instanceof HTMLBodyElement && detached.parentNode === null)
+  const fragment = document.createDocumentFragment()
+  const detached = project(html.body(), fragment)
+  assert(detached instanceof HTMLBodyElement && detached.parentNode === fragment)
+  const foreign = project(element('body', 'urn:example')())
+  assert(foreign.parentNode === null && document.body === body)
+})
+
+test('document roots replace the shell, return installed DOM, and retain observer updates', () => {
+  const original = document.documentElement, doctype = document.doctype
+  const page = observe((n = 0) => html.html({ lang: 'en' },
+    html.head(html.title(`Page ${n}`)),
+    html.body(html.button({ onclick: () => page(n + 1) }, n))))
+  try {
+    const root = project(page())
+    assert(root === document.documentElement && !original.isConnected)
+    assert(document.doctype === doctype)
+    equal(document.title, 'Page 0')
+    document.body.firstChild.click()
+    assert(document.documentElement === root)
+    equal(document.title, 'Page 1')
+    equal(document.body.textContent, '1')
+
+    const previousHead = document.head, previousBody = document.body
+    const head = project(html.head(html.title('Replacement')))
+    assert(document.head === head && !previousHead.isConnected)
+    assert(document.body === previousBody)
+    equal(document.title, 'Replacement')
+    const counter = observe((n = 0) => html.body(
+      html.button({ onclick: () => counter(n + 1) }, n)))
+    const initial = counter()
+    const local = project(initial, document.createDocumentFragment())
+    const body = project(initial)
+    assert(document.body === body && !previousBody.isConnected && document.head === head)
+    body.firstChild.click()
+    equal([body.textContent, local.textContent], ['1', '1'])
+    const replacement = project(initial)
+    assert(document.body === replacement && replacement !== body && !body.isConnected)
+    replacement.firstChild.click()
+    equal([replacement.textContent, body.textContent, local.textContent], ['2', '2', '2'])
+
+    const empty = project(html.html())
+    assert(!document.head && !document.body)
+    const newBody = project(html.body())
+    const newHead = project(html.head())
+    assert(empty.firstChild === newHead && empty.lastChild === newBody)
+    empty.remove()
+    assert(project(html.html()) === document.documentElement)
+    assert(document.doctype === doctype)
+  } finally { document.documentElement.replaceWith(original) }
 })
 
 test('native removal permits collection while retained DOM and observer state survive', async () => {

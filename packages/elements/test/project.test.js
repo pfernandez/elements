@@ -53,8 +53,8 @@ test('fresh selection occurs even when the target is disconnected', () => {
   assert.equal(detached.firstChild.textContent, '5')
 })
 
-test('omitted targets return detached roots for every vocabulary and document tag', () => {
-  for (const graph of [html.div(), html.html(), html.head(), html.body(), svg.svg()]) {
+test('omitted targets return detached roots except HTML document tags', () => {
+  for (const graph of [html.div(), svg.svg(), element('body', 'urn:example')()]) {
     const node = project(graph)
     assert.equal(node.nodeType, 1)
     assert.equal(node.tagName.toLowerCase(), graph[0])
@@ -111,7 +111,7 @@ test('explicit fragments retain live ranges after insertion consumes their vesse
   assert.equal(document.body.textContent, '012next012next')
 })
 
-test('html, head, and body are ordinary projected elements', () => {
+test('explicit targets keep document elements local', () => {
   const originalBody = document.body
   const originalHead = document.head
   const target = document.createElement('section')
@@ -121,6 +121,50 @@ test('html, head, and body are ordinary projected elements', () => {
   assert.equal(document.head, originalHead)
   assert.equal(document.body.textContent, '')
   assert.equal(target.textContent, 'locallocal')
+})
+
+test('document projections replace their counterparts and return the installed DOM', () => {
+  const originalRoot = document.documentElement
+  const root = project(html.html(html.head(html.title('page')), html.body('page')))
+  assert.equal(root, document.documentElement)
+  assert.equal(originalRoot.parentNode, null)
+  const originalHead = document.head, originalBody = document.body
+  const head = project(html.head(html.title('next')))
+  assert.equal(head, document.head)
+  assert.equal(document.body, originalBody)
+  assert.equal(originalHead.parentNode, null)
+  const body = project(html.body('next'))
+  assert.equal(body, document.body)
+  assert.equal(document.head, head)
+  assert.equal(originalBody.parentNode, null)
+  assert.deepEqual(root.childNodes, [head, body])
+})
+
+test('document projections insert missing counterparts in document order', () => {
+  const root = project(html.html())
+  const body = project(html.body('body'))
+  const head = project(html.head(html.title('title')))
+  assert.deepEqual(root.childNodes, [head, body])
+  document.removeChild(root)
+  assert.equal(project(html.html()), document.documentElement)
+})
+
+test('document observer roots stay live across parallel projections and repeated mounting', () => {
+  const page = observe((n = 0) => html.body(
+    html.button({ onclick: () => page(n + 1) }, n)))
+  const initial = page()
+  const local = project(initial, document.createDocumentFragment())
+  const installed = project(initial)
+  click(installed.firstChild)
+  assert.equal(document.body, installed)
+  assert.equal(local.textContent, '1')
+  assert.equal(installed.textContent, '1')
+  const replacement = project(initial)
+  assert.equal(document.body, replacement)
+  assert.notEqual(replacement, installed)
+  assert.equal(installed.parentNode, null)
+  click(replacement.firstChild)
+  assert.deepEqual([local, installed, replacement].map(node => node.textContent), ['2', '2', '2'])
 })
 
 test('vocabulary namespaces do not depend on placement or tag-name collisions', () => {

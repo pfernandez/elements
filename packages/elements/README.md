@@ -58,12 +58,13 @@ const graph = html({ lang: 'en' },
     title('My app')),
   body(h1('Hello')))
 
-const tree = project(graph)
-document.documentElement.replaceWith(tree)
+project(graph)
 ```
 
-The doctype remains in place. Stylesheets can also belong to the graph. With Vite,
-import processed CSS as text and include `style(css)` in the authored head:
+Without a target, `html`, `head`, and `body` projections replace their corresponding
+document elements and return the new DOM. The doctype remains in place. Existing
+contents of the replaced element are removed. Stylesheets can also belong to the
+graph. With Vite, import processed CSS as text and include `style(css)` in the authored head:
 
 ```js
 import css from './css/style.css?inline'
@@ -314,8 +315,9 @@ establishes a separate identity for independent state.
 ### `project(graph, target?)`
 
 Create a live DOM projection and return its root element. If a target is supplied,
-append it there, preserving existing children. Otherwise, insert it using native DOM
-operations. Every call creates a separate projection.
+append it there, preserving existing children. Without a target, HTML `html`, `head`,
+and `body` roots replace their corresponding document elements; other roots remain
+detached for native insertion. Every call creates a separate projection.
 
 ```js
 const initial = counter()
@@ -334,8 +336,8 @@ selects ten across its projections, even before the new projection is inserted.
 Separate observers provide independent state; focus and native input state
 belong to each DOM projection.
 
-`html`, `head`, and `body` are ordinary elements: they do not adopt the document
-shell. Use native replacement to project a whole document, as shown above.
+An explicit target also allows `html`, `head`, and `body` to be projected locally.
+Use a `DocumentFragment` target when you want a detached document element.
 For embedding, use a dedicated host whose contents the surrounding application leaves alone.
 Replacing the host detaches its projections; recreating it does not restore them.
 Observer state survives removal, retained projections remain live, and discarded

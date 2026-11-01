@@ -152,13 +152,15 @@ export const createFakeDom = () => {
   class FakeDocument extends FakeNode {
     constructor() {
       super(9, '#document')
-      this.documentElement = new FakeElement('html')
-      this.head = new FakeElement('head')
-      this.body = new FakeElement('body')
-      this.documentElement.appendChild(this.head)
-      this.documentElement.appendChild(this.body)
-      this.appendChild(this.documentElement)
+      const root = new FakeElement('html')
+      root.appendChild(new FakeElement('head'))
+      root.appendChild(new FakeElement('body'))
+      this.appendChild(root)
     }
+
+    get documentElement() { return this.childNodes.find(node => node.nodeType === 1) || null }
+    get head() { return this.documentElement?.childNodes.find(node => node.tagName === 'HEAD') || null }
+    get body() { return this.documentElement?.childNodes.find(node => node.tagName === 'BODY') || null }
 
     createElement(tag) {
       return new FakeElement(tag)

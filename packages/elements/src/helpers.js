@@ -36,7 +36,9 @@ export { fragment } from './core/elements.js'
 /**
  * Create a live projection and return its root element. An explicit fragment
  * returns a DocumentFragment. An optional target receives the projected DOM;
- * otherwise insert it with native DOM operations. Each call creates a projection.
+ * without a target, HTML html, head, and body roots replace their document
+ * counterparts, while other roots remain detached for native insertion.
+ * Each call creates a projection.
  * Root replacement leaves previously returned element references unchanged;
  * inserting a fragment empties it while its projected range remains live.
  *

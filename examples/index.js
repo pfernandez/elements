@@ -3,7 +3,7 @@ import { body, h1, head, header, html, link, meta, project, style, title }
 import { app } from './views/app.js'
 import css from './css/style.css?inline'
 
-const graph =
+project(
   html({ lang: 'en' },
        head(
          meta({ charset: 'utf-8' }),
@@ -14,7 +14,4 @@ const graph =
          link({ rel: 'icon', href: 'data:x-icon' })),
        body({ class: 'container' },
             header(h1('Elements.js Demo')),
-            app()))
-
-const tree = project(graph)
-document.documentElement.replaceWith(tree)
+            app())))
