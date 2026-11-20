@@ -17,8 +17,7 @@ A counter has one piece of state: its count. A view can describe the interface
 at that count and the interaction that leads to the next one:
 
 ```js
-import { observe, project } from '@pfern/elements'
-import { button, div, output } from '@pfern/elements/html'
+import { button, div, observe, output, project } from '@pfern/elements/html'
 
 const counter = observe((count = 0) =>
   div(
@@ -51,8 +50,7 @@ a minimal `index.html`:
 Then describe the page in `index.js` and replace the browser-created root:
 
 ```js
-import { project } from '@pfern/elements'
-import { body, h1, head, html, meta, title } from '@pfern/elements/html'
+import { body, h1, head, html, meta, project, title } from '@pfern/elements/html'
 
 const graph = html({ lang: 'en' },
   head(
@@ -60,12 +58,13 @@ const graph = html({ lang: 'en' },
     title('My app')),
   body(h1('Hello')))
 
-const tree = project(graph)
-document.documentElement.replaceWith(tree)
+project(graph)
 ```
 
-The doctype remains in place. Stylesheets can also belong to the graph. With Vite,
-import processed CSS as text and include `style(css)` in the authored head:
+Without a target, `html`, `head`, and `body` projections replace their corresponding
+document elements and return the new DOM. The doctype remains in place. Existing
+contents of the replaced element are removed. Stylesheets can also belong to the
+graph. With Vite, import processed CSS as text and include `style(css)` in the authored head:
 
 ```js
 import css from './css/style.css?inline'
@@ -316,8 +315,9 @@ establishes a separate identity for independent state.
 ### `project(graph, target?)`
 
 Create a live DOM projection and return its root element. If a target is supplied,
-append it there, preserving existing children. Otherwise, insert it using native DOM
-operations. Every call creates a separate projection.
+append it there, preserving existing children. Without a target, HTML `html`, `head`,
+and `body` roots replace their corresponding document elements; other roots remain
+detached for native insertion. Every call creates a separate projection.
 
 ```js
 const initial = counter()
@@ -336,8 +336,8 @@ selects ten across its projections, even before the new projection is inserted.
 Separate observers provide independent state; focus and native input state
 belong to each DOM projection.
 
-`html`, `head`, and `body` are ordinary elements: they do not adopt the document
-shell. Use native replacement to project a whole document, as shown above.
+An explicit target also allows `html`, `head`, and `body` to be projected locally.
+Use a `DocumentFragment` target when you want a detached document element.
 For embedding, use a dedicated host whose contents the surrounding application leaves alone.
 Replacing the host detaches its projections; recreating it does not restore them.
 Observer state survives removal, retained projections remain live, and discarded
@@ -350,11 +350,14 @@ Use vocabulary objects from the main entry point, or import helpers directly:
 ```js
 import { html, svg, mathml, fragment } from '@pfern/elements'
 import { div, button } from '@pfern/elements/html'
-import { circle, title as svgTitle } from '@pfern/elements/svg'
+import { circle, project, title as svgTitle } from '@pfern/elements/svg'
 import { math, mfrac } from '@pfern/elements/mathml'
 
 project(circle({ r: 10 }), existingSvg)
 ```
+
+HTML, SVG, MathML, and X3DOM entry points also export `observe`, `project`,
+`element`, `fragment`, and `toHtmlString` from the shared core.
 
 Each helper carries its namespace, independently of where it is projected.
 `html.a` and `svg.a` create different kinds of elements. The root constructors
@@ -419,8 +422,7 @@ and an initial `dtMs` of zero, excluding time spent paused.
 Serialize a description as HTML for server rendering or static generation:
 
 ```js
-import { toHtmlString } from '@pfern/elements'
-import { div } from '@pfern/elements/html'
+import { div, toHtmlString } from '@pfern/elements/html'
 
 toHtmlString(div('Hello')) // '<div>Hello</div>'
 ```
