@@ -127,7 +127,7 @@ test('a nested root replacement supersedes the active patch and remains live', (
 
 test('a nested parent update can remove the active observer without resuming its patch', () => {
   const child = observe(n => div({ 'data-state': n, title: String(n) }, n))
-  const parent = observe(shown => div(shown ? child(0) : span('removed')))
+  const parent = observe(isShown => div(isShown ? child(0) : span('removed')))
   const host = project(parent(true))
   const root = host.firstChild
   const control = project(button({ onclick: () => parent(false) }))

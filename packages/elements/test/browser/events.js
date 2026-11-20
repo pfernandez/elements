@@ -50,7 +50,7 @@ test('input targets support terse value and checked destructuring', () => {
   assert(host.querySelector('input') === field)
   const toggle = observe((isEnabled = false) =>
     div(input({ type: 'checkbox', checked: isEnabled,
-                onchange: ({ checked }) => toggle(checked) }),
+                onchange: ({ checked: isChecked }) => toggle(isChecked) }),
         output(String(isEnabled))))
   const checkbox = mount(toggle())
   checkbox.querySelector('input').click()

@@ -30,7 +30,8 @@ const custom = element('custom-element')('custom')
 const picture = svg(circle({ r: 5 }))
 project(div(counter(), custom, picture, math(mi('x')), x3d(scene(node)),
            input({ style: 'color: red', oninput: ({ value }) => div(value) }),
-           input({ type: 'checkbox', onchange: ({ checked }) => div(String(checked)) })),
+           input({ type: 'checkbox',
+                   onchange: ({ checked: isChecked }) => div(String(isChecked)) })),
        document.body)
 
 project(fragment(html.title('page'), drawing.title('drawing'), mathml.mi('x')),
