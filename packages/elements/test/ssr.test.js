@@ -1,8 +1,7 @@
+import { div, input } from '../html.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-
 import { toHtmlString } from '../elements.js'
-import { div, input } from '../html.js'
 
 test('toHtmlString() renders basic elements and escapes text', () => {
   const html = toHtmlString(div({ id: 'x' }, 'a & < b'))
@@ -54,7 +53,7 @@ test('toHtmlString() serializes style objects (kebab-case + CSS vars)', () => {
 })
 
 test('toHtmlString() does not emit empty style attributes', () => {
-  const html = toHtmlString(div({ style: { color: null } }, 'x'))
+  const html = toHtmlString(div({ style: { color: null }}, 'x'))
   assert.equal(html, '<div>x</div>')
 })
 

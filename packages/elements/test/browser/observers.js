@@ -1,12 +1,12 @@
-import { transition } from '../transition.js'
-import { observe, toHtmlString } from '../../elements.js'
-import { a, button, div, form, input, output } from '../../html.js'
-
+import { a, button, div, input, output } from '../../html.js'
 import { assert, equal, mount, test, traverse } from './harness.js'
+import { observe, toHtmlString } from '../../elements.js'
+import { transition } from '../transition.js'
 
 test('an editable counter preserves its anonymous input, focus and caret during typing', () => {
   const counter = observe((count = 0) =>
-    div(input({ value: String(count), oninput: ({ value }) => counter(Number(value)) }),
+    div(input({ value: String(count),
+                oninput: ({ value }) => counter(Number(value)) }),
         output(count),
         button({ onclick: () => counter(count + 1) }, 'increment')))
   const host = mount(counter())

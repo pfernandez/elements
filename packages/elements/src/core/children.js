@@ -19,6 +19,7 @@ const isVNodeGroup = value =>
 // retain their existing meaning and shape.
 export const normalizeChildren = (values, children = []) => {
   values.forEach(value =>
-    isVNodeGroup(value) ? normalizeChildren(value, children) : children.push(value))
+    isVNodeGroup(value) ? normalizeChildren(value, children)
+      : children.push(value))
   return children
 }

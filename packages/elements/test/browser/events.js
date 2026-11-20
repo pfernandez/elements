@@ -1,18 +1,28 @@
-
-import { observe, project } from '../../elements.js'
-import { a, button, div, form, head, input, output, span } from '../../html.js'
-
+import { a, button, div, form, input, output, span } from '../../html.js'
 import { assert, equal, mount, test } from './harness.js'
+import { observe, project } from '../../elements.js'
 
 test('form handlers receive native controls while input and change receive targets', () => {
-  let controls, submittedEvent, inputTarget, inputEvent, changeTarget, changeEvent
-  const host = mount(form({ onsubmit: (value, event) => {
-    controls = value
-    submittedEvent = event
-    event.preventDefault()
-  } }, input({ name: 'todo', value: 'native value',
-               oninput: (target, event) => { inputTarget = target; inputEvent = event },
-               onchange: (target, event) => { changeTarget = target; changeEvent = event } })))
+  let controls, submittedEvent
+  let inputTarget, inputEvent
+  let changeTarget, changeEvent
+  const host = mount(form({
+    onsubmit: (value, event) => {
+      controls = value
+      submittedEvent = event
+      event.preventDefault()
+    }
+  }, input({
+    name: 'todo', value: 'native value',
+    oninput: (target, event) => {
+      inputTarget = target
+      inputEvent = event
+    },
+    onchange: (target, event) => {
+      changeTarget = target
+      changeEvent = event
+    }
+  })))
   const node = host.firstChild, field = node.elements.namedItem('todo')
   node.dispatchEvent(new Event('submit', { cancelable: true }))
   assert(controls === node.elements)
@@ -82,13 +92,13 @@ test('link updates respect native opt-outs and relative paths', () => {
     equal(location.pathname, '/nested/next')
     equal(host.textContent, 'next page')
     const native = mount(a({ href: '/native', 'data-elements-native': '' }, 'native'))
-    let preventedAtWindow
+    let wasPreventedAtWindow
     window.addEventListener('click', event => {
-      preventedAtWindow = event.defaultPrevented
+      wasPreventedAtWindow = event.defaultPrevented
       event.preventDefault()
     }, { once: true })
     native.firstChild.click()
-    equal(preventedAtWindow, false)
+    equal(wasPreventedAtWindow, false)
   } finally {
     history.replaceState({}, '', initial)
   }
@@ -130,13 +140,15 @@ test('modified link clicks leave the current observer and native default untouch
   const page = observe(n => div(n))
   const host = mount(div(a({ href: '/elsewhere', onclick: () => page(1) }, 'link'), page(0)))
   const initial = location.href
-  let prevented
+  let wasPrevented
   window.addEventListener('click', event => {
-    prevented = event.defaultPrevented
+    wasPrevented = event.defaultPrevented
     event.preventDefault() // Avoid actually opening another tab in the test.
   }, { once: true })
-  host.querySelector('a').dispatchEvent(new MouseEvent('click', { button: 0, ctrlKey: true, bubbles: true, cancelable: true }))
-  equal(prevented, false)
+  host.querySelector('a').dispatchEvent(new MouseEvent('click', {
+    button: 0, ctrlKey: true, bubbles: true, cancelable: true
+  }))
+  equal(wasPrevented, false)
   equal(location.href, initial)
   equal(host.textContent, 'link0')
 })
@@ -147,14 +159,14 @@ test('a document base target keeps continuation links native', () => {
   document.head.append(base)
   const page = observe(n => div(n))
   const host = mount(div(a({ href: '/native', onclick: () => page(1) }, 'link'), page(0)))
-  let prevented
+  let wasPrevented
   window.addEventListener('click', event => {
-    prevented = event.defaultPrevented
+    wasPrevented = event.defaultPrevented
     event.preventDefault()
   }, { once: true })
   try {
     host.querySelector('a').click()
-    equal(prevented, false)
+    equal(wasPrevented, false)
     equal(host.textContent, 'link0')
   } finally { base.remove() }
 })

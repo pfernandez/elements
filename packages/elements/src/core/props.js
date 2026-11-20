@@ -16,9 +16,6 @@ import { checkpoint } from './update.js'
 const isObject = x =>
   typeof x === 'object' && x !== null
 
-const deleteKey = (obj, key) =>
-  (delete obj[String(key)], undefined)
-
 const isX3DOMReadyFor = el =>
   (x3d => !x3d || !!x3d.runtime)(el?.closest?.('x3d'))
 
@@ -36,40 +33,28 @@ const propertyExceptionDefaults = {
   indeterminate: false
 }
 
-const removeAttribute = (el, key) =>
-  typeof el.removeAttribute === 'function'
-    ? el.removeAttribute(key)
-    : el.attributes ? deleteKey(el.attributes, key) : undefined
+const clearStyle = el => {
+  if (el.style) el.style.cssText = ''
+}
 
-const clearStyle = el =>
-  (style =>
-    !style
-      ? undefined
-      : 'cssText' in style
-        ? (style.cssText = '', undefined)
-        : (Object.keys(style).forEach(k => delete style[k]), undefined)
-  )(el?.style)
+const clearProp = (el, key) => {
+  if (key === 'ontick') {
+    el.ontick = null
+    stopTickLoop(el)
+  } else if (key === 'style') clearStyle(el)
+  else if (key === 'innerHTML') el.innerHTML = ''
+  else if (Object.hasOwn(propertyExceptionDefaults, key) && key in el)
+    el[key] = propertyExceptionDefaults[key]
+  else if (key.startsWith('on')) el[key] = null
+  else el.removeAttribute(key)
+}
 
-const clearInnerHTML = el =>
-  el.innerHTML = ''
-
-const clearEventProp = (el, key) =>
-  el[key] = null
-
-const clearPropertyException = (el, key) =>
-  el[key] = propertyExceptionDefaults[key]
-
-const clearTick = el =>
-  (el.ontick = null, stopTickLoop(el))
-
-const clearProp = (el, key) =>
-  key === 'ontick' ? clearTick(el)
-    : key === 'style' ? clearStyle(el)
-      : key === 'innerHTML' ? clearInnerHTML(el)
-        : Object.hasOwn(propertyExceptionDefaults, key) && key in el
-          ? clearPropertyException(el, key)
-          : key.startsWith('on') ? clearEventProp(el, key)
-            : removeAttribute(el, key)
+const setStyle = (style, key, value) => {
+  if (key.startsWith('--')) {
+    value == null ? style.removeProperty(key)
+      : style.setProperty(key, String(value))
+  } else style[key] = value ?? ''
+}
 
 // Record the value before a native callback can reenter. Failed assignments
 // restore the bookkeeping and still propagate the original error.
@@ -91,7 +76,8 @@ const applying = (applied, key, value, assign) => {
  * @param {Record<string, any>} nextProps
  * @param {(key: string, value: any) => (() => void) | void} [applied]
  */
-export const removeMissingProps = (el, prevProps, nextProps, applied = () => {}) => {
+export const removeMissingProps = (el, prevProps, nextProps,
+                                   applied = () => {}) => {
   const prevStyle = prevProps?.style
   const nextStyle = nextProps?.style
   if (typeof prevStyle === 'string' && isObject(nextStyle)) {
@@ -99,22 +85,17 @@ export const removeMissingProps = (el, prevProps, nextProps, applied = () => {})
   }
   if (isObject(prevStyle) && isObject(nextStyle) && el?.style) {
     const style = { ...prevStyle }
-    const keys = Object.keys(prevStyle)
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
+    for (const key of Object.keys(prevStyle)) {
       if (key in nextStyle) continue
 
       delete style[key]
       applying(applied, 'style', { ...style }, () =>
-        key.startsWith('--') ? el.style.removeProperty(key) : el.style[key] = '')
+        setStyle(el.style, key, null))
     }
   }
 
-  const keys = Object.keys(prevProps)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    if (key === 'key') continue
-    if (key in nextProps) continue
+  for (const key of Object.keys(prevProps)) {
+    if (key === 'key' || key in nextProps) continue
 
     applying(applied, key, undefined, () => clearProp(el, key))
   }
@@ -136,21 +117,17 @@ export const removeMissingProps = (el, prevProps, nextProps, applied = () => {})
 export const assignProperties = (el, props, env) => {
   validateProps(props)
   const isSvg = el.namespaceURI === env.svgNS
-  const keys = Object.keys(props)
-  for (const key of keys) {
+  for (const key of Object.keys(props)) {
     checkpoint()
     if (key === 'key') continue
     const value = props[key]
     if (key === 'style' && isObject(value) && el?.style) {
-      const style = { ...isObject(env.style) ? env.style : {} }
+      const style = isObject(env.style) ? { ...env.style } : {}
       for (const styleKey of Object.keys(value)) {
         const styleValue = value[styleKey]
         style[styleKey] = styleValue
         applying(env.applied, 'style', { ...style }, () =>
-          styleValue == null
-            ? styleKey.startsWith('--') ? el.style.removeProperty(styleKey) : el.style[styleKey] = ''
-            : styleKey.startsWith('--') ? el.style.setProperty(styleKey, String(styleValue))
-              : el.style[styleKey] = styleValue)
+          setStyle(el.style, styleKey, styleValue))
       }
     } else applying(env.applied, key, value, () => {
       if (value == null) clearProp(el, key)
@@ -160,12 +137,15 @@ export const assignProperties = (el, props, env) => {
       } else if (Object.hasOwn(propertyExceptionDefaults, key) && key in el)
         el[key] = value
       else if (isEventProp(key, value))
-        el[key] = createDeclarativeEventHandler({ el, key, handler: value, resume: env.resume })
+        el[key] = createDeclarativeEventHandler({
+          el, key, handler: value, resume: env.resume
+        })
       else if (key === 'innerHTML') el.innerHTML = value
       else {
         const text = attributeValue(key, value)
-        text == null ? removeAttribute(el, key)
-          : isSvg ? el.setAttributeNS(null, key, text) : el.setAttribute(key, text)
+        text == null ? el.removeAttribute(key)
+          : isSvg ? el.setAttributeNS(null, key, text)
+            : el.setAttribute(key, text)
       }
     })
   }

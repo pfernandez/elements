@@ -656,6 +656,14 @@
  *   path: ElementsPathProps,
  *   circle: ElementsCircleProps,
  *   rect: ElementsRectProps,
+ *   text: ElementsSvgTextProps,
+ *   label: ElementsLabelProps,
+ *   dialog: ElementsDialogProps,
+ *   details: ElementsDetailsProps,
+ *   progress: ElementsProgressProps,
+ *   meter: ElementsMeterProps,
+ *   iframe: ElementsIframeProps,
+ *   canvas: ElementsCanvasProps,
  *   line: ElementsLineProps
  * }} ElementsTagProps
  */

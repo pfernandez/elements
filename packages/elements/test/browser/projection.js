@@ -1,9 +1,9 @@
-import { transition } from '../transition.js'
-import { observe, project, toHtmlString, fragment } from '../../elements.js'
-import { a, button, div, html, input, option, select, span } from '../../html.js'
-import { svg, circle, rect, text as svgText } from '../../svg.js'
 import { annotationXml, math, mi } from '../../mathml.js'
 import { assert, equal, mount, test } from './harness.js'
+import { button, div, input, option, select, span } from '../../html.js'
+import { circle, rect, svg, text as svgText } from '../../svg.js'
+import { fragment, observe, project, toHtmlString } from '../../elements.js'
+import { transition } from '../transition.js'
 
 test('standalone SVG text can be inserted, updated and replaced in an SVG host', () => {
   const host = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
@@ -43,8 +43,10 @@ test('select value is applied after options exist', () => {
 })
 
 test('enumerated attributes retain true and false values', () => {
-  const host = mount(div({ spellcheck: false, draggable: true, contenteditable: false }))
-  equal([host.firstChild.spellcheck, host.firstChild.draggable, host.firstChild.contentEditable],
+  const host = mount(div({ spellcheck: false, draggable: true,
+                           contenteditable: false }))
+  equal([host.firstChild.spellcheck, host.firstChild.draggable,
+         host.firstChild.contentEditable],
         [false, true, 'false'])
 })
 
@@ -86,14 +88,16 @@ test('reference reordering preserves controls, focus and native state', () => {
   transition(div(right, left), host)
   assert(host.firstChild.lastChild === node)
   equal(node.value, 'retained')
-  // Moving a node can affect focus in the platform; patching unchanged position cannot.
+  // Moving a node can affect focus in the platform; patching unchanged
+  // position cannot.
   node.focus()
   transition(div(right, left), host)
   assert(document.activeElement === node)
 })
 
 test('a distant keyed swap moves only two rows and keeps middle controls focused', () => {
-  const sources = Array.from({ length: 1000 }, (_, key) => div({ key }, input()))
+  const sources = Array.from({ length: 1000 }, (_, key) =>
+    div({ key }, input()))
   const host = mount(div(sources)), parent = host.firstChild
   const original = [...parent.children], focused = original[500].firstChild
   focused.value = 'draft'
@@ -108,7 +112,8 @@ test('a distant keyed swap moves only two rows and keeps middle controls focused
   ;[next[1], next[998]] = [next[998], next[1]]
   transition(div(next), host)
   equal(moves, 2)
-  assert(parent.children[1] === original[998] && parent.children[998] === original[1])
+  assert(parent.children[1] === original[998]
+    && parent.children[998] === original[1])
   assert(document.activeElement === focused)
   equal(focused.value, 'draft')
   moves = 0
@@ -184,7 +189,8 @@ test('replacing a wrapper safely selects its shared child with a different root 
 
 test('namespace replacement retires a shared projection before selecting its new root', () => {
   const child = observe(tag => [tag === span ? 'span' : 'div', {}, 'child'])
-  const describeState = (encoding, source) => math(annotationXml({ encoding }, source))
+  const describeState = (encoding, source) =>
+    math(annotationXml({ encoding }, source))
   const host = mount(describeState('text/html', child(div)))
   const other = mount(child(div))
   transition(describeState('application/xml', child(span)), host)

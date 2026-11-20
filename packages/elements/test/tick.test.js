@@ -1,12 +1,11 @@
+import { isConnected, startTickLoop, stopTickLoop } from '../src/core/tick.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { isConnected, startTickLoop, stopTickLoop } from '../src/core/tick.js'
-
 test('isConnected() prefers the isConnected boolean when present', () => {
   assert.equal(isConnected({ isConnected: true, parentNode: null }), true)
-  assert.equal(isConnected({ isConnected: false, parentNode: {} }), false)
-  assert.equal(isConnected({ parentNode: {} }), true)
+  assert.equal(isConnected({ isConnected: false, parentNode: {}}), false)
+  assert.equal(isConnected({ parentNode: {}}), true)
   assert.equal(isConnected({ parentNode: null }), false)
 })
 

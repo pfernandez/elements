@@ -1,6 +1,6 @@
 import { createFakeDom } from './fake-dom.js'
 
-/** A small History API model; real-browser tests verify native traversal too. */
+// A History API model for Node tests.
 export const createFakeBrowser = (href = 'https://example.test/nested/page') => {
   const { document } = createFakeDom()
   const location = new URL(href)
@@ -10,7 +10,8 @@ export const createFakeBrowser = (href = 'https://example.test/nested/page') => 
   const entries = [{ url: href, state: null }]
   let index = 0
   const entry = (state, url) =>
-    ({ url: new URL(url ?? location.href, location).href, state: structuredClone(state) })
+    ({ url: new URL(url ?? location.href, location).href,
+       state: structuredClone(state) })
   const window = {
     document, location,
     addEventListener: (name, fn) => {
@@ -54,15 +55,16 @@ export const createFakeBrowser = (href = 'https://example.test/nested/page') => 
 export const withBrowser = async run => {
   const previous = { document: globalThis.document, window: globalThis.window }
   const browser = createFakeBrowser()
-  Object.assign(globalThis, { document: browser.document, window: browser.window })
+  Object.assign(globalThis, { document: browser.document,
+                              window: browser.window })
   try { await run(browser) }
   finally { Object.assign(globalThis, previous) }
 }
 
 export const click = (node, props = {}) => {
   const event = { type: 'click', target: node, button: 0, cancelable: true,
-    defaultPrevented: false,
-    preventDefault() { this.defaultPrevented = true }, ...props }
+                  defaultPrevented: false,
+                  preventDefault() { this.defaultPrevented = true }, ...props }
   const result = node.onclick?.(event)
   window.dispatchEvent(event)
   return { event, result }

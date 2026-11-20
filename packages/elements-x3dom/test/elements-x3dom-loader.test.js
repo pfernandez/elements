@@ -1,12 +1,11 @@
+import { box, scene, x3d } from '../x3dom.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { box, scene, x3d } from '../x3dom.js'
+import { watchDocument } from '../src/core/elements-x3dom.js'
 
 const flush = () => new Promise(resolve => setTimeout(resolve, 0))
-const load = () => import(`../src/core/elements-x3dom.js?test=${Math.random()}`)
 
 const fixture = async run => {
-  const previous = globalThis.document
   const nodes = [], scenes = []
   let sync, watched, reloads = 0
   class Asset extends EventTarget {
@@ -31,12 +30,9 @@ const fixture = async run => {
     querySelector: selector => selector === 'x3d' ? scenes[0] || null
       : nodes.find(node => selector === `${node.tag}[${node.tag === 'link' ? 'href' : 'src'}="${node.attributes.href || node.attributes.src}"]`) || null
   }
-  globalThis.document = document
-  try {
-    await load()
-    assert.equal(watched, document)
-    await run({ nodes, scenes, sync: () => sync(), reloads: () => reloads })
-  } finally { globalThis.document = previous }
+  watchDocument(document)
+  assert.equal(watched, document)
+  await run({ nodes, scenes, sync: () => sync(), reloads: () => reloads })
 }
 
 test('X3DOM helpers construct descriptions without accessing the DOM', async () => {
@@ -51,7 +47,11 @@ test('X3DOM helpers construct descriptions without accessing the DOM', async () 
 test('connections load full X3DOM once and reconnection restores missing styles', () =>
   fixture(async ({ nodes, scenes, sync, reloads }) => {
     assert.equal(nodes.length, 0)
-    scenes.push({}, {})
+    const original = () => {}
+    const scene = { hasRuntime: true,
+                    __setAttribute: original,
+                    runtime: { canvas: {}}}
+    scenes.push(scene)
     sync()
     assert.equal(nodes.length, 2)
     assert.match(nodes[1].attributes.src, /x3dom-full\.js$/)
@@ -63,13 +63,16 @@ test('connections load full X3DOM once and reconnection restores missing styles'
     scenes.splice(0)
     sync()
     nodes.splice(0, 1)
-    scenes.push({})
+    delete scene.runtime
+    scenes.push(scene)
     sync()
     assert.equal(nodes.length, 2)
     assert.equal(nodes.filter(node => node.tag === 'script').length, 1)
     nodes.find(node => node.tag === 'link').loaded()
     await flush()
     assert.equal(reloads(), 2)
+    assert.equal(scene.setAttribute, original)
+    assert.equal(scene.hasRuntime, undefined)
   }))
 
 test('removal during loading does not initialize a disconnected scene', () =>

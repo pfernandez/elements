@@ -5,23 +5,35 @@ import { namespaceOf, withNamespace } from './namespaces.js'
 const sources = new WeakMap()
 const presented = new WeakSet()
 const projections = new Set()
-const retire = ({ listeners, reference }) =>
-  (listeners.delete(reference), projections.delete(reference))
+const retire = ({ listeners, reference }) => {
+  listeners.delete(reference)
+  projections.delete(reference)
+}
 const collected = new FinalizationRegistry(retire)
 
 export const sourceOf = vnode => sources.get(vnode)
-export const createIdentity = current => ({ current, listeners: new Set() })
-const notify = identity =>
-  Array.from(identity.listeners).forEach(reference => {
-    const projection = reference.deref()
-    projection && identity.listeners.has(reference)
-      ? projection.notify(identity.current)
-      : !projection && identity.listeners.delete(reference)
-  })
+export const createIdentity = current =>
+  ({ current, listeners: new Set(), shouldNotify: false })
+
+const notify = identity => {
+  identity.shouldNotify = false
+  try {
+    for (const reference of Array.from(identity.listeners)) {
+      const projection = reference.deref()
+      if (!projection) identity.listeners.delete(reference)
+      else if (identity.listeners.has(reference))
+        projection.notify(identity.current)
+    }
+  } catch (error) {
+    // The failing projection and later listeners still need the current value.
+    identity.shouldNotify = true
+    throw error
+  }
+}
 
 // Selection advances the identity; its mounted projections follow the change.
 export const select = (identity, next) => {
-  if (identity.current !== next) {
+  if (identity.current !== next || identity.shouldNotify) {
     identity.current = next
     notify(identity)
   }
@@ -34,7 +46,7 @@ export const present = vnode => {
   if (source && !presented.has(vnode)) {
     presented.add(vnode)
     select(source.identity, source.observation)
-  }
+  } else if (source?.identity.shouldNotify) notify(source.identity)
 }
 
 // Observer continuations carry their destination. Plain vnodes use the
@@ -68,10 +80,15 @@ export const snapshot = document =>
 
 export const restore = observations => {
   const changed = Array.from(observations).filter(([identity, next]) =>
-    identity.current !== next)
+    identity.current !== next || identity.shouldNotify)
   // Set the whole observation before notifying: a parent may remount children.
-  changed.forEach(([identity, next]) => { identity.current = next })
-  changed.forEach(([identity]) => notify(identity))
+  changed.forEach(([identity, next]) => {
+    identity.current = next
+    identity.shouldNotify = true
+  })
+  changed.forEach(([identity]) => {
+    if (identity.shouldNotify) notify(identity)
+  })
 }
 
 /**

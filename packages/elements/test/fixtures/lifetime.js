@@ -1,18 +1,20 @@
-import assert from 'node:assert/strict'
-import { setTimeout as delay } from 'node:timers/promises'
 import { html, observe, project } from '../../elements.js'
-import { snapshot, resume } from '../../src/core/observer.js'
+import { resume, snapshot } from '../../src/core/observer.js'
+import assert from 'node:assert/strict'
 import { createFakeDom } from '../fake-dom.js'
+import { setTimeout as delay } from 'node:timers/promises'
 
 // This fixture runs in a separate process with --expose-gc. No browser or
-// observer registry should retain discarded nodes, even with an outstanding RAF.
+// observer registry should retain discarded nodes, even with an outstanding
+// RAF.
 globalThis.document = createFakeDom().document
 const frames = []
 globalThis.window = {
   requestAnimationFrame: callback => (frames.push(callback), frames.length),
   cancelAnimationFrame: () => {}
 }
-const counter = observe((n = 0) => html.button({ onclick: () => counter(n + 1) }, n))
+const counter = observe((n = 0) =>
+  html.button({ onclick: () => counter(n + 1) }, n))
 const wrap = observe(value => value)
 const initial = counter()
 const abandoned = () => {

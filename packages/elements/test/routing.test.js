@@ -1,8 +1,8 @@
+import { a, div } from '../html.js'
 import assert from 'node:assert/strict'
+import { createFakeBrowser } from './fake-browser.js'
 import { test } from 'node:test'
 import { transition } from './transition.js'
-import { a, div } from '../html.js'
-import { createFakeBrowser } from './fake-browser.js'
 
 const withBrowser = async run => {
   const previous = { document: globalThis.document, window: globalThis.window }

@@ -1,30 +1,5 @@
-/** @fileoverview Server-side rendering / static site generation helpers.
- *
- * Elements.js treats UI as a pure function tree that produces declarative
- * “vnode” arrays:
- *
- *   ['div', { id: 'x' }, 'Hello']
- *
- * In the browser, `project()` evaluates this AST into real DOM nodes. For
- * build-time prerendering (SSG) or server-side rendering (SSR),
- * `toHtmlString()` walks the same AST and prints HTML.
- *
- * Design notes:
- * - This is intentionally “dumb printing”, not hydration. Event handlers and
- *   other imperative props (functions) are dropped.
- * - `innerHTML` is treated as an explicit escape hatch: it is inserted verbatim
- *   and children are ignored.
- * - Boolean attribute rules mirror DOM assignment in `core/props.js`: -
- *   `aria-*` / `data-*` booleans become `"true"` / `"false"`.  - other booleans
- *   are present when true, omitted when false.
- *
- * The long-term goal is that vnode arrays act as a small, Lisp-like
- * cons-structure / AST: they can be evaluated into DOM, or serialized back into
- * markup, or translated into other equivalent encodings.
- */
-
-import { childNamespace, htmlNS, namespaceAt } from './core/namespaces.js'
 import { attributeValue, validateProps } from './core/attributes.js'
+import { childNamespace, htmlNS, namespaceAt } from './core/namespaces.js'
 
 const voidTags = new Set([
   'area',
@@ -55,10 +30,7 @@ const escapeText = s =>
     .replaceAll('>', '&gt;')
 
 const escapeAttr = s =>
-  String(s)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
+  escapeText(s)
     .replaceAll('"', '&quot;')
     .replaceAll('\'', '&#39;')
 
@@ -141,7 +113,8 @@ const toHtmlStringInner = (vnode, parentNamespace = htmlNS) => {
 /**
  * Serialize a vnode tree to an HTML string (SSR/SSG).
  *
- * @param {import('./core/types.js').ElementsVNode | string | number | null | undefined | false} vnode
+ * @param {import('./core/types.js').ElementsVNode | string | number
+ *   | null | undefined | false} vnode
  * @param {{ doctype?: boolean }} [options]
  * @returns {string}
  */

@@ -1,75 +1,5 @@
-/** X3DOM loading strategy (x3dom-full always)
- *
- * Goals:
- * - Keep the consumer experience simple: users import node helpers from
- *   @pfern/elements-x3dom only.
- * - Avoid loading heavy 3D code for apps that never use X3D.
- *
- * Implementation:
- * - When an X3D scene connects to this document, load vendor `x3dom-full.js` + `x3dom.css`
- *   via DOM injection.
- *
- * Rationale:
- * - Loading `x3dom.js` first and then upgrading to `x3dom-full.js` later can
- *   blank the canvas in some environments because `x3dom-full.js` replaces the
- *   global `x3dom` object. This package prefers correctness and stability over
- *   the smallest initial payload.
- */
-
-let isCanvas2DPatched = false
-
-const patchCanvas2DWillReadFrequentlyOnce = window => {
-  if (isCanvas2DPatched) return
-  isCanvas2DPatched = true
-
-  // TODO(upstream): Submit a PR to X3DOM so its Text texture/mipmap pipeline
-  // requests `getContext('2d', { willReadFrequently: true })` when it relies on
-  // repeated `getImageData()` readbacks (avoids Chrome warning + can improve
-  // performance).
-  const Canvas = window.HTMLCanvasElement
-  const originalGetContext = Canvas?.prototype?.getContext
-  if (typeof originalGetContext !== 'function') return
-
-  Canvas.prototype.getContext = function (type, attrs, ...rest) {
-    const shouldConsiderPatching =
-      type === '2d'
-      && (attrs === undefined || (typeof attrs === 'object' && attrs !== null))
-      && !(attrs && 'willReadFrequently' in attrs)
-
-    if (shouldConsiderPatching) {
-      // Chrome warning:
-      //   "Canvas2D: Multiple readback operations using getImageData are faster
-      //    with the willReadFrequently attribute set to true"
-      //
-      // X3DOM’s <Text> implementation uploads mipmaps by repeatedly calling
-      // `getImageData()` on a 2D canvas. Hint the browser to optimize for that.
-      const stack = (() => {
-        try { return new Error().stack || '' }
-        catch { return '' }
-      })()
-
-      const isLikelyX3DOMTextPath =
-        stack.includes('uploadTextMipmap')
-        || stack.includes('x3dom-full.js')
-        || stack.includes('x3dom.js')
-
-      if (isLikelyX3DOMTextPath) {
-        const nextAttrs =
-          attrs
-            ? { ...attrs, willReadFrequently: true }
-            : { willReadFrequently: true }
-
-        try { return originalGetContext.call(this, type, nextAttrs, ...rest) }
-        catch { /* fallback below */ }
-      }
-    }
-
-    return originalGetContext.call(this, type, attrs, ...rest)
-  }
-}
-
-// Observe the document, not its replaceable head/body. No runtime resources are
-// requested until a scene is connected; vnode construction remains ordinary data.
+// X3DOM replaces its global engine when the full bundle loads. Load it once
+// when a scene connects, and keep the request if the page replaces its head.
 const assets = new WeakMap()
 const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).href
 const fullUrl = new URL('../../vendor/x3dom-full.js', import.meta.url).href
@@ -78,7 +8,8 @@ const fullUrl = new URL('../../vendor/x3dom-full.js', import.meta.url).href
 // controls and method wrappers behind. Reset only those vendor-owned pieces.
 const resetScene = (scene, canvas) => {
   if (!canvas || scene.runtime) return
-  const controls = [canvas.canvas, canvas.stateViewer?.viewer, canvas.progressDiv, canvas.vrDiv]
+  const controls = [canvas.canvas, canvas.stateViewer?.viewer,
+                    canvas.progressDiv, canvas.vrDiv]
   controls.forEach(node => node?.remove())
   const methods = ['setAttribute', 'addEventListener', 'removeEventListener']
   methods.forEach(name => {
@@ -110,7 +41,7 @@ const asset = (document, tag, attribute, url) => {
   return { node, ready }
 }
 
-const watchDocument = document => {
+export const watchDocument = document => {
   const window = document.defaultView
   if (!window?.MutationObserver) return
   let connected = new WeakSet()
@@ -119,9 +50,11 @@ const watchDocument = document => {
   let stylesheet = null, script = null, revision = 0
   const sync = (mutations = []) => {
     const scenes = Array.from(document.querySelectorAll('x3d'))
-    const hasRemovedScene = mutations.some(mutation => Array.from(mutation.removedNodes).some(node =>
-      node.localName === 'x3d' || node.querySelector?.('x3d')))
-    const haveScenesChanged = hasRemovedScene || scenes.some(scene => !connected.has(scene))
+    const hasRemovedScene = mutations.some(mutation =>
+      Array.from(mutation.removedNodes).some(node =>
+        node.localName === 'x3d' || node.querySelector?.('x3d')))
+    const haveScenesChanged = hasRemovedScene
+      || scenes.some(scene => !connected.has(scene))
     connected = new WeakSet(scenes)
     if (!scenes.length) {
       stylesheet = script = null
@@ -129,13 +62,13 @@ const watchDocument = document => {
       return
     }
     if (!document.head) return
-    patchCanvas2DWillReadFrequentlyOnce(window)
     const css = asset(document, 'link', 'href', cssUrl)
     // A started script still executes if its old head is removed. Share that
     // request so head replacement cannot execute the vendor bundle twice.
     const js = window.x3dom?.reload ? null
       : engineLoad || (engineLoad = asset(document, 'script', 'src', fullUrl))
-    if (!haveScenesChanged && stylesheet === css.node && script === js?.node) return
+    if (!haveScenesChanged && stylesheet === css.node && script === js?.node)
+      return
     if (stylesheet !== css.node)
       css.ready.catch(error => console.warn('x3dom stylesheet failed to load', error))
     stylesheet = css.node
@@ -159,7 +92,8 @@ const watchDocument = document => {
       }
     })
   }
-  new window.MutationObserver(sync).observe(document, { childList: true, subtree: true })
+  new window.MutationObserver(sync).observe(document,
+                                            { childList: true, subtree: true })
   sync()
 }
 

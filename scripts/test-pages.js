@@ -1,6 +1,6 @@
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
-import { createServer } from 'node:http'
 import { spawn, spawnSync } from 'node:child_process'
+import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { tmpdir } from 'node:os'
@@ -12,7 +12,8 @@ if (!chrome) throw new Error('Set CHROME_BIN to a Chrome or Chromium executable.
 
 const missing = []
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' }
-// Serve only built files, with directory indexes and no SPA fallback or transforms.
+// Serve only built files, with directory indexes and no SPA fallback or
+// transforms.
 const server = createServer((request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname
   const base = pathname.startsWith('/elements/') ? '/elements/' : '/checks/'

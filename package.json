@@ -33,13 +33,14 @@
     "3d:fetch:x3dom-src": "npm --prefix packages/elements-x3dom run -s fetch:x3dom-src",
     "pkg:report": "node scripts/package-report.js packages/elements",
     "x3dom:pkg:report": "node scripts/package-report.js packages/elements-x3dom",
-    "3d:pkg:report": "node scripts/package-report.js packages/elements-x3dom",
-    "gen:vocabularies": "npm --prefix packages/elements run -s gen:vocabularies"
+    "3d:pkg:report": "node scripts/package-report.js packages/elements-x3dom"
   },
   "devDependencies": {
     "@types/node": "^25.0.10",
     "eslint": "^9.39.2",
+    "globals": "^14.0.0",
     "markdown-it": "^15.0.2",
+    "playwright": "^1.65.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },

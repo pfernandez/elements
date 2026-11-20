@@ -15,7 +15,8 @@ if (!chrome) throw new Error('Set CHROME_BIN to a Chrome or Chromium executable.
 // Exercise demo dependencies and ?raw imports through the same server as dev.
 const server = await browserServer(root)
 await server.listen()
-const address = /** @type {import('node:net').AddressInfo} */ (server.httpServer.address())
+const address =
+  /** @type {import('node:net').AddressInfo} */ (server.httpServer.address())
 const profile = mkdtempSync(path.join(tmpdir(), 'elements-browser-'))
 const url = `http://127.0.0.1:${address.port}/packages/elements/test/browser/index.html`
 

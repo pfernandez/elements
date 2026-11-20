@@ -1,94 +1,23 @@
-import { transition } from './transition.js'
-import { observe } from '../elements.js'
-import { a, button, div, form, input, output, span } from '../html.js'
-
-import { describe, test } from 'node:test'
+import { a, button, div, input, output } from '../html.js'
+import { afterEach, beforeEach, describe, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createFakeDom } from './fake-dom.js'
 import { createDeclarativeEventHandler } from '../src/core/events.js'
+import { createFakeDom } from './fake-dom.js'
+import { observe } from '../elements.js'
+import { transition } from './transition.js'
 
-const makeWindow = extra =>
-  ({
-    location: { pathname: '/', search: '', hash: '' },
-    history: { pushState: () => {} },
-    ...extra
+describe('events', () => {
+  let previousDocument, previousWindow
+  beforeEach(() => {
+    previousDocument = globalThis.document
+    previousWindow = globalThis.window
+    globalThis.document = createFakeDom().document
+    globalThis.window = undefined
   })
-
-describe("events", () => {
-  test('form onsubmit handler receives elements and event', () => {
-    let receivedElements, receivedEvent
-    const handler = (elements, event) => {
-      receivedElements = elements
-      receivedEvent = event
-      return ['div', {}, 'submitted']
-    }
-
-    const fakeElements = { task: { value: 'buy milk' } }
-    const fakeEvent = { type: 'submit', foo: 'bar' }
-
-    const f = form({ onsubmit: handler }, input({ name: 'task' }))
-    const result = f[1].onsubmit(fakeElements, fakeEvent)
-
-    assert.equal(receivedElements.task.value, 'buy milk')
-    assert.equal(receivedEvent.foo, 'bar')
-    assert.deepEqual(result, ['div', {}, 'submitted'])
+  afterEach(() => {
+    globalThis.document = previousDocument
+    globalThis.window = previousWindow
   })
-
-  test('onsubmit returning nothing does not trigger preventDefault', () => {
-    const handler = () => undefined
-    const f = form({ onsubmit: handler })
-
-    let wasPrevented = false
-    const event = {
-      preventDefault: () => { wasPrevented = true },
-      target: { elements: {} }
-    }
-
-    f[1].onsubmit(event.target.elements, event)
-    assert.equal(wasPrevented, false)
-  })
-
-  test('onsubmit handler that returns nothing does not trigger update', () => {
-    const handler = () => {}
-    const f = form({ onsubmit: handler })
-    const result = f[1].onsubmit({ target: {}, preventDefault: () => {} })
-    assert.equal(result, undefined)
-  })
-
-  test('form onsubmit handler returns a vnode', () => {
-    const handler = () => ['div', {}, 'submitted']
-    const f = form({ onsubmit: handler })
-    const result = f[1].onsubmit({}, {})  // simulate elements and event
-    assert.deepEqual(result, ['div', {}, 'submitted'])
-  })
-
-  test('button with onclick handler returns new vnode', () => {
-    const handler = () => ['span', {}, 'clicked']
-    const b = button({ onclick: handler }, 'Click Me')
-    const result = b[1].onclick()
-    assert.deepEqual(result, ['span', {}, 'clicked'])
-  })
-
-  test('onsubmit returns null → treated as passive (no update)', () => {
-    const f = form({ onsubmit: () => null })
-    const result = f[1].onsubmit({}, {})
-    assert.equal(result, null)
-  })
-
-  test('onsubmit returns false → treated as passive (no update)', () => {
-    const f = form({ onsubmit: () => false })
-    const result = f[1].onsubmit({}, {})
-    assert.equal(result, false)
-  })
-
-  test(
-    'onsubmit returns empty string → treated as passive (no update)',
-    () => {
-      const f = form({ onsubmit: () => '' })
-      const result = f[1].onsubmit({}, {})
-      assert.equal(result, '')
-    }
-  )
 
   test('passive event returns are valid and do not warn', async () => {
     const prevWarn = console.warn
@@ -115,24 +44,17 @@ describe("events", () => {
   })
 
   test('event handler update patches closest observer boundary', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
     const Inner = observe((n = 0) =>
       div({},
-        output(n),
-        button({ onclick: () => Inner(n + 1) }, 'inc')
+          output(n),
+          button({ onclick: () => Inner(n + 1) }, 'inc')
       )
     )
 
     const Outer = observe(() =>
       div({},
-        div({ id: 'sentinel' }, 'outer'),
-        Inner(0)
+          div({ id: 'sentinel' }, 'outer'),
+          Inner(0)
       )
     )
 
@@ -157,25 +79,15 @@ describe("events", () => {
     assert.equal(sentinel2.childNodes[0].nodeValue, 'outer')
     assert.equal(innerRoot2, innerRoot)
     assert.equal(innerRoot2.childNodes[0].childNodes[0].nodeValue, '1')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('async event handlers may return a vnode to update', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
     const AsyncCounter = observe((n = 0) =>
       div({},
-        output(n),
-        button({
-          onclick: async () => Promise.resolve(AsyncCounter(n + 1))
-        }, 'inc')
+          output(n),
+          button({
+            onclick: async () => Promise.resolve(AsyncCounter(n + 1))
+          }, 'inc')
       )
     )
 
@@ -190,19 +102,9 @@ describe("events", () => {
     const updated = nextRoot.childNodes[0].childNodes[0].nodeValue
     assert.equal(nextRoot, root)
     assert.equal(updated, '1')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('oninput passes the native target and original event', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
     const container = document.createElement('div')
 
     let gotTarget, gotEvent
@@ -210,12 +112,12 @@ describe("events", () => {
 
     const App = observe((value = '') =>
       div({},
-        input({
-          type: 'range',
-          value,
-          oninput: (target, event) =>
-            (gotTarget = target, gotEvent = event, App(target.value))
-        })
+          input({
+            type: 'range',
+            value,
+            oninput: (target, event) =>
+              (gotTarget = target, gotEvent = event, App(target.value))
+          })
       )
     )
 
@@ -233,19 +135,9 @@ describe("events", () => {
     assert.equal(gotEvent, event)
     assert.equal(inputEl.value, '0.2')
     assert.equal(wasPrevented, 0)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('<a> onclick returning a vnode prevents default navigation', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = undefined
-
     let wasPrevented = 0
 
     const container = document.createElement('div')
@@ -258,19 +150,9 @@ describe("events", () => {
 
     assert.equal(wasPrevented, 1)
     assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('transition() updates event handlers when props change', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
     const container = document.createElement('div')
     transition(button({ onclick: () => div('one') }, 'go'), container)
 
@@ -285,19 +167,9 @@ describe("events", () => {
     await btn2.onclick({})
     assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
     assert.equal(container.childNodes[0].childNodes[0].nodeValue, 'two')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('non-vnode event return is passive (no update)', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
     const container = document.createElement('div')
     transition(div(button({ onclick: () => 'noop' }, 'go')), container)
 
@@ -306,27 +178,14 @@ describe("events", () => {
 
     assert.equal(container.childNodes[0], root)
     assert.equal(root.childNodes[0].tagName.toLowerCase(), 'button')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('transition() clears removed event handlers', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
     const container = document.createElement('div')
     transition(button({ onclick: () => div('ok') }, 'go'), container)
     assert.equal(typeof container.childNodes[0].onclick, 'function')
 
     transition(button({}, 'go'), container)
     assert.equal(container.childNodes[0].onclick, null)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 })

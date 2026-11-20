@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { observe, project } from '../elements.js'
 import { button, div, option, select, span } from '../html.js'
+import { observe, project } from '../elements.js'
+import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
 
 let previousDocument
@@ -11,7 +11,8 @@ beforeEach(() => {
 })
 afterEach(() => { globalThis.document = previousDocument })
 const click = node => node.onclick({})
-const selectWithEvent = source => click(project(button({ onclick: () => source })))
+const selectWithEvent = source =>
+  click(project(button({ onclick: () => source })))
 const texts = node => node.childNodes.map(child => child.textContent)
 
 test('fresh sibling observations select in projection order, not construction order', () => {
@@ -143,12 +144,17 @@ test('a nested parent update can remove the active observer without resuming its
 
 test('assignment errors propagate without making a retry skip the failed property', () => {
   const view = observe(n => div({ 'data-state': n }, n))
-  const root = project(view(0))
+  const initial = view(0)
+  const root = project(initial)
+  const sibling = project(initial)
+  const next = view(1)
   const error = new Error('assignment failed')
   root.__throwOnSetAttribute.set('data-state', error)
-  assert.throws(() => selectWithEvent(view(1)), candidate => candidate === error)
+  assert.throws(() => selectWithEvent(next),
+                candidate => candidate === error)
   root.__throwOnSetAttribute.clear()
-  selectWithEvent(view(1))
+  selectWithEvent(next)
+  assert.equal(sibling.textContent, '1')
   assert.equal(root.getAttribute('data-state'), '1')
   assert.equal(root.textContent, '1')
 })

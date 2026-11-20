@@ -30,7 +30,8 @@ export const createDeclarativeEventHandler = ({ el, key, handler, resume }) =>
     const url = anchor && navigationURL(anchor, event)
 
     // Without a browser (e.g. a DOM test), link returns still claim navigation.
-    const shouldClaimLink = !!anchor && (!!url || !window && isPlainClick(event))
+    const shouldClaimLink =
+      !!anchor && (!!url || !window && isPlainClick(event))
     const shouldClaimDefault = key === 'onsubmit' || shouldClaimLink
 
     // Native gestures still reach user handlers, but their returned values must

@@ -32,8 +32,8 @@ necessary imperative DOM boundary with care.
 - Prefer **small, pure helpers** with clear names.
 - Build element vocabularies on the shared `element(tag, namespace?)` constructor; do not
   duplicate vnode construction or child-normalization logic.
-- HTML, SVG, and MathML helper modules are generated from `src/vocabularies/`;
-  edit the metadata and regenerate rather than editing generated helpers.
+- Maintain HTML, SVG, and MathML helpers and their JSDoc together in the
+  corresponding `src/html.js`, `src/svg.js`, and `src/mathml.js` modules.
 - Prefer **expressions over statements** (arrow functions without braces where
   reasonable).
 - Prefer **one return** at the end when using blocks; avoid blocks when

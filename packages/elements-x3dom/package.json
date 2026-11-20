@@ -25,10 +25,10 @@
     "gen:x3d:runtime": "node scripts/generate-x3d.js --runtime",
     "gen:x3d:types": "node scripts/generate-x3d.js --types",
     "fetch:x3dom-src": "node scripts/fetch-x3dom-src.js",
-    "build:types": "node scripts/build-types.js",
+    "build:types": "npm run -s clean:types && npm run -s gen:x3d:runtime && tsc -p tsconfig.json && npm run -s gen:x3d:types",
     "prepack": "npm run -s build:types",
-    "typecheck": "node scripts/typecheck.js",
-    "test": "node --test test/*.test.* --test-reporter spec",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --test-reporter=spec test/*.test.js",
     "test:coverage": "node scripts/test-coverage.js"
   },
   "peerDependencies": {

@@ -1,14 +1,12 @@
-// A native DOM callback may finish a newer update before the current one resumes.
-// Only our own superseded frame is caught; assignment and callback errors propagate.
 let active = null
 let mutation = null
 
+// A nested update can supersede the frame that triggered a native callback.
 export const checkpoint = () => {
-  if (active?.cancelled) throw active
+  if (active?.isCancelled) throw active
 }
 
-// A fragment is one logical range but several native operations. Complete its
-// current move/removal before a reentrant patch reads the published child order.
+// Finish moving the fragment before a nested update reads its child order.
 const finishMutation = () => {
   const current = mutation
   while (current && current.index < current.nodes.length) {
@@ -26,12 +24,16 @@ export const mutateRange = (nodes, apply) => {
 
 export const updating = (boundary, apply) => {
   const previous = active
-  if (boundary.update) boundary.update.cancelled = true
-  const frame = { cancelled: false }
+  if (boundary.update) boundary.update.isCancelled = true
+  const frame = { isCancelled: false }
   boundary.update = active = frame
-  try { finishMutation(); checkpoint(); apply() }
-  catch (error) { if (error !== frame) throw error }
-  finally {
+  try {
+    finishMutation()
+    checkpoint()
+    apply()
+  } catch (error) {
+    if (error !== frame) throw error
+  } finally {
     if (boundary.update === frame) boundary.update = null
     active = previous
   }

@@ -1,14 +1,21 @@
-import { apply, ci, math, semantics, annotationXml } from '../mathml.js'
-import { describe, test } from 'node:test'
+import { afterEach, beforeEach, describe, test } from 'node:test'
+import { annotationXml, apply, ci, math, semantics } from '../mathml.js'
+import { circle, svg } from '../svg.js'
 import assert from 'node:assert/strict'
-import { transition } from './transition.js'
-import { svg, circle } from '../svg.js'
 import { createFakeDom } from './fake-dom.js'
+import { transition } from './transition.js'
 
 const mathNS = 'http://www.w3.org/1998/Math/MathML'
 const svgNS = 'http://www.w3.org/2000/svg'
 
 describe('MathML helpers + runtime', () => {
+  let previousDocument
+  beforeEach(() => {
+    previousDocument = globalThis.document
+    globalThis.document = createFakeDom().document
+  })
+  afterEach(() => { globalThis.document = previousDocument })
+
   test('tag helpers return vnodes', () => {
     assert.deepEqual(apply({ id: 'x' }, [ci('f'), ci('y')]), [
       'apply',
@@ -19,13 +26,6 @@ describe('MathML helpers + runtime', () => {
   })
 
   test('transition() creates MathML elements in the MathML namespace', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = { requestAnimationFrame: () => 0, cancelAnimationFrame: () => {} }
-
     const container = document.createElement('div')
     transition(
       math(
@@ -41,19 +41,9 @@ describe('MathML helpers + runtime', () => {
     const applyEl = el.childNodes[0]
     assert.equal(applyEl.tagName.toLowerCase(), 'apply')
     assert.equal(applyEl.namespaceURI, mathNS)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('annotation-xml can switch children to the HTML namespace', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = { requestAnimationFrame: () => 0, cancelAnimationFrame: () => {} }
-
     const container = document.createElement('div')
     transition(
       math(
@@ -77,19 +67,9 @@ describe('MathML helpers + runtime', () => {
     assert.equal(annotationXmlEl.namespaceURI, mathNS)
     assert.equal(innerDivEl.tagName.toLowerCase(), 'div')
     assert.equal(innerDivEl.namespaceURI, 'http://www.w3.org/1999/xhtml')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 
   test('svg inside math switches to the SVG namespace', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = { requestAnimationFrame: () => 0, cancelAnimationFrame: () => {} }
-
     const container = document.createElement('div')
     transition(
       math(
@@ -102,8 +82,5 @@ describe('MathML helpers + runtime', () => {
     const svgEl = mathEl.childNodes[0]
     assert.equal(svgEl.tagName.toLowerCase(), 'svg')
     assert.equal(svgEl.namespaceURI, svgNS)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
   })
 })

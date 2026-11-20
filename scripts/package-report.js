@@ -34,7 +34,7 @@ const main = () => {
     'package.json',
     'README.md',
     'LICENSE',
-    ...(pkg.files || [])
+    ...pkg.files || []
   ])
 
   const expanded = dedupe(

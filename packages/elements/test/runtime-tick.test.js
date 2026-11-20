@@ -1,12 +1,9 @@
-import { transition } from './transition.js'
-
-import { a, div } from '../html.js'
-
 import { describe, test } from 'node:test'
+import { startTickLoop, stopTickLoop } from '../src/core/tick.js'
 import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
-
-import { startTickLoop, stopTickLoop } from '../src/core/tick.js'
+import { div } from '../html.js'
+import { transition } from './transition.js'
 
 const makeWindow = extra =>
   ({
@@ -15,7 +12,7 @@ const makeWindow = extra =>
     ...extra
   })
 
-describe("runtime-tick", () => {
+describe('runtime-tick', () => {
   test('ontick runs and threads context', async () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window
@@ -163,7 +160,7 @@ describe("runtime-tick", () => {
         rafQueue.set(id, cb)
         return id
       },
-      cancelAnimationFrame: id => rafQueue.delete(id),
+      cancelAnimationFrame: id => rafQueue.delete(id)
     }
 
     const calls = []
@@ -172,7 +169,7 @@ describe("runtime-tick", () => {
     startTickLoop(
       el,
       (_el, ctx = { n: 0 }, dt) =>
-        (calls.push([ctx.n, dt]), ({ n: ctx.n + 1 }))
+        (calls.push([ctx.n, dt]), { n: ctx.n + 1 })
     )
 
     const [f1] = rafQueue.keys()
@@ -228,7 +225,7 @@ describe("runtime-tick", () => {
         rafQueue.set(id, cb)
         return id
       },
-      cancelAnimationFrame: id => rafQueue.delete(id),
+      cancelAnimationFrame: id => rafQueue.delete(id)
     }
 
     const el = { isConnected: true }
@@ -239,7 +236,7 @@ describe("runtime-tick", () => {
 
     startTickLoop(
       el,
-      (_el, ctx = { n: 0 }, dt) => (calls++, dts.push(dt), ({ n: ctx.n + 1 })),
+      (_el, ctx = { n: 0 }, dt) => (calls++, dts.push(dt), { n: ctx.n + 1 }),
       { isReady: () => isReady }
     )
 

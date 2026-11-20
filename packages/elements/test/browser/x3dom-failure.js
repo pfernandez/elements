@@ -1,7 +1,9 @@
-import { project } from '@pfern/elements'
 import { box, scene, shape, x3d } from '@pfern/elements-x3dom'
+import { project } from '@pfern/elements'
 
-const assert = (condition, message) => { if (!condition) throw new Error(message) }
+const assert = (isTrue, message) => {
+  if (!isTrue) throw new Error(message)
+}
 const delay = () => new Promise(resolve => setTimeout(resolve, 30))
 const until = async (predicate, message) => {
   for (let i = 0; i < 100; i++) {
@@ -43,5 +45,6 @@ try {
          'reconnection must preserve attribute updates')
   parent.postMessage({ x3domCheck: 'PASS' }, location.origin)
 } catch (error) {
-  parent.postMessage({ x3domCheck: error.stack || String(error) }, location.origin)
+  parent.postMessage({ x3domCheck: error.stack || String(error) },
+                     location.origin)
 } finally { console.warn = warn }

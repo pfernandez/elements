@@ -6,7 +6,7 @@
  * threads optional context, and provides a `dt` in milliseconds.
  *
  * The engine is generic and can be used with any element; callers may provide
- * a `isReady(el)` predicate to gate ticking on external readiness (e.g. X3DOM
+ * an `isReady(el)` predicate to gate ticking on external readiness (e.g. X3DOM
  * runtime availability).
  */
 
@@ -84,7 +84,8 @@ const isAlwaysReady = () => true
  * @param {(el: Element, ctx: any, dtMs: number) => (any | void)} handler
  * @param {{ isReady?: (el: Element) => boolean }} [options]
  */
-export const startTickLoop = (el, handler, { isReady = isAlwaysReady } = {}) => {
+export const startTickLoop = (el, handler,
+                              { isReady = isAlwaysReady } = {}) => {
   const canTick =
     typeof window !== 'undefined'
     && typeof window.requestAnimationFrame === 'function'

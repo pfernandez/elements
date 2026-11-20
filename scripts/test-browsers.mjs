@@ -1,55 +1,61 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
+import * as engines from 'playwright'
 import { browserServer } from './browser-server.js'
+import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
-// Optional cross-engine checks use a local Playwright installation.
-const engines = await import('playwright')
+const supported = ['chromium', 'firefox', 'webkit']
+const groups = ['projection', 'events', 'observers', 'observer-selection',
+                'project', 'integration']
 const names = process.argv.slice(2)
-const results = []
-for (const name of names.length ? names : ['chromium', 'firefox', 'webkit']) {
-  if (!['chromium', 'firefox', 'webkit'].includes(name)) throw new Error(`Unknown engine: ${name}`)
+
+for (const name of names.length ? names : supported) {
+  if (!supported.includes(name)) throw new Error(`Unknown engine: ${name}`)
+
   const server = await browserServer(root)
+  const errors = []
   let browser
-  const result = { engine: name, version: null, checks: [], errors: [] }
+  let checks = 0
   try {
-    console.log(`${name}: launching`)
     await server.listen()
-    browser = await engines[name].launch({ headless: true,
-      ...name === 'chromium' ? { executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
-        args: ['--js-flags=--expose-gc'] } : {} })
-    result.version = browser.version()
-    const address = server.httpServer.address()
-    // Separate pages prevent one group's synthetic history entries from
-    // becoming another group's Back/Forward destinations.
-    for (const group of ['projection', 'events', 'observers', 'observer-selection', 'project', 'integration']) {
+    const options = name === 'chromium'
+      ? { channel: 'chrome', executablePath: process.env.CHROME_BIN,
+          args: ['--js-flags=--expose-gc']}
+      : {}
+    browser = await engines[name].launch(options)
+    const { port } = server.httpServer.address()
+    const url = `http://127.0.0.1:${port}/packages/elements/test/browser/`
+
+    // Isolate each group's DOM, session history and one-shot failure fixtures.
+    for (const group of groups) {
       const page = await browser.newPage()
       try {
+        page.on('pageerror', error => errors.push(String(error)))
+        if (name !== 'chromium')
+          await page.exposeFunction('gc', () => page.requestGC())
         await page.addInitScript(filter => {
-          window.browserCheckFilter = filter
-          window.reportBrowserCheck = name => console.info('CHECK', name)
+          globalThis.browserCheckFilter = filter
         }, process.env.ELEMENTS_BROWSER_FILTER)
-        page.on('console', message => {
-          if (message.text().startsWith('CHECK')) console.log(name, message.text())
-        })
-        page.on('pageerror', error => result.errors.push(String(error)))
-        if (name !== 'chromium') await page.exposeFunction('gc', () => page.requestGC())
-        await page.goto(`http://127.0.0.1:${address.port}/packages/elements/test/browser/index.html?group=${group}`,
-                        { waitUntil: 'commit' })
-        await page.waitForSelector('#results', { timeout: 30000 })
-        result.checks.push(...JSON.parse(decodeURIComponent(await page.locator('#results').textContent())))
-      } finally { await page.close() }
+        await page.goto(`${url}index.html?group=${group}`, { waitUntil: 'commit' })
+        const output = await page.locator('#results').textContent()
+        const results = JSON.parse(decodeURIComponent(output))
+        checks += results.length
+        for (const { name, error } of results)
+          if (error) errors.push(`${name}\n${error}`)
+      } finally {
+        await page.close()
+      }
     }
-  } catch (error) { result.errors.push(String(error)); console.error(name, String(error)) }
-  finally { await browser?.close(); await server.close() }
-  results.push(result)
-  for (const check of result.checks.filter(check => check.error)) console.error(name, check)
-  for (const error of result.errors) console.error(name, error)
-  console.log(`${name} ${result.version}: ${result.checks.filter(check => !check.error).length}/${result.checks.length} passed`)
+    if (!checks) errors.push('No browser checks matched.')
+    console.log(`${name} ${browser.version()} ran ${checks} checks`)
+  } catch (error) {
+    errors.push(String(error))
+  } finally {
+    await browser?.close()
+    await server.close()
+  }
+
+  if (errors.length) {
+    errors.forEach(error => console.error(name, error))
+    process.exitCode = 1
+  }
 }
-const output = path.join(root, '.cache/elements-validation')
-mkdirSync(output, { recursive: true })
-writeFileSync(path.join(output, 'browsers.json'), JSON.stringify({ recordedAt: new Date().toISOString(), results }, null, 2) + '\n')
-process.exitCode = results.some(result => result.errors.length || !result.checks.length
-  || result.checks.some(check => check.error)) ? 1 : 0

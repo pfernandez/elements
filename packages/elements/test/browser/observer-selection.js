@@ -1,6 +1,6 @@
-import { element, fragment, observe, project } from '../../elements.js'
-import { button, div, span } from '../../html.js'
 import { assert, equal, test } from './harness.js'
+import { button, div, span } from '../../html.js'
+import { element, fragment, observe, project } from '../../elements.js'
 
 let connected, disconnected
 customElements.define('elements-selection-probe', class extends HTMLElement {
@@ -54,7 +54,8 @@ test('custom element callbacks see intermediate selections before an event finis
   const left = project(initial), right = project(initial)
   document.body.append(left, right)
   const seen = []
-  left.firstChild.onState = value => seen.push([value, left.firstChild.textContent])
+  left.firstChild.onState = value =>
+    seen.push([value, left.firstChild.textContent])
   const control = project(button({ onclick: () => parent([1, 2]) }))
   control.click()
   equal(seen, [['1', '0'], ['2', '1']])
@@ -147,8 +148,8 @@ test('connection callbacks can supersede insertion without leaving stale childre
 test('disconnection callbacks can supersede removal and reorder remaining children', () => {
   const host = document.body.appendChild(document.createElement('section'))
   const view = observe(n => div(n === 0 ? probe({ key: 'probe' }, 'old') : null,
-    n === 2 ? [span({ key: 'b' }, 'B2'), span({ key: 'a' }, 'A2')]
-      : [span({ key: 'a' }, 'A'), span({ key: 'b' }, 'B')]))
+                                n === 2 ? [span({ key: 'b' }, 'B2'), span({ key: 'a' }, 'A2')]
+                                  : [span({ key: 'a' }, 'A'), span({ key: 'b' }, 'B')]))
   const root = project(view(0), host)
   const control = project(button({ onclick: () => view(2) }))
   let during
@@ -165,15 +166,15 @@ test('disconnection callbacks can supersede removal and reorder remaining childr
 })
 
 test('style callbacks can restore already-written and not-yet-written style properties', () => {
-  for (const removing of [false, true]) {
+  for (const shouldRemove of [false, true]) {
     const view = observe(n => probe({ style: n === 1
-      ? removing ? { backgroundColor: 'blue' } : { color: 'red', backgroundColor: 'blue' }
-      : { color: 'black', backgroundColor: 'white' } }, n))
+      ? shouldRemove ? { backgroundColor: 'blue' } : { color: 'red', backgroundColor: 'blue' }
+      : { color: 'black', backgroundColor: 'white' }}, n))
     const initial = view(0), root = project(initial, document.body)
-    let fired = false
+    let hasFired = false
     root.onStyle = () => {
-      if (!fired) {
-        fired = true
+      if (!hasFired) {
+        hasFired = true
         project(button({ onclick: () => initial })).click()
         equal([root.style.color, root.style.backgroundColor, root.textContent], ['black', 'white', '0'])
       }

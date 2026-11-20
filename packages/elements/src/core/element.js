@@ -20,9 +20,12 @@ const isPropsObject = value =>
  */
 export const element = (tag, namespace = htmlNS) =>
   /** @type {import('./types.js').ElementsElementForTag<Tag>} */ ((...args) => {
-  const props = isPropsObject(args[0]) ? args.shift() : {}
+    const props = isPropsObject(args[0]) ? args.shift() : {}
 
-  return withNamespace(/** @type {import('./types.js').ElementsVNode} */ (
-    normalizeChildren(args, [tag, props])
-  ), namespace)
-})
+    return withNamespace(/** @type {import('./types.js').ElementsVNode} */ (
+      normalizeChildren(args, [tag, props])
+    ), namespace)
+  })
+
+/** Group children in a live DOM range without a wrapper element. */
+export const fragment = element('fragment')

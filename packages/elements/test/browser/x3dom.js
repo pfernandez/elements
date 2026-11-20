@@ -1,7 +1,9 @@
-import { html, observe, project } from '@pfern/elements'
 import { appearance, box, material, scene, shape, x3d } from '@pfern/elements-x3dom'
+import { html, observe, project } from '@pfern/elements'
 
-const assert = (condition, message) => { if (!condition) throw new Error(message) }
+const assert = (isTrue, message) => {
+  if (!isTrue) throw new Error(message)
+}
 const delay = () => new Promise(resolve => setTimeout(resolve, 30))
 const until = async (predicate, message) => {
   for (let i = 0; i < 100; i++) {
@@ -13,7 +15,7 @@ const until = async (predicate, message) => {
 const assets = () => document.querySelectorAll('script[src*="x3dom-full"], link[href*="x3dom"]')
 const styles = () => document.querySelector('link[rel="stylesheet"][href*="x3dom"]')
 const view = observe(() => x3d({ width: '100px', height: '100px' },
-  scene(shape(appearance(material({ diffuseColor: '1 0 0' })), box()))))
+                               scene(shape(appearance(material({ diffuseColor: '1 0 0' })), box()))))
 
 try {
   const description = view()
@@ -67,5 +69,6 @@ try {
          'parallel scenes must share a stylesheet')
   parent.postMessage({ x3domCheck: 'PASS' }, location.origin)
 } catch (error) {
-  parent.postMessage({ x3domCheck: error.stack || String(error) }, location.origin)
+  parent.postMessage({ x3domCheck: error.stack || String(error) },
+                     location.origin)
 }

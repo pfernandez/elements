@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, test } from 'node:test'
-import assert from 'node:assert/strict'
-import { transition } from './transition.js'
-import { observe, toHtmlString, fragment } from '../elements.js'
-import { body, button, div, html, input, output, span } from '../html.js'
-import { createFakeDom } from './fake-dom.js'
 import { annotationXml, math } from '../mathml.js'
+import { button, div, input, output, span } from '../html.js'
+import { fragment, observe, toHtmlString } from '../elements.js'
+import assert from 'node:assert/strict'
+import { createFakeDom } from './fake-dom.js'
+import { transition } from './transition.js'
 
 let previousDocument
 beforeEach(() => {
@@ -161,7 +161,10 @@ test('overlapping asynchronous events retain their independent event identities'
   const first = deferred(), second = deferred()
   const create = wait => {
     const describeState = observe((n = 0) =>
-      button({ onclick: async () => { await wait.promise; return describeState(n + 1) } }, n))
+      button({ onclick: async () => {
+        await wait.promise
+        return describeState(n + 1)
+      } }, n))
     return describeState
   }
   const a = mount(create(first)()), b = mount(create(second)(10))
@@ -197,7 +200,8 @@ test('constructing a future observer value does not update before the event retu
 })
 
 test('an observer value discarded by an event does not update its identity', () => {
-  const describeState = observe((n = 0) => button({ onclick: () => { describeState(n + 1) } }, n))
+  const describeState = observe((n = 0) =>
+    button({ onclick: () => { describeState(n + 1) } }, n))
   const host = mount(describeState())
   click(host.firstChild)
   assert.equal(host.textContent, '0')
@@ -222,9 +226,9 @@ test('observer and event failures propagate and do not poison later updates', as
   const describeState = observe((n = 0) => {
     if (n < 0) throw new Error('invalid state')
     return div(output(n),
-      button({ onclick: () => describeState(-1) }, 'throw'),
-      button({ onclick: async () => { throw new Error('rejected') } }, 'reject'),
-      button({ onclick: () => describeState(n + 1) }, 'next'))
+               button({ onclick: () => describeState(-1) }, 'throw'),
+               button({ onclick: async () => { throw new Error('rejected') } }, 'reject'),
+               button({ onclick: () => describeState(n + 1) }, 'next'))
   })
   const host = mount(describeState())
   assert.throws(() => click(host.firstChild.childNodes[1]), /invalid state/)
@@ -271,8 +275,10 @@ test('unchanged input props retain native editing across parent updates', () => 
 })
 
 test('preconstructed continuations cycle across every projection of their definition', () => {
-  const describeState = observe(n => button({ onclick: () => n ? zero : one }, n))
-  const zero = Object.freeze(describeState(0)), one = Object.freeze(describeState(1))
+  const describeState = observe(n =>
+    button({ onclick: () => n ? zero : one }, n))
+  const zero = Object.freeze(describeState(0))
+  const one = Object.freeze(describeState(1))
   const host = mount(zero), shared = mount(zero)
   click(host.firstChild)
   assert.equal(host.textContent, '1')
@@ -337,7 +343,8 @@ test('replacing a wrapper with its child can select a new root tag safely', () =
 
 test('namespace replacement can select a new observer root without retaining old subscriptions', () => {
   const child = observe(tag => [tag === span ? 'span' : 'div', {}, 'child'])
-  const describeState = (encoding, value) => math(annotationXml({ encoding }, value))
+  const describeState = (encoding, value) =>
+    math(annotationXml({ encoding }, value))
   const host = mount(describeState('text/html', child(div)))
   const other = mount(child(div))
   transition(describeState('application/xml', child(span)), host)

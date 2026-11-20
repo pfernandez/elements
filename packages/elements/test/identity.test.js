@@ -1,9 +1,9 @@
-import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { transition } from './transition.js'
-import { observe, fragment } from '../elements.js'
 import { button, div, input, li, span, textarea, ul } from '../html.js'
+import { fragment, observe } from '../elements.js'
+import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
+import { transition } from './transition.js'
 
 // Identity belongs to retained references and observer definitions;
 // anonymous children and indistinguishable projections belong to positions.
@@ -148,7 +148,8 @@ test('observer fragment ranges move as a unit through fresh calls', () => {
   nodes[6].value = 'Bob draft'
 
   transition(div(bob(), alice()), host)
-  assert.deepEqual(Array.from(host.firstChild.childNodes), [...nodes.slice(4), ...nodes.slice(0, 4)])
+  assert.deepEqual(Array.from(host.firstChild.childNodes),
+                   [...nodes.slice(4), ...nodes.slice(0, 4)])
   assert.equal(nodes[2].value, 'Alice draft')
   assert.equal(nodes[6].value, 'Bob draft')
 })

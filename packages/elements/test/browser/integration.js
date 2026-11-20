@@ -1,8 +1,6 @@
-
-import { toHtmlString } from '../../elements.js'
-import { a, body, button, div, form, input, output } from '../../html.js'
-
 import { assert, equal, mount, test, traverse } from './harness.js'
+import { div } from '../../html.js'
+import { toHtmlString } from '../../elements.js'
 
 // Document-level integration runs after the focused browser contracts.
 const checkX3DOM = async page => {
@@ -15,7 +13,8 @@ const checkX3DOM = async page => {
         error ? reject(error) : resolve()
       }
       const receive = event => {
-        if (event.source !== frame.contentWindow || event.origin !== location.origin || !event.data.x3domCheck) return
+        if (event.source !== frame.contentWindow
+           || event.origin !== location.origin || !event.data.x3domCheck) return
         finish(event.data.x3domCheck === 'PASS' ? null : new Error(event.data.x3domCheck))
       }
       const timeout = setTimeout(() => finish(new Error('X3DOM integration timed out')), 8000)
@@ -63,7 +62,7 @@ test('the demo navigates and its counters and todos continue through events', as
   equal(document.head.querySelector('meta[name="viewport"]').content,
         'width=device-width, initial-scale=1.0')
   assert(document.doctype?.name === 'html', 'root replacement preserves the doctype')
-  assert(document.head.querySelector('style')?.textContent.includes('grid-template-rows'),
+  assert(document.head.querySelector('style')?.textContent.includes('grid-template-columns'),
          'the projected head contains the demo stylesheet')
   assert(!document.head.querySelector('style[data-vite-dev-id]'), 'demo CSS needs no Vite injection')
   equal(getComputedStyle(document.body).display, 'grid')
@@ -85,12 +84,12 @@ test('the demo navigates and its counters and todos continue through events', as
   document.querySelector('a[href="/scope"]').click()
   await Promise.resolve()
   equal(counters(), ['0', '0'])
-  assert(document.querySelector('h1').textContent === 'Elements.js Demo')
+  assert(document.querySelector('h1').textContent === 'Elements.js')
 
   document.querySelector('a[href="/writing"]').click()
   equal(location.pathname, '/writing')
   assert(document.querySelector('.markdown'))
-  assert(document.querySelector('a[href="/writing"]').classList.contains('active'))
+  assert(document.querySelector('a[href="/writing"]').getAttribute('aria-current') === 'page')
   await traverse(-1)
   equal(location.pathname, '/scope')
   equal(counters(), ['0', '0'])
@@ -118,7 +117,8 @@ test('the ontick demo carries frame state, waits for readiness and stops on navi
     frame(1000)
     equal(animated.getAttribute('rotation'), '0 1 0 0.5')
 
-    // Stand in for WebGL readiness; frame timing is controlled, the DOM is real.
+    // Stand in for WebGL readiness; frame timing is controlled, the DOM is
+    // real.
     animated.closest('x3d').runtime = {}
     frame(2000)
     equal(animated.getAttribute('rotation'), '0 1 0 0.5')

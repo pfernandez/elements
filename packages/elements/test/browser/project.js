@@ -1,6 +1,6 @@
-import { element, fragment, html, mathml, observe, project, svg } from '../../elements.js'
 import { assert, equal, test, traverse } from './harness.js'
-import { snapshot, resume, sourceOf } from '../../src/core/observer.js'
+import { element, fragment, html, mathml, observe, project, svg } from '../../elements.js'
+import { resume, snapshot, sourceOf } from '../../src/core/observer.js'
 
 const host = () => document.body.appendChild(document.createElement('section'))
 const pause = () => new Promise(resolve => setTimeout(resolve, 0))
@@ -47,7 +47,8 @@ test('explicit fragment ranges update after native insertion and movement', () =
   target.querySelector('button').click()
   equal(target.textContent, '01next')
   const appended = project(initial, target)
-  assert(appended instanceof DocumentFragment && appended.childNodes.length === 0)
+  assert(appended instanceof DocumentFragment
+    && appended.childNodes.length === 0)
   // Move the entire range, including its boundary markers.
   other.append(...target.childNodes)
   other.querySelector('button').click()
@@ -59,7 +60,8 @@ test('explicit fragment ranges update after native insertion and movement', () =
 })
 
 test('ticks wait for insertion and resume retained context after reconnection', () => {
-  const request = window.requestAnimationFrame, cancel = window.cancelAnimationFrame
+  const request = window.requestAnimationFrame
+  const cancel = window.cancelAnimationFrame
   const pending = new Map()
   let id = 0
   window.requestAnimationFrame = callback => (pending.set(++id, callback), id)
@@ -148,7 +150,7 @@ test('vocabularies retain their namespaces in XML documents', () => {
   equal(snapshot(xml).size, 2)
 })
 
-test('iframe projections and isAdopted roots navigate and restore their own document', async () => {
+test('iframe projections and adopted roots navigate and restore their own document', async () => {
   const parentURL = location.href
   const parentBase = document.createElement('base')
   parentBase.target = '_blank'
@@ -175,7 +177,7 @@ test('iframe projections and isAdopted roots navigate and restore their own docu
         isAdopted && doc.body.append(node)
         const identity = sourceOf(initial).identity
         assert(snapshot(doc).has(identity))
-        assert(!snapshot(document).has(identity), 'isAdopted roots leave their original document')
+        assert(!snapshot(document).has(identity), 'Adopted roots leave their original document')
         node.click()
         await pause()
         equal(window.location.pathname, '/embedded/step-1')
@@ -211,7 +213,8 @@ test('parallel fragment ranges and independent nested hosts retain their boundar
   const outer = observe((isShown = true) => fragment(
     html.button({ onclick: () => outer(!isShown) }, 'toggle'),
     isShown ? html.section() : html.span('gone')))
-  const counter = observe((n = 0) => html.button({ onclick: () => counter(n + 1) }, n))
+  const counter = observe((n = 0) =>
+    html.button({ onclick: () => counter(n + 1) }, n))
   const initial = outer()
   project(initial, target)
   project(initial, target)
@@ -235,16 +238,18 @@ test('explicit targets keep document elements local', () => {
   equal(target.querySelector('body').textContent, 'local')
   const fragment = document.createDocumentFragment()
   const detached = project(html.body(), fragment)
-  assert(detached instanceof HTMLBodyElement && detached.parentNode === fragment)
+  assert(detached instanceof HTMLBodyElement
+    && detached.parentNode === fragment)
   const foreign = project(element('body', 'urn:example')())
   assert(foreign.parentNode === null && document.body === body)
 })
 
 test('document roots replace the shell, return installed DOM, and retain observer updates', () => {
   const original = document.documentElement, doctype = document.doctype
-  const page = observe((n = 0) => html.html({ lang: 'en' },
-    html.head(html.title(`Page ${n}`)),
-    html.body(html.button({ onclick: () => page(n + 1) }, n))))
+  const page = observe((n = 0) =>
+    html.html({ lang: 'en' },
+              html.head(html.title(`Page ${n}`)),
+              html.body(html.button({ onclick: () => page(n + 1) }, n))))
   try {
     const root = project(page())
     assert(root === document.documentElement && !original.isConnected)
@@ -265,11 +270,13 @@ test('document roots replace the shell, return installed DOM, and retain observe
     const initial = counter()
     const local = project(initial, document.createDocumentFragment())
     const body = project(initial)
-    assert(document.body === body && !previousBody.isConnected && document.head === head)
+    assert(document.body === body && !previousBody.isConnected
+      && document.head === head)
     body.firstChild.click()
     equal([body.textContent, local.textContent], ['1', '1'])
     const replacement = project(initial)
-    assert(document.body === replacement && replacement !== body && !body.isConnected)
+    assert(document.body === replacement && replacement !== body
+      && !body.isConnected)
     replacement.firstChild.click()
     equal([replacement.textContent, body.textContent, local.textContent], ['2', '2', '2'])
 
@@ -287,7 +294,8 @@ test('document roots replace the shell, return installed DOM, and retain observe
 test('native removal permits collection while retained DOM and observer state survive', async () => {
   assert(typeof globalThis.gc === 'function', 'The runner must enable --expose-gc')
   const target = host()
-  const counter = observe((n = 0) => html.button({ onclick: () => counter(n + 1) }, n))
+  const counter = observe((n = 0) =>
+    html.button({ onclick: () => counter(n + 1) }, n))
   const wrapper = observe(value => value)
   const initial = counter()
   const discard = () => {

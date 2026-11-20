@@ -58,7 +58,8 @@ export const createFakeDom = () => {
     get firstChild() { return this.childNodes[0] || null }
     get lastChild() { return this.childNodes.at(-1) || null }
     get nextSibling() {
-      return this.parentNode?.childNodes[this.parentNode.childNodes.indexOf(this) + 1] || null
+      const siblings = this.parentNode?.childNodes
+      return siblings?.[siblings.indexOf(this) + 1] || null
     }
 
     get textContent() {
@@ -84,6 +85,10 @@ export const createFakeDom = () => {
   }
 
   class FakeStyle {
+    set cssText(value) {
+      if (value === '') Object.keys(this).forEach(key => delete this[key])
+    }
+
     setProperty(key, value) {
       this[String(key)] = String(value)
     }
@@ -158,7 +163,9 @@ export const createFakeDom = () => {
       this.appendChild(root)
     }
 
-    get documentElement() { return this.childNodes.find(node => node.nodeType === 1) || null }
+    get documentElement() {
+      return this.childNodes.find(node => node.nodeType === 1) || null
+    }
     get head() { return this.documentElement?.childNodes.find(node => node.tagName === 'HEAD') || null }
     get body() { return this.documentElement?.childNodes.find(node => node.tagName === 'BODY') || null }
 

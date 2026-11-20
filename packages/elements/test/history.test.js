@@ -1,9 +1,9 @@
-import assert from 'node:assert/strict'
-import { test } from 'node:test'
-import { transition } from './transition.js'
-import { observe } from '../elements.js'
 import { a, button, div } from '../html.js'
 import { click, withBrowser } from './fake-browser.js'
+import assert from 'node:assert/strict'
+import { observe } from '../elements.js'
+import { test } from 'node:test'
+import { transition } from './transition.js'
 
 const mount = vnode => {
   const host = document.createElement('section')
@@ -35,7 +35,8 @@ test('sidebar links target page projections without registration or rerendering 
 
 test('history retains local state on departure and restores nested observations', () =>
   withBrowser(({ history }) => {
-    const counter = observe((n = 0) => button({ onclick: () => counter(n + 1) }, n))
+    const counter = observe((n = 0) =>
+      button({ onclick: () => counter(n + 1) }, n))
     const page = observe(path => path === 'home' ? div('home', counter()) : div('about'))
     const host = mount(div(
       a({ href: '/about', onclick: () => page('about') }, 'About'), page('home')))
@@ -150,7 +151,7 @@ test('native destinations, passive links and opt-outs do not record observations
 
 test('unavailable history observations fall back to the URL; hash-only traversal stays native', () =>
   withBrowser(({ history, location, reloads }) => {
-    history.replaceState({ __elements_history: { session: 'previous-document', id: 1 } }, '', '/old')
+    history.replaceState({ __elements_history: { session: 'previous-document', id: 1 }}, '', '/old')
     history.pushState({}, '', '/new')
     mount(div('new'))
     history.back()

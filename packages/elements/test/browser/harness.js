@@ -19,20 +19,27 @@ export const mount = vnode => {
   return container
 }
 
-export const traverse = (delta, window = globalThis.window) => new Promise((resolve, reject) => {
-  const timeout = setTimeout(() => reject(new Error('History traversal timed out')), 2000)
-  window.addEventListener('popstate', () => {
-    clearTimeout(timeout)
-    queueMicrotask(resolve)
-  }, { once: true })
-  window.history.go(delta)
-})
+export const traverse = (delta, window = globalThis.window) =>
+  new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('History traversal timed out')), 2000)
+    window.addEventListener('popstate', () => {
+      clearTimeout(timeout)
+      queueMicrotask(resolve)
+    }, { once: true })
+    window.history.go(delta)
+  })
 
-export const run = async () =>
-  checks.filter(({ name }) => !globalThis.browserCheckFilter || name.includes(globalThis.browserCheckFilter))
-  .reduce(async (pending, { name, run }) => {
-    const results = await pending
-    globalThis.reportBrowserCheck?.(name)
-    try { await run(); return [...results, { name }] }
-    catch (error) { return [...results, { name, error: `${error}\n${error.stack || ''}` }] }
-  }, Promise.resolve([]))
+export const run = async () => {
+  const results = []
+  const filter = globalThis.browserCheckFilter
+  for (const { name, run } of checks) {
+    if (filter && !name.includes(filter)) continue
+    try {
+      await run()
+      results.push({ name })
+    } catch (error) {
+      results.push({ name, error: error.stack || String(error) })
+    }
+  }
+  return results
+}

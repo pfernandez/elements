@@ -10,30 +10,26 @@
 
 body {
   display: grid;
-  /* Stretch vertically to fill window */
-  grid-template-rows: auto 1fr;
   min-height: 100dvh;
   padding: 20px;
 }
 
-body>main, main {
-  border-bottom: 1px solid #ddd;
-  padding-top: 0;
+main {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 2rem;
+  align-content: start;
 }
 
-body>header, header {
-  padding-bottom: 0;
-}
+#sidebar h1 { font-size: 1.25rem }
+#sidebar button { display: none }
+#sidebar ul, #sidebar li { display: block }
+#sidebar [aria-current="page"] { font-weight: bold }
 
-nav {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 1em;
-  padding-bottom: 1em;
-}
-
-nav a:not(.active) {
-  text-decoration: none;
+@media (max-width: 48rem) {
+  main { grid-template-columns: 1fr; gap: 1rem }
+  #sidebar button { display: inline-block }
+  #sidebar button[aria-expanded="false"] + nav { display: none }
 }
 
 section {

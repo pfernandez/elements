@@ -31,20 +31,23 @@ test('matching reserves references before keys and rejects ambiguous identities'
 })
 
 const permutations = values => values.length
-  ? values.flatMap((value, index) => permutations(values.filter((_, i) => i !== index))
-    .map(rest => [value, ...rest])) : [[]]
+  ? values.flatMap((value, index) =>
+    permutations(values.filter((_, i) => i !== index))
+      .map(rest => [value, ...rest])) : [[]]
 
 test('plain child matching reserves moved references before filling positions', () => {
   const left = div(), right = div(), fresh = () => div()
   assert.deepEqual(matchChildren([left, right], [fresh(), fresh()]), [0, 1])
-  assert.deepEqual(matchChildren([left, right], [left, fresh(), fresh()]), [0, 1, -1])
+  assert.deepEqual(matchChildren([left, right], [left, fresh(), fresh()]),
+                   [0, 1, -1])
   assert.deepEqual(matchChildren([left, right], [right, fresh()]), [1, -1])
   assert.deepEqual(matchChildren([left, right], [fresh(), left]), [-1, 0])
   assert.deepEqual(matchChildren([left, right], [left, left]), [0, 1])
   assert.deepEqual(matchChildren([left, left], [left, fresh()]), [0, 1])
   assert.deepEqual(matchChildren([left, right], [fresh(), div({ key: 'new' })]), [0, -1])
   const observed = observe(() => div())
-  assert.deepEqual(matchChildren([observed(), right], [fresh(), observed()]), [-1, 0])
+  assert.deepEqual(matchChildren([observed(), right], [fresh(), observed()]),
+                   [-1, 0])
 })
 
 test('placement retains a maximum ordered subsequence for every five-child permutation', () => {
@@ -52,12 +55,15 @@ test('placement retains a maximum ordered subsequence for every five-child permu
     // Exhaustive subsets form an independent oracle for the minimum move count.
     const ordered = Array.from({ length: 1 << values.length }, (_, mask) =>
       values.filter((_, index) => mask & 1 << index))
-      .filter(subset => subset.every((value, index) => !index || value > subset[index - 1]))
+      .filter(subset => subset.every((value, index) =>
+        !index || value > subset[index - 1]))
     const maximum = Math.max(...ordered.map(subset => subset.length))
     const stable = stablePositions(values)
-    const retained = stable ? values.filter((_, index) => stable.has(index)) : values
+    const retained = stable ? values.filter((_, index) => stable.has(index))
+      : values
     assert.equal(retained.length, maximum)
-    assert.ok(retained.every((value, index) => !index || value > retained[index - 1]))
+    assert.ok(retained.every((value, index) =>
+      !index || value > retained[index - 1]))
   }
   assert.equal(stablePositions([-1, 0, -1, 2]), null)
   assert.equal(stablePositions([]), null)

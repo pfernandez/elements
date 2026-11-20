@@ -1,9 +1,9 @@
-import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { element, observe, project } from '../elements.js'
 import { button, div, span } from '../html.js'
-import { text as svgText } from '../svg.js'
+import { element, observe, project } from '../elements.js'
+import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
+import { text as svgText } from '../svg.js'
 
 let previousDocument
 beforeEach(() => {

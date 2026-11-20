@@ -10,20 +10,25 @@ const visit = path => new Promise((resolve, reject) => {
 
 const check = async () => {
   const home = await visit('/elements/')
-  assert(home.querySelector('h1')?.textContent === 'Elements.js Demo', 'The built demo must mount')
+  assert(home.querySelector('h1')?.textContent === 'Elements.js', 'The built demo must mount')
   assert(home.title === 'Elements.js' && home.documentElement.lang === 'en',
          'The projected document must supply its title and language')
   assert(home.doctype?.name === 'html' && home.body.classList.contains('container'),
          'Root replacement must preserve the doctype and project body attributes')
-  assert(home.head.querySelector('style')?.textContent.includes('grid-template-rows'),
+  assert(home.head.querySelector('style')?.textContent.includes('grid-template-columns'),
          'The projected head must contain the built demo stylesheet')
   const links = [...home.querySelectorAll('nav a')]
+  const menu = home.querySelector('button[aria-controls="pages"]')
+  assert(menu.getAttribute('aria-expanded') === 'false', 'The menu starts closed')
+  menu.click()
+  assert(menu.getAttribute('aria-expanded') === 'true', 'Menu selection opens the sidebar')
   assert(links.length === 5, 'Every demo route must be present')
   assert(links.every(link => link.pathname.startsWith('/elements/')), 'Links must stay under /elements/')
   assert(frame.contentWindow.getComputedStyle(home.body).display === 'grid', 'The bundled stylesheet must load')
 
   home.querySelector('a[href="/elements/writing"]').click()
   assert(frame.contentWindow.location.pathname === '/elements/writing', 'Navigation must record the prefixed URL')
+  assert(menu.getAttribute('aria-expanded') === 'false', 'Selecting a page closes the menu')
   assert(home.querySelector('.markdown'), 'Navigation must mount the bundled Markdown view')
 
   await new Promise((resolve, reject) => {
@@ -45,8 +50,10 @@ const check = async () => {
     const page = await visit(`/elements/${route}/`)
     assert(frame.contentWindow.getComputedStyle(page.body).display === 'grid',
            `Direct ${route} visits must retain bundled styles`)
-    assert(heading === null ? page.querySelector(selector) : page.querySelector(selector)?.textContent === heading, `Direct ${route} visits must mount the correct page`)
-    assert(page.querySelector(`nav a[href="/elements/${route}"]`)?.classList.contains('active'),
+    const content = page.querySelector(selector)
+    assert(content && (heading === null || content.textContent === heading),
+           `Direct ${route} visits must mount the correct page`)
+    assert(page.querySelector(`nav a[href="/elements/${route}"]`)?.getAttribute('aria-current') === 'page',
            `Direct ${route} visits must select the current navigation link`)
     if (route === 'x3dom') {
       for (let i = 0; i < 100 && ![...page.querySelectorAll('x3d')].every(node => node.runtime?.canvas?.gl); i++)

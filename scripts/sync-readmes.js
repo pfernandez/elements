@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(scriptDir, '..')
@@ -10,9 +10,9 @@ const readText = filePath =>
 
 const writeTextIfChanged = (filePath, next) => {
   const prev = fs.existsSync(filePath) ? readText(filePath) : null
-  if (prev === next) return false
+  if (prev === next) return
   fs.writeFileSync(filePath, next)
-  return true
+  console.log(`updated: ${path.relative(repoRoot, filePath)}`)
 }
 
 const between = (text, begin, end) => {
@@ -27,8 +27,8 @@ const between = (text, begin, end) => {
 
 const toPosix = filePath => filePath.split(path.sep).join('/')
 
-const toGithubUrl = (repoRelativePath, { dir }) => {
-  const kind = dir ? 'tree' : 'blob'
+const toGithubUrl = (repoRelativePath, isDirectory) => {
+  const kind = isDirectory ? 'tree' : 'blob'
   return `https://github.com/pfernandez/elements/${kind}/main/${toPosix(repoRelativePath)}`
 }
 
@@ -37,8 +37,8 @@ const rewriteRepoRelativeLinks = (md, { root }) =>
     const rel = href.slice(2)
     const fullPath = path.resolve(root, rel)
     if (!fs.existsSync(fullPath)) return m
-    const dir = fs.statSync(fullPath).isDirectory()
-    return `](${toGithubUrl(rel, { dir })})`
+    const isDirectory = fs.statSync(fullPath).isDirectory()
+    return `](${toGithubUrl(rel, isDirectory)})`
   })
 
 const buildElementsPackageReadme = rootReadme => {
@@ -68,8 +68,7 @@ const main = () => {
       { root: repoRoot }
     )
 
-  const changed = writeTextIfChanged(elementsReadmePath, pkgReadme)
-  changed && console.log(`updated: ${path.relative(repoRoot, elementsReadmePath)}`)
+  writeTextIfChanged(elementsReadmePath, pkgReadme)
 }
 
 main()

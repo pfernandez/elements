@@ -94,6 +94,14 @@ specify its executable):
 npm run -s test:browser
 ```
 
+The cross-browser runner uses Chrome, Firefox, and WebKit. With Chrome
+installed, fetch the two Playwright engines and run the suite:
+
+```bash
+npx playwright install firefox webkit
+npm run test:browsers
+```
+
 Check the production demo as GitHub Pages will serve it, without Vite's dev
 server transformations or route fallback:
 

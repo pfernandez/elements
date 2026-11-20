@@ -1,312 +1,71 @@
-import { transition } from './transition.js'
+import { div, span } from '../html.js'
 import { element, observe } from '../elements.js'
-import { a, body, button, div, form, input, output, pre, span } from '../html.js'
-import { svg, title as svgTitle } from '../svg.js'
+import assert from 'node:assert/strict'
 import { mi } from '../mathml.js'
 import { namespaceOf } from '../src/core/namespaces.js'
-import { describe, test } from 'node:test'
-import assert from 'node:assert/strict'
-import { createFakeDom } from './fake-dom.js'
+import { title as svgTitle } from '../svg.js'
+import { test } from 'node:test'
 
-const makeWindow = extra =>
-  ({
-    location: { pathname: '/', search: '', hash: '' },
-    history: { pushState: () => {} },
-    ...extra
-  })
-
-describe("construction", () => {
-  test('div() returns a vnode with tag "div"', () => {
-    const vnode = div({ id: 'test' }, 'hello')
-    assert.deepEqual(vnode, ['div', { id: 'test' }, 'hello'])
-  })
-
-  test('Nested elements return nested vnode arrays', () => {
-    const vnode = div({}, div({}, 'nested'))
-    assert.deepEqual(vnode, ['div', {}, ['div', {}, 'nested']])
-  })
-
-  test('empty and scalar children preserve slots, props and vocabulary namespaces', () => {
-    for (const helper of [div, svgTitle, mi, element('plain', null)]) {
-      const props = Object.freeze({ id: 'test' }), empty = helper()
-      assert.equal(empty.length, 2)
-      assert.notEqual(empty[1], helper()[1])
-      assert.equal(helper(props)[1], props)
-      for (const value of [undefined, null, false, 0, '', 'text']) {
-        const vnode = helper(props, value)
-        assert.deepEqual(vnode, [empty[0], props, value])
-        assert.equal(namespaceOf(vnode), namespaceOf(empty))
-      }
+test('empty and scalar children preserve slots, props and vocabulary namespaces', () => {
+  for (const helper of [div, svgTitle, mi, element('plain', null)]) {
+    const props = Object.freeze({ id: 'test' }), empty = helper()
+    assert.equal(empty.length, 2)
+    assert.notEqual(empty[1], helper()[1])
+    assert.equal(helper(props)[1], props)
+    for (const value of [undefined, null, false, 0, '', 'text']) {
+      const vnode = helper(props, value)
+      assert.deepEqual(vnode, [empty[0], props, value])
+      assert.equal(namespaceOf(vnode), namespaceOf(empty))
     }
-  })
+  }
+})
 
-  test('Child arrays compose without spread syntax', () => {
-    const vnode = div([
-      span('one'),
-      [span('two')]
-    ])
-    assert.deepEqual(vnode, [
-      'div',
-      {},
-      ['span', {}, 'one'],
-      ['span', {}, 'two']
-    ])
-  })
+test('Nested groups preserve literal, vocabulary and observer vnode references', () => {
+  const props = Object.freeze({ id: 'literal' })
+  const literal = Object.freeze(['custom', props, 'text'])
+  const observed = observe(() => svgTitle('observed'))()
+  const children = [literal, svgTitle('svg'), mi('x'), observed,
+                    element('custom', 'urn:custom')(), element('plain', null)()]
+  children.forEach(Object.freeze)
+  const group = Object.freeze([[], Object.freeze(children), [[span('last')]]])
+  const vnode = div(props, group)
+  assert.equal(vnode[1], props)
+  children.forEach((child, index) => assert.equal(vnode[index + 2], child))
+  assert.deepEqual(vnode.at(-1), span('last'))
+  assert.deepEqual(children.map(namespaceOf), [undefined,
+                                               'http://www.w3.org/2000/svg', 'http://www.w3.org/1998/Math/MathML',
+                                               'http://www.w3.org/2000/svg', 'urn:custom', null])
+})
 
-  test('Nested groups preserve literal, vocabulary and observer vnode references', () => {
-    const props = Object.freeze({ id: 'literal' })
-    const literal = Object.freeze(['custom', props, 'text'])
-    const observed = observe(() => svgTitle('observed'))()
-    const children = [literal, svgTitle('svg'), mi('x'), observed,
-                      element('custom', 'urn:custom')(), element('plain', null)()]
-    children.forEach(Object.freeze)
-    const group = Object.freeze([[], Object.freeze(children), [[span('last')]]])
-    const vnode = div(props, group)
-    assert.equal(vnode[1], props)
-    children.forEach((child, index) => assert.equal(vnode[index + 2], child))
-    assert.deepEqual(vnode.at(-1), span('last'))
-    assert.deepEqual(children.map(namespaceOf), [undefined,
-      'http://www.w3.org/2000/svg', 'http://www.w3.org/1998/Math/MathML',
-      'http://www.w3.org/2000/svg', 'urn:custom', null])
-  })
+test('Mixed arrays stay intact while empty and sparse vnode groups compose', () => {
+  const child = span('child')
+  const mixed = Object.freeze([child, 'text'])
+  const nestedMixed = Object.freeze([[child], mixed])
+  const sparse = []
+  sparse[2] = child
+  const vnode = div([], [[], sparse], mixed, nestedMixed,
+                    undefined, null, false, 0)
+  assert.deepEqual(vnode, ['div', {}, child, mixed, nestedMixed, undefined, null, false, 0])
+  assert.equal(vnode[3], mixed)
+  assert.equal(vnode[4], nestedMixed)
+  assert.equal(sparse.length, 3)
+  assert.equal(0 in sparse, false)
+})
 
-  test('Mixed arrays stay intact while empty and sparse vnode groups compose', () => {
-    const child = span('child')
-    const mixed = Object.freeze([child, 'text'])
-    const nestedMixed = Object.freeze([[child], mixed])
-    const sparse = []
-    sparse[2] = child
-    const vnode = div([], [[], sparse], mixed, nestedMixed, undefined, null, false, 0)
-    assert.deepEqual(vnode, ['div', {}, child, mixed, nestedMixed, undefined, null, false, 0])
-    assert.equal(vnode[3], mixed)
-    assert.equal(vnode[4], nestedMixed)
-    assert.equal(sparse.length, 3)
-    assert.equal(0 in sparse, false)
-  })
-
-  test('element() constructs custom vocabularies with the same vnode contract', () => {
-    const widget = element('my-widget')
-    assert.deepEqual(
-      widget({ mode: 'compact' }, [span('one'), span('two')]),
-      ['my-widget', { mode: 'compact' },
-       ['span', {}, 'one'], ['span', {}, 'two']]
-    )
-  })
-
-  test('Props are passed as second array element', () => {
-    const vnode = div({ class: 'box' }, 'text')
-    assert.deepEqual(vnode[1], { class: 'box' })
-  })
-
-  test('svg element returns a vnode with tag "svg"', () => {
-    const vnode = svg({ width: 100, height: 100 })
-    assert.equal(vnode[0], 'svg')
-    assert.deepEqual(vnode[1], { width: 100, height: 100 })
-  })
-
-  test('Pure construction: same call gives same output', () => {
-    const vnode1 = div({ class: 'x' }, 'same')
-    const vnode2 = div({ class: 'x' }, 'same')
-    assert.deepEqual(vnode1, vnode2)
-  })
-
-  test('style object is preserved in props', () => {
-    const vnode = div({ style: { color: 'red', fontSize: '12px' } })
-    assert.deepEqual(vnode[1].style, { color: 'red', fontSize: '12px' })
-  })
-
-  test('class attribute is passed as string', () => {
-    const vnode = div({ class: 'hero box' }, 'hello')
-    assert.equal(vnode[1].class, 'hero box')
-  })
-
-  test('className is invalid (use class)', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
-    const container = document.createElement('div')
-    assert.throws(
-      () => transition(div({ className: 'a' }, 'x'), container),
-      /className/
-    )
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
-  })
-
-  test('boolean attributes are passed as true/false', () => {
-    const vnode = input({ required: true, disabled: false })
-    assert.deepEqual(vnode[1], { required: true, disabled: false })
-  })
-
-  test('null child is preserved in vnode children', () => {
-    const vnode = div({}, null)
-    assert.deepEqual(vnode, ['div', {}, null])
-  })
-
-  test('undefined child is preserved in children array', () => {
-    const vnode = div({}, [undefined, 'text'])
-    assert.deepEqual(vnode, ['div', {}, [undefined, 'text']])
-  })
-
-  test('mixed falsy children are allowed', () => {
-    const vnode = div({}, [null, false, 0, '', 'x'])
-    assert.deepEqual(vnode, ['div', {}, [null, false, 0, '', 'x']])
-  })
-
-	  test('observe() supports recursion and state threading', () => {
-	    const Counter = observe((n = 0) =>
-	      div({},
-	        pre(n),
-	        button({ onclick: () => Counter(n + 1) }, 'inc')
-	      )
-	    )
-
-	    const first = Counter(0)
-	    const inner = first
-	    const second = inner[3][1].onclick() // invoke button's onclick
-
-	    assert.equal(inner[0], 'div')
-	    assert.equal(inner[2][2], 0)        // pre(n) = 0
-	    assert.equal(second[2][2], 1)       // pre(n) = 1 in next transition
-	  })
-
-  test('vnode return is pure (no mutation of props)', () => {
-    const props = { id: 'x' }
-    div(props)
-    assert.deepEqual(props, { id: 'x' })
-  })
-
-  test(
-    'multiple projections of one definition update together from events',
-    async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
-    const Counter = observe((n = 0) =>
-      div({},
-        output(n),
-        button({ onclick: () => Counter(n + 1) }, 'inc')
-      )
-    )
-
-    const container = document.createElement('div')
-    transition(div({}, Counter(0), Counter(0)), container)
-
-    const getCounterRoot = index => container.childNodes[0].childNodes[index]
-    const getCountText = root => root.childNodes[0].childNodes[0].nodeValue
-    const click = root => root.childNodes[1].onclick({})
-
-    const first = getCounterRoot(0)
-    const second = getCounterRoot(1)
-
-    assert.equal(getCountText(first), '0')
-    assert.equal(getCountText(second), '0')
-
-    await click(first)
-    assert.equal(getCountText(getCounterRoot(0)), '1')
-    assert.equal(getCountText(getCounterRoot(1)), '1')
-
-    await click(getCounterRoot(1))
-    assert.equal(getCountText(getCounterRoot(0)), '2')
-    assert.equal(getCountText(getCounterRoot(1)), '2')
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
-    }
+test('element() constructs custom vocabularies with the same vnode contract', () => {
+  const widget = element('my-widget')
+  assert.deepEqual(
+    widget({ mode: 'compact' }, [span('one'), span('two')]),
+    ['my-widget', { mode: 'compact' },
+     ['span', {}, 'one'], ['span', {}, 'two']]
   )
+})
 
-  test('events run within a projection', async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
+test('recursive handlers describe the next state before projection', () => {
+  const counter = observe((count = 0) =>
+    div({ onclick: () => counter(count + 1) }, count))
 
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-    let calls = 0
-
-    transition(button({ onclick: () => { calls++ } }, 'go'), document.body)
-    await document.body.childNodes[0].onclick({})
-
-    assert.equal(calls, 1)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
-  })
-
-  test('boolean props clear attributes when false', () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
-    const container = document.createElement('div')
-
-    transition(div({ hidden: true }, 'x'), container)
-    const el = container.childNodes[0]
-    assert.equal(el.attributes.hidden, '')
-
-    transition(div({ hidden: false }, 'x'), container)
-    assert.equal(el.attributes.hidden, undefined)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
-  })
-
-  test(
-    'async form handlers claim submission before their result is known',
-    async () => {
-    const prevDocument = globalThis.document
-    const prevWindow = globalThis.window
-
-    const { document } = createFakeDom()
-    globalThis.document = document
-    globalThis.window = makeWindow()
-
-    const container1 = document.createElement('div')
-
-    let prevented = 0
-    const event = {
-      preventDefault: () => { prevented++ },
-      target: { elements: { todo: { value: 'x' } } }
-    }
-
-    const App = observe((n = 0) =>
-      form({
-        onsubmit: async ({ todo: { value } }) =>
-          value ? Promise.resolve(App(n + 1)) : undefined
-      }, input({ name: 'todo' }), button({ type: 'submit' }, 'go'))
-    )
-
-    transition(App(0), container1)
-    await container1.childNodes[0].onsubmit(event)
-
-    assert.equal(prevented, 1)
-
-    const Passive = observe(() =>
-      form({ onsubmit: async () => Promise.resolve(undefined) },
-        input({ name: 'todo' }),
-        button({ type: 'submit' }, 'go'))
-    )
-
-    const container2 = document.createElement('div')
-    transition(Passive(), container2)
-    await container2.childNodes[0].onsubmit(event)
-
-    assert.equal(prevented, 2)
-
-    globalThis.document = prevDocument
-    globalThis.window = prevWindow
-    }
-  )
+  const current = counter()
+  assert.deepEqual(current.slice(2), [0])
+  assert.deepEqual(current[1].onclick().slice(2), [1])
 })

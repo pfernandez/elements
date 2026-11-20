@@ -7,7 +7,7 @@ const keyOf = vnode =>
 const identityOf = vnode =>
   keyOf(vnode) == null ? sourceOf(vnode)?.identity : null
 
-export const matchesSingleChild = (previous, next) =>
+export const isSingleChildMatch = (previous, next) =>
   previous === next || keyOf(previous) === keyOf(next)
 
 const uniqueIndex = (values, key = value => value) => {
@@ -30,16 +30,18 @@ export const matchChildren = (previous, next) => {
   if (!next.length) return []
   if (!previous.length) return next.map(() => -1)
   if (previous.length === 1 && next.length === 1)
-    return [matchesSingleChild(previous[0], next[0]) ? 0 : -1]
+    return [isSingleChildMatch(previous[0], next[0]) ? 0 : -1]
 
-  const references = uniqueIndex(previous, value => Array.isArray(value) ? value : null)
+  const references = uniqueIndex(previous, value =>
+    Array.isArray(value) ? value : null)
   const keys = uniqueIndex(previous, keyOf)
   const identities = uniqueIndex(previous, identityOf)
   // Plain unkeyed children stay positional unless a retained reference moves.
   // Check the entire list before reserving positions for fresh descriptions.
   if (!keys && !identities && next.every((value, index) => {
     const reference = references?.get(value)
-    return keyOf(value) == null && (reference == null || reference < 0 || reference === index)
+    return keyOf(value) == null
+      && (reference == null || reference < 0 || reference === index)
   })) return next.map((_, index) => index < previous.length ? index : -1)
 
   const nextIdentities = identities && next.map(identityOf)
