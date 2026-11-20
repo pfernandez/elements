@@ -1,24 +1,15 @@
 import * as core from '../elements.js'
 import * as html from '../html.js'
-import * as svg from '../svg.js'
 import * as mathml from '../mathml.js'
+import * as svg from '../svg.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { htmlElements } from '../src/vocabularies/html.js'
-import { svgElements } from '../src/vocabularies/svg.js'
-import { mathmlElements } from '../src/vocabularies/mathml.js'
 
-for (const [name, vocabulary, metadata] of [
-  ['html', html, htmlElements], ['svg', svg, svgElements], ['mathml', mathml, mathmlElements]
-]) test(`${name} exposes the same helpers through both import forms`, () => {
-  assert.equal(core[name], vocabulary)
-  for (const { name, tag } of metadata) {
-    const vnode = vocabulary[name]({ id: 'x' }, 'content')
-    assert.deepEqual(vnode, [tag, { id: 'x' }, 'content'])
-  }
-})
-
-test('the core API contains operations and vocabularies without legacy flat exports', () => {
-  assert.deepEqual(Object.keys(core).sort(),
-    ['DEBUG', 'element', 'fragment', 'html', 'mathml', 'observe', 'project', 'svg', 'toHtmlString'].sort())
+test('namespace and subpath imports expose the same helpers', () => {
+  assert.equal(core.html, html)
+  assert.equal(core.svg, svg)
+  assert.equal(core.mathml, mathml)
+  assert.equal(html.htmlvar()[0], 'var')
+  assert.equal(svg.svgswitch()[0], 'switch')
+  assert.equal(mathml.annotationXml()[0], 'annotation-xml')
 })

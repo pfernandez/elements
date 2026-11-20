@@ -20,16 +20,11 @@ const isPropsObject = value =>
  */
 export const element = (tag, namespace = htmlNS) =>
   /** @type {import('./types.js').ElementsElementForTag<Tag>} */ ((...args) => {
-  const hasFirstArg = args.length > 0
-  const [propsOrChild, ...children] = args
-  const props = hasFirstArg && isPropsObject(propsOrChild) ? propsOrChild : {}
-  const actualChildren = !hasFirstArg
-    ? []
-    : props === propsOrChild
-      ? children
-      : [propsOrChild].concat(children)
+    const hasProps = isPropsObject(args[0])
+    const props = hasProps ? args[0] : {}
+    const children = hasProps ? args.slice(1) : args
 
-  return withNamespace(markVNode(/** @type {import('./types.js').ElementsVNode} */ (
-    [tag, props].concat(normalizeChildren(actualChildren))
-  )), namespace)
-})
+    return withNamespace(markVNode(
+      /** @type {import('./types.js').ElementsVNode} */ (
+        [tag, props].concat(normalizeChildren(children)))), namespace)
+  })

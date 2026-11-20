@@ -148,13 +148,13 @@ test('vocabularies retain their namespaces in XML documents', () => {
   equal(snapshot(xml).size, 2)
 })
 
-test('iframe projections and adopted roots navigate and restore their own document', async () => {
+test('iframe projections and isAdopted roots navigate and restore their own document', async () => {
   const parentURL = location.href
   const parentBase = document.createElement('base')
   parentBase.target = '_blank'
   document.head.append(parentBase)
   try {
-    for (const adopted of [false, true]) {
+    for (const isAdopted of [false, true]) {
       const frame = document.createElement('iframe')
       try {
         await new Promise(resolve => {
@@ -171,11 +171,11 @@ test('iframe projections and adopted roots navigate and restore their own docume
           href: `step-${n + 1}`, onclick: async () => counter(n + 1)
         }, n))
         const initial = counter()
-        const node = adopted ? project(initial) : project(initial, doc.body)
-        adopted && doc.body.append(node)
+        const node = isAdopted ? project(initial) : project(initial, doc.body)
+        isAdopted && doc.body.append(node)
         const identity = sourceOf(initial).identity
         assert(snapshot(doc).has(identity))
-        assert(!snapshot(document).has(identity), 'adopted roots leave their original document')
+        assert(!snapshot(document).has(identity), 'isAdopted roots leave their original document')
         node.click()
         await pause()
         equal(window.location.pathname, '/embedded/step-1')
@@ -195,8 +195,8 @@ test('iframe projections and adopted roots navigate and restore their own docume
 
 test('equal tag names from different vocabularies replace nodes on observer selection', () => {
   const target = host()
-  const label = observe((foreign = false) =>
-    (foreign ? svg.a : html.a)({ onclick: () => label(!foreign) }, 'link'))
+  const label = observe((isForeign = false) =>
+    (isForeign ? svg.a : html.a)({ onclick: () => label(!isForeign) }, 'link'))
   project(label(), target)
   const original = target.firstChild
   original.onclick(new MouseEvent('click'))
@@ -208,9 +208,9 @@ test('equal tag names from different vocabularies replace nodes on observer sele
 
 test('parallel fragment ranges and independent nested hosts retain their boundaries', () => {
   const target = host()
-  const outer = observe((shown = true) => fragment(
-    html.button({ onclick: () => outer(!shown) }, 'toggle'),
-    shown ? html.section() : html.span('gone')))
+  const outer = observe((isShown = true) => fragment(
+    html.button({ onclick: () => outer(!isShown) }, 'toggle'),
+    isShown ? html.section() : html.span('gone')))
   const counter = observe((n = 0) => html.button({ onclick: () => counter(n + 1) }, n))
   const initial = outer()
   project(initial, target)

@@ -78,8 +78,10 @@ export const restore = observations => {
  * Infer the whole view before extracting its arguments, so default
  * parameters keep their types instead of being contextually widened to any.
  * @template View
- * @typedef {View extends (...args: infer Args) => import('./types.js').ElementsVNode
- *   ? (...args: Args) => import('./types.js').ElementsVNode : never} StateObserver
+ * @typedef
+ * {View extends (...args: infer Args) => import('./types.js').ElementsVNode
+ *   ? (...args: Args) => import('./types.js').ElementsVNode : never}
+ *   StateObserver
  */
 
 /**
@@ -98,13 +100,14 @@ export const restore = observations => {
  *
  * All projections of this definition share its current observation. Create
  * separate observer definitions for independent state (a factory can help).
- * A fresh vnode selects its observation when first projected; reusing an already
- * projected vnode preserves current state. Source arrays are never rewritten.
- * Unkeyed sibling boundaries follow their identity through reordering when
- * that identity occurs once on each side. Repeated projections need retained
- * vnode references or keys to distinguish them; otherwise they remain positional.
- * Strict TypeScript consumers may need an explicit return type on a recursive
- * view to break circular inference; JavaScript needs no annotation.
+ * A fresh vnode selects its observation when first projected; reusing an
+ * already projected vnode preserves current state. Source arrays are never
+ * rewritten. Unkeyed sibling boundaries follow their identity through
+ * reordering when that identity occurs once on each side. Repeated
+ * projections need retained vnode references or keys to distinguish them;
+ * otherwise they remain positional. Strict TypeScript consumers may need an
+ * explicit return type on a recursive view to break circular inference;
+ * JavaScript needs no annotation.
  *
  * @example
  * const counter = observe((n = 0) =>
@@ -116,10 +119,13 @@ export const restore = observations => {
  */
 export const observe = view => {
   const identity = createIdentity(undefined)
+
   return /** @type {StateObserver<View>} */ ((...args) => {
     const result = view(...args)
+
     if (!Array.isArray(result))
       throw new TypeError('A view must return a vnode array.')
+
     const source = sourceOf(result)
     const observation =
       source?.identity === identity ? source.observation : result
@@ -127,6 +133,7 @@ export const observe = view => {
     const vnode = /** @type {import('./types.js').ElementsVNode} */ (
       withNamespace(observation.slice(), namespaceOf(observation))
     )
+
     sources.set(vnode, { identity, observation })
     return vnode
   })

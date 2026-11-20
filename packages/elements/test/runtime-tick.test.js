@@ -233,14 +233,14 @@ describe("runtime-tick", () => {
 
     const el = { isConnected: true }
 
-    let ready = false
+    let isReady = false
     let calls = 0
     const dts = []
 
     startTickLoop(
       el,
       (_el, ctx = { n: 0 }, dt) => (calls++, dts.push(dt), ({ n: ctx.n + 1 })),
-      { ready: () => ready }
+      { isReady: () => isReady }
     )
 
     const [f1] = rafQueue.keys()
@@ -251,7 +251,7 @@ describe("runtime-tick", () => {
     assert.equal(calls, 0)
     assert.equal(rafQueue.size, 1)
 
-    ready = true
+    isReady = true
     const [f2] = rafQueue.keys()
     rafQueue.get(f2)(16)
     rafQueue.delete(f2)

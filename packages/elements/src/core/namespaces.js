@@ -13,6 +13,7 @@ export const withNamespace = (vnode, namespace) =>
 export const namespaceAt = (source, parent = htmlNS) =>
   namespaceOf(source) !== undefined ? namespaceOf(source)
     : source?.[0] === 'svg' ? svgNS : source?.[0] === 'math' ? mathNS : parent
+
 export const childNamespace = (tag, props, namespace) =>
   namespace === svgNS && tag === 'foreignObject'
   || namespace === mathNS && tag === 'annotation-xml'

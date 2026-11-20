@@ -34,9 +34,9 @@ test('fresh observer calls reorder through events without remounting their contr
     return row
   }
   const alice = createRow('Alice'), bob = createRow('Bob')
-  const list = observe((reversed = false) =>
-    div(button({ onclick: () => list(!reversed) }, 'reverse'),
-        reversed ? [bob(), alice()] : [alice(), bob()]))
+  const list = observe((isReversed = false) =>
+    div(button({ onclick: () => list(!isReversed) }, 'reverse'),
+        isReversed ? [bob(), alice()] : [alice(), bob()]))
   const host = mount(list())
   const [reverse, aliceNode, bobNode] = host.firstChild.children
   aliceNode.firstChild.value = 'Alice draft'

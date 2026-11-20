@@ -37,17 +37,17 @@ test('startTickLoop() reuses or replaces existing loops', () => {
     }
 
     const el = {}
-    const ready = () => true
+    const isReady = () => true
     const handler1 = () => {}
     const handler2 = () => {}
 
-    startTickLoop(el, handler1, { ready })
-    startTickLoop(el, handler1, { ready })
+    startTickLoop(el, handler1, { isReady })
+    startTickLoop(el, handler1, { isReady })
 
     assert.equal(rafCalls.length, 1)
     assert.deepEqual(cancelCalls, [])
 
-    startTickLoop(el, handler2, { ready })
+    startTickLoop(el, handler2, { isReady })
 
     assert.equal(rafCalls.length, 2)
     assert.deepEqual(cancelCalls, [1])

@@ -1,5 +1,3 @@
-import { htmlTagNames, svgTagNames } from './tags.js'
-
 /**
  * Primitive values that can be serialized as HTML/SVG attribute values.
  *
@@ -48,7 +46,8 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  * ```
  *
  * Disconnection pauses ticking. Reconnection preserves context and starts with
- * zero elapsed time. The handler must be synchronous; thrown errors stop ticking.
+ * zero elapsed time. The handler must be synchronous; thrown errors stop
+ * ticking.
  *
  * @callback ElementsOnTick
  * @param {Element} el
@@ -314,18 +313,6 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  * @param {P | ElementsChild} [propsOrChild]
  * @param {...ElementsChild} children
  * @returns {ElementsVNode}
- */
-
-/**
- * @typedef {typeof htmlTagNames[number]} ElementsHtmlTagName
- */
-
-/**
- * @typedef {typeof svgTagNames[number]} ElementsSvgTagName
- */
-
-/**
- * @typedef {ElementsHtmlTagName | ElementsSvgTagName} ElementsTagName
  */
 
 /**
@@ -649,53 +636,35 @@ import { htmlTagNames, svgTagNames } from './tags.js'
  */
 
 /**
- * @template {ElementsTagName} Tag
- * @typedef {Tag extends 'a' ? ElementsAnchorProps
- *   : Tag extends 'img' ? ElementsImgProps
- *     : Tag extends 'input' ? ElementsInputProps
- *       : Tag extends 'form' ? ElementsFormProps
- *         : Tag extends 'button' ? ElementsButtonProps
- *           : Tag extends 'textarea' ? ElementsTextareaProps
- *             : Tag extends 'select' ? ElementsSelectProps
- *               : Tag extends 'option' ? ElementsOptionProps
- *                 : Tag extends 'script' ? ElementsScriptProps
- *                   : Tag extends 'link' ? ElementsLinkProps
- *                     : Tag extends 'meta' ? ElementsMetaProps
- *                       : Tag extends 'video' ? ElementsMediaProps
- *                         : Tag extends 'audio' ? ElementsMediaProps
- *                           : Tag extends 'source' ? ElementsSourceProps
- *                             : Tag extends 'svg' ? ElementsSvgProps
- *                               : Tag extends 'path' ? ElementsPathProps
- *                                 : Tag extends 'circle' ? ElementsCircleProps
- *                                   : Tag extends 'rect' ? ElementsRectProps
- *                                     : Tag extends 'line' ? ElementsLineProps
- *                                       : Tag extends 'text'
- *                                         ? ElementsSvgTextProps
- *                                         : Tag extends 'label'
- *                                           ? ElementsLabelProps
- *                                           : Tag extends 'dialog'
- *                                             ? ElementsDialogProps
- *                                             : Tag extends 'details'
- *                                               ? ElementsDetailsProps
- *                                               : Tag extends 'progress'
- *                                                 ? ElementsProgressProps
- *                                                 : Tag extends 'meter'
- *                                                   ? ElementsMeterProps
- *                                                   : Tag extends 'iframe'
- *                                                     ? ElementsIframeProps
- *                                                     : Tag extends 'canvas'
- *                                                       ? ElementsCanvasProps
- *                             : ElementsProps} ElementsPropsForTag
+ * Props specialized by the built-in tag helpers.
+ * @typedef {{
+ *   a: ElementsAnchorProps,
+ *   img: ElementsImgProps,
+ *   input: ElementsInputProps,
+ *   form: ElementsFormProps,
+ *   button: ElementsButtonProps,
+ *   textarea: ElementsTextareaProps,
+ *   select: ElementsSelectProps,
+ *   option: ElementsOptionProps,
+ *   script: ElementsScriptProps,
+ *   link: ElementsLinkProps,
+ *   meta: ElementsMetaProps,
+ *   video: ElementsMediaProps,
+ *   audio: ElementsMediaProps,
+ *   source: ElementsSourceProps,
+ *   svg: ElementsSvgProps,
+ *   path: ElementsPathProps,
+ *   circle: ElementsCircleProps,
+ *   rect: ElementsRectProps,
+ *   line: ElementsLineProps
+ * }} ElementsTagProps
  */
 
 /**
- * Helper returned by `element(tag)`. Built-in tags retain their specific prop
- * types; arbitrary custom tags use the common Elements props.
- *
+ * Built-in tags retain their specific props. Custom tags use the common props.
  * @template {string} Tag
- * @typedef {Tag extends ElementsTagName
- *   ? ElementsElementHelper<ElementsPropsForTag<Tag>>
- *   : ElementsElementHelper<ElementsProps>} ElementsElementForTag
+ * @typedef {ElementsElementHelper<Tag extends keyof ElementsTagProps
+ *   ? ElementsTagProps[Tag] : ElementsProps>} ElementsElementForTag
  */
 
 /**

@@ -1,14 +1,17 @@
-import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { element, fragment, html, mathml, observe, project, svg } from '../elements.js'
+import { element, fragment, html, mathml, observe, project, svg }
+  from '../elements.js'
+import assert from 'node:assert/strict'
 import { createFakeDom } from './fake-dom.js'
 
 let previousDocument
+
 beforeEach(() => {
   previousDocument = globalThis.document
   globalThis.document = createFakeDom().document
 })
 afterEach(() => { globalThis.document = previousDocument })
+
 const click = node => node.onclick({})
 
 const makeCounter = () => {
@@ -78,7 +81,7 @@ test('detached selections update parallel placements before and after insertion'
 })
 
 test('root replacement follows native movement and leaves the returned reference unchanged', () => {
-  const state = observe((changed = false) => changed
+  const state = observe((hasChanged = false) => hasChanged
     ? html.span('next') : html.button({ onclick: () => state(true) }, 'first'))
   const original = project(state())
   const other = document.createElement('section')
@@ -137,8 +140,8 @@ test('vocabulary namespaces do not depend on placement or tag-name collisions', 
 })
 
 test('observer copies preserve explicit namespaces and replace equal tags across vocabularies', () => {
-  const label = observe((foreign = false) =>
-    (foreign ? svg.a : html.a)({ onclick: () => label(!foreign) }, 'link'))
+  const label = observe((isForeign = false) =>
+    (isForeign ? svg.a : html.a)({ onclick: () => label(!isForeign) }, 'link'))
   project(label(), document.body)
   const original = document.body.firstChild
   click(original)
@@ -160,9 +163,9 @@ test('parallel fragment projections update only their own ranges', () => {
 })
 
 test('independent projection hosts survive outer updates and detach with their host', () => {
-  const shell = observe((version = 0, shown = true) => html.div(
+  const shell = observe((version = 0, isShown = true) => html.div(
     html.button({ onclick: () => shell(version + 1, version === 0) }, 'outer'),
-    shown ? html.section({ id: String(version) }) : html.span('gone')))
+    isShown ? html.section({ id: String(version) }) : html.span('gone')))
   project(shell(), document.body)
   const outer = document.body.firstChild
   const host = outer.lastChild
@@ -179,7 +182,7 @@ test('independent projection hosts survive outer updates and detach with their h
 })
 
 test('detached retained roots cannot break other projections when their tag changes', () => {
-  const state = observe((switched = false) => switched
+  const state = observe((hasSwitched = false) => hasSwitched
     ? html.span('next') : html.button({ onclick: () => state(true) }, 'switch'))
   const initial = state()
   project(initial, document.body)

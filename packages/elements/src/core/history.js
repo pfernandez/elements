@@ -1,7 +1,8 @@
-import { snapshot, restore } from './observer.js'
+import { restore, snapshot } from './observer.js'
 
 const sessions = new WeakMap()
 const stateKey = '__elements_history'
+
 const marker = (session, id) => ({ session: session.token, id })
 const entryId = (session, state) =>
   state?.[stateKey]?.session === session.token ? state[stateKey].id : null
@@ -12,21 +13,31 @@ const sessionFor = window => {
   let session = sessions.get(window)
   if (!session) {
     session = { token: Math.random().toString(36).slice(2),
-                entries: new Map(), current: null, next: 0, url: window.location.href }
+                entries: new Map(),
+                current: null,
+                next: 0,
+                url: window.location.href }
+
     sessions.set(window, session)
+
     window.addEventListener('popstate', event => {
       const id = entryId(session, event.state)
       const previousURL = new URL(session.url)
       const nextURL = new URL(window.location.href)
+
       // Save edits made since arriving, then restore the selected entry.
       session.entries.has(session.current)
         && session.entries.set(session.current, snapshot(window.document))
       session.current = id
       session.url = nextURL.href
-      if (session.entries.has(id)) restore(session.entries.get(id))
-      else if (event.state?.[stateKey]
-               || previousURL.pathname !== nextURL.pathname
-               || previousURL.search !== nextURL.search)
+
+      const shouldReload = !!event.state?.[stateKey]
+        || previousURL.pathname !== nextURL.pathname
+        || previousURL.search !== nextURL.search
+
+      if (session.entries.has(id))
+        restore(session.entries.get(id))
+      else if (shouldReload)
         window.location.reload()
     })
   }
@@ -43,20 +54,24 @@ export const visit = (url, select, window) => {
   const session = sessionFor(window)
   const previous = entryId(session, window.history.state)
   const current = previous ?? session.next++
+
   // Seed the initial entry too, so the first Back has an observation to select.
   previous == null && window.history.replaceState(
     historyState(window, session, current), '', window.location.href)
   session.current = current
   session.entries.set(current, snapshot(window.document))
 
-  const sameURL = url.href === window.location.href
-  const next = sameURL ? current : session.next++
-  if (!sameURL) {
+  const isSameURL = url.href === window.location.href
+  const next = isSameURL ? current : session.next++
+
+  if (!isSameURL) {
     window.history.pushState(historyState(window, session, next), '', url.href)
+
     // A new branch makes the old forward entries unreachable.
     Array.from(session.entries.keys()).forEach(id =>
       id > current && session.entries.delete(id))
   }
+
   session.current = next
   session.url = url.href
   select()

@@ -25,13 +25,17 @@ export const matchChildren = (previous, next) => {
   const nextIdentities = next.map(identityOf)
   const uniqueIdentities = uniqueIndex(nextIdentities)
   const used = new Set()
+
   const claim = index =>
     index == null || index < 0 || used.has(index)
       ? -1 : (used.add(index), index)
+
   const referencesMatched = next.map(value =>
     Array.isArray(value) ? claim(references.get(value)) : -1)
+
   const keysMatched = referencesMatched.map((index, position) =>
     index !== -1 ? index : claim(keys.get(keyOf(next[position]))))
+
   const identitiesMatched = keysMatched.map((index, position) =>
     index !== -1 ? index
       : uniqueIdentities.get(nextIdentities[position]) === position

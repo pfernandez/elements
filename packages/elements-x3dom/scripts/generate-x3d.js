@@ -473,8 +473,8 @@ const writeX3DBaseTypes = byName => {
 
 const main = () => {
   const args = new Set(process.argv.slice(2))
-  const wantsRuntime = args.size === 0 || args.has('--runtime')
-  const wantsTypes = args.size === 0 || args.has('--types')
+  const shouldGenerateRuntime = args.size === 0 || args.has('--runtime')
+  const shouldGenerateTypes = args.size === 0 || args.has('--types')
 
   if (!fs.existsSync(x3domVendorFullPath)) {
     console.error(
@@ -485,10 +485,10 @@ const main = () => {
 
   const byName = parseRegistry(fs.readFileSync(x3domVendorFullPath, 'utf8'))
 
-  wantsRuntime && writeX3DHelpersRuntime(byName)
-  wantsTypes && writeX3DEntrypointTypes()
-  wantsTypes && writeX3DTypes(byName)
-  wantsTypes && writeX3DBaseTypes(byName)
+  shouldGenerateRuntime && writeX3DHelpersRuntime(byName)
+  shouldGenerateTypes && writeX3DEntrypointTypes()
+  shouldGenerateTypes && writeX3DTypes(byName)
+  shouldGenerateTypes && writeX3DBaseTypes(byName)
 }
 
 main()

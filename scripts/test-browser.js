@@ -21,11 +21,11 @@ const server = await createServer({
   plugins: [{
     name: 'x3dom-stylesheet-failure',
     configureServer(server) {
-      let failed = false
+      let hasFailed = false
       server.middlewares.use((request, response, next) => {
-        if (!failed && request.url?.endsWith('/vendor/x3dom.css')
+        if (!hasFailed && request.url?.endsWith('/vendor/x3dom.css')
             && request.headers.referer?.endsWith('/x3dom-failure.html')) {
-          failed = true
+          hasFailed = true
           response.writeHead(503, { 'Cache-Control': 'no-store' })
           response.end('Stylesheet temporarily unavailable')
         } else next()

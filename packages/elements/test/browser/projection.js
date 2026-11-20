@@ -93,9 +93,9 @@ test('namespace integration changes recreate affected descendants', () => {
 test('replacing a wrapper safely selects its shared child with a different root tag', () => {
   const child = observe(tag => tag('child'))
   const wrapper = observe(() => child(div))
-  const app = observe((direct = false) =>
+  const app = observe((isDirect = false) =>
     div(button({ onclick: () => app(true) }, 'switch'),
-        direct ? child(span) : wrapper()))
+        isDirect ? child(span) : wrapper()))
   const host = mount(app()), other = mount(child(div))
   host.querySelector('button').onclick(new MouseEvent('click'))
   equal(host.firstChild.lastChild.localName, 'span')

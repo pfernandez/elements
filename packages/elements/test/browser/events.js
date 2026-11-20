@@ -37,10 +37,10 @@ test('input targets support terse value and checked destructuring', () => {
   field.dispatchEvent(new Event('input', { bubbles: true }))
   equal(host.querySelector('output').textContent, 'Hello, Paul!')
   assert(host.querySelector('input') === field)
-  const toggle = observe((enabled = false) =>
-    div(input({ type: 'checkbox', checked: enabled,
+  const toggle = observe((isEnabled = false) =>
+    div(input({ type: 'checkbox', checked: isEnabled,
                 onchange: ({ checked }) => toggle(checked) }),
-        output(String(enabled))))
+        output(String(isEnabled))))
   const checkbox = mount(toggle())
   checkbox.querySelector('input').click()
   equal(checkbox.querySelector('output').textContent, 'true')

@@ -23,6 +23,7 @@
  * markup, or translated into other equivalent encodings.
  */
 
+import { childNamespace, htmlNS, namespaceAt } from './core/namespaces.js'
 import { attributeValue, validateProps } from './core/attributes.js'
 
 const voidTags = new Set([
@@ -106,7 +107,7 @@ const attrsToString = props => {
                 : attributeValue(key, props[key]))).join('')
 }
 
-const toHtmlStringInner = vnode => {
+const toHtmlStringInner = (vnode, parentNamespace = htmlNS) => {
   const type = typeof vnode
   if (vnode == null || vnode === false) return ''
   if (type === 'string' || type === 'number') return escapeText(vnode)
@@ -115,29 +116,24 @@ const toHtmlStringInner = vnode => {
 
   const tag = vnode[0]
 
-  // Explicit fragments render children without a wrapper tag.
-  if (tag === 'fragment') {
-    let out = ''
-    for (let i = 2; i < vnode.length; i++) out += toHtmlStringInner(vnode[i])
-    return out
-  }
-
   if (typeof tag !== 'string') return ''
 
   /** @type {Record<string, any>} */
   const props = isObject(vnode[1]) ? vnode[1] : {}
+  const children = namespace => {
+    let text = ''
+    for (let i = 2; i < vnode.length; i++)
+      text += toHtmlStringInner(vnode[i], namespace)
+    return text
+  }
+  if (tag === 'fragment') return children(parentNamespace)
+  const namespace = namespaceAt(vnode, parentNamespace)
   const attrs = attrsToString(props)
 
-  if (voidTags.has(tag)) return `<${tag}${attrs}>`
+  if (namespace === htmlNS && voidTags.has(tag)) return `<${tag}${attrs}>`
 
-  const hasInnerHtml = 'innerHTML' in props
-  const inner = hasInnerHtml
-    ? String(props.innerHTML ?? '')
-    : (() => {
-      let out = ''
-      for (let i = 2; i < vnode.length; i++) out += toHtmlStringInner(vnode[i])
-      return out
-    })()
+  const inner = 'innerHTML' in props ? String(props.innerHTML ?? '')
+    : children(childNamespace(tag, props, namespace))
 
   return `<${tag}${attrs}>${inner}</${tag}>`
 }
@@ -149,5 +145,5 @@ const toHtmlStringInner = vnode => {
  * @param {{ doctype?: boolean }} [options]
  * @returns {string}
  */
-export const toHtmlString = (vnode, { doctype = false } = {}) =>
-  `${doctype ? '<!doctype html>' : ''}${toHtmlStringInner(vnode)}`
+export const toHtmlString = (vnode, { doctype: hasDoctype = false } = {}) =>
+  `${hasDoctype ? '<!doctype html>' : ''}${toHtmlStringInner(vnode)}`

@@ -8,33 +8,18 @@
  * - Everything else: attributes (including SVG namespace handling)
  */
 
+import { attributeValue, validateProps } from './attributes.js'
 import { createDeclarativeEventHandler, isEventProp } from './events.js'
 import { startTickLoop, stopTickLoop } from './tick.js'
-import { attributeValue, validateProps } from './attributes.js'
 
 const isObject = x =>
-  typeof x === 'object'
-  && x !== null
+  typeof x === 'object' && x !== null
 
 const deleteKey = (obj, key) =>
   (delete obj[String(key)], undefined)
 
 const isX3DOMReadyFor = el =>
   (x3d => !x3d || !!x3d.runtime)(el?.closest?.('x3d'))
-
-const propertyExceptions = {
-  value: 'value',
-  checked: 'checked',
-  selected: 'selected',
-  disabled: 'disabled',
-  multiple: 'multiple',
-  muted: 'muted',
-  volume: 'volume',
-  currentTime: 'currentTime',
-  playbackRate: 'playbackRate',
-  open: 'open',
-  indeterminate: 'indeterminate'
-}
 
 const propertyExceptionDefaults = {
   value: '',
@@ -71,9 +56,7 @@ const clearEventProp = (el, key) =>
   el[key] = null
 
 const clearPropertyException = (el, key) =>
-  Object.hasOwn(propertyExceptions, key) && key in el
-    ? (el[propertyExceptions[key]] = propertyExceptionDefaults[key], undefined)
-    : undefined
+  el[key] = propertyExceptionDefaults[key]
 
 const clearTick = el =>
   (el.ontick = null, stopTickLoop(el))
@@ -82,7 +65,7 @@ const clearProp = (el, key) =>
   key === 'ontick' ? clearTick(el)
     : key === 'style' ? clearStyle(el)
       : key === 'innerHTML' ? clearInnerHTML(el)
-        : Object.hasOwn(propertyExceptions, key) && key in el
+        : Object.hasOwn(propertyExceptionDefaults, key) && key in el
           ? clearPropertyException(el, key)
           : key.startsWith('on') ? clearEventProp(el, key)
             : removeAttribute(el, key)
@@ -150,12 +133,12 @@ export const assignProperties = (el, props, env) => {
 
     if (key === 'ontick' && typeof value === 'function') {
       el.ontick = value
-      startTickLoop(el, value, { ready: isX3DOMReadyFor })
+      startTickLoop(el, value, { isReady: isX3DOMReadyFor })
       continue
     }
 
-    if (Object.hasOwn(propertyExceptions, key) && key in el) {
-      el[propertyExceptions[key]] = value
+    if (Object.hasOwn(propertyExceptionDefaults, key) && key in el) {
+      el[key] = value
       continue
     }
 

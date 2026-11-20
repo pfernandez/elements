@@ -21,8 +21,8 @@ const propsOf = value => Array.isArray(value) ? value[1] || {} : {}
 const childrenOf = value =>
   'innerHTML' in propsOf(value) ? [] : value.slice(2)
 const kindOf = value =>
-  typeof value === 'string' || typeof value === 'number' ? 'text'
-    : typeof tagOf(value) === 'string' ? tagOf(value) : 'empty'
+  typeof value === 'string' || typeof value === 'number' ? '#text'
+    : typeof tagOf(value) === 'string' ? tagOf(value) : '#comment'
 const documentOf = node =>
   node.nodeType === 9 ? node : node.ownerDocument || document
 const firstNode = record =>
@@ -52,15 +52,16 @@ const moveBefore = (record, parent, before) =>
     : nodesOf(record).forEach(node => parent.insertBefore(node, before))
 
 const propsEnv = owner => ({ svgNS, resume: result => resume(result, owner) })
-const equalProp = (key, left, right) =>
-  left === right || key === 'style' && left && right
+const isEqualProp = (key, left, right) =>
+  left === right || key === 'style' && left != null && right != null
     && typeof left === 'object' && typeof right === 'object'
     && Object.keys(left).length === Object.keys(right).length
-    && Object.keys(left).every(name => left[name] === right[name])
-const changedProps = (previous, next, changedOwner = false) =>
+    && Object.keys(left).every(name =>
+      Object.hasOwn(right, name) && left[name] === right[name])
+const changedProps = (previous, next, hasOwnerChanged = false) =>
   Object.fromEntries(Object.entries(next).filter(([key, value]) =>
-    !equalProp(key, previous[key], value)
-    || changedOwner && key !== 'ontick' && isEventProp(key, value)))
+    !isEqualProp(key, previous[key], value)
+    || hasOwnerChanged && key !== 'ontick' && isEventProp(key, value)))
 const beforeChildrenProps = (tag, props) =>
   tag === 'select'
     ? Object.fromEntries(Object.entries(props).filter(([key]) => key !== 'value'))
@@ -97,8 +98,8 @@ const mountValue = (source, parent, namespace, owner, before, scope) => {
   const props = propsOf(source)
   const ownNamespace = kind === 'fragment' ? namespace : namespaceAt(source, namespace)
   const doc = documentOf(parent)
-  const node = kind === 'text' ? doc.createTextNode(String(source))
-    : kind === 'empty' || kind === 'fragment' ? doc.createComment('')
+  const node = kind === '#text' ? doc.createTextNode(String(source))
+    : kind === '#comment' || kind === 'fragment' ? doc.createComment('')
       : doc.createElementNS(ownNamespace, kind)
   /** @type {Mount} */
   const record = { source, namespace, owner, node, children: [], scope }
@@ -111,7 +112,7 @@ const mountValue = (source, parent, namespace, owner, before, scope) => {
     record.children = childrenOf(source).map(child =>
       mount(child, parent, namespace, owner, record.end, scope))
   } else {
-    if (kind !== 'text' && kind !== 'empty') {
+    if (kind !== '#text' && kind !== '#comment') {
       assignProperties(node, beforeChildrenProps(kind, props), propsEnv(owner))
       record.children = childrenOf(source).map(child =>
         mount(child, node, childNamespace(kind, props, ownNamespace), owner, null, scope))
@@ -161,12 +162,12 @@ const replace = (record, source, owner, namespace = record.namespace) => {
 /** @returns {Mount} */
 const patch = (record, source, owner) => {
   const association = sourceOf(source)
-  const sameIdentity = record.identity && association?.identity === record.identity
-  const sameValue = source === record.source
+  const hasSameIdentity = !!record.identity && association?.identity === record.identity
+  const isSameValue = source === record.source
 
-  return sameIdentity
+  return hasSameIdentity
     ? (present(source), record.source = source, record)
-    : sameValue && record.owner === owner ? record
+    : isSameValue && record.owner === owner ? record
       : record.identity
         ? replace(record, source, owner)
         : association || kindOf(source) !== kindOf(record.source)
@@ -181,8 +182,8 @@ const patchValue = (record, source, owner, kind) => {
   const previous = propsOf(record.source)
   const namespace = kind === 'fragment' ? record.namespace : namespaceAt(source, record.namespace)
   validateProps(props)
-  if (kind === 'text') record.node.nodeValue = String(source)
-  else if (kind !== 'empty') {
+  if (kind === '#text') record.node.nodeValue = String(source)
+  else if (kind !== '#comment') {
     if (kind !== 'fragment') {
       // Release managed children before assigning innerHTML removes their DOM.
       'innerHTML' in props && record.children.forEach(release)

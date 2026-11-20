@@ -1,4 +1,4 @@
-import { linkOf, isPlainClick, navigationURL, windowOf } from './navigation.js'
+import { isPlainClick, linkOf, navigationURL, windowOf } from './navigation.js'
 import { visit } from './history.js'
 
 /** Events select continuations; merely constructing a vnode has no effects. */
@@ -17,8 +17,8 @@ const eventArgument = (key, event) =>
  * Eligible links also record their URL and observations for Back/Forward.
  * A Promise claims it synchronously, before native dispatch completes; its
  * eventual vnode selects its observer (or the owner for a plain vnode).
- * Passive synchronous values do not
- * cancel default behavior (including false). Explicit preventDefault works too.
+ * Passive synchronous values preserve
+ * default behavior (including false). Explicit preventDefault works too.
  *
  * @param {{ el: any, key: string, handler: Function,
  *   resume: (vnode: any) => void }} env
@@ -28,25 +28,27 @@ export const createDeclarativeEventHandler = ({ el, key, handler, resume }) =>
     const anchor = key === 'onclick' && linkOf(el)
     const window = windowOf(el)
     const url = anchor && navigationURL(anchor, event)
+
     // Without a browser (e.g. a DOM test), link returns still claim navigation.
-    const claimLink = anchor && (url
-      || !window && isPlainClick(event))
-    const claimDefault = key === 'onsubmit' || claimLink
+    const shouldClaimLink = !!anchor && (!!url || !window && isPlainClick(event))
+    const shouldClaimDefault = key === 'onsubmit' || shouldClaimLink
+
     // Native gestures still reach user handlers, but their returned values must
     // not also advance this document while the browser follows the link.
-    const nativeLink = anchor && !claimLink
+    const isNativeLink = !!anchor && !shouldClaimLink
     const result = /^(oninput|onsubmit|onchange)$/.test(key)
       ? handler.call(el, eventArgument(key, event), event)
       : handler.call(el, event)
-    const pending = isThenable(result)
-    const claimed = pending || Array.isArray(result)
-    claimed && claimDefault
+    const isPending = isThenable(result)
+    const isClaimed = isPending || Array.isArray(result)
+
+    isClaimed && shouldClaimDefault
       && event?.cancelable !== false && event?.preventDefault?.()
 
     const settle = vnode =>
-      Array.isArray(vnode) && !nativeLink
+      Array.isArray(vnode) && !isNativeLink
         ? (url ? visit(url, () => resume(vnode), window) : resume(vnode), vnode)
         : undefined
 
-    return pending ? Promise.resolve(result).then(settle) : settle(result)
+    return isPending ? Promise.resolve(result).then(settle) : settle(result)
   }

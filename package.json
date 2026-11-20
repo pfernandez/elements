@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "lint": "eslint . --max-warnings=0",
     "build": "vite build",
     "build:pages": "vite build --base=/elements/ && node scripts/build-demo.js",
     "preview": "vite preview",

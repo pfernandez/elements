@@ -1,4 +1,3 @@
-/** The native-link boundary shared by declarative events and optional routing. */
 export const linkOf = el => el.closest?.('a[href]')
 export const windowOf = node =>
   node?.ownerDocument ? node.ownerDocument.defaultView : globalThis.window
@@ -13,12 +12,14 @@ export const navigationURL = (anchor, event) => {
   const href = anchor?.getAttribute('href')
   const target = anchor?.getAttribute('target')
     ?? document?.querySelector?.('base[target]')?.getAttribute('target')
-  const native = !isPlainClick(event) || !href || href.startsWith('#')
+
+  const isNative = !isPlainClick(event) || !href || href.startsWith('#')
     || target && target !== '_self'
     || anchor?.hasAttribute('download')
     || anchor?.hasAttribute('data-elements-native')
+
   let url = null
-  if (!native && window) {
+  if (!isNative && window) {
     try {
       const candidate = new URL(href, document?.baseURI
         || window.location.href

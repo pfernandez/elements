@@ -34,7 +34,8 @@
     "./svg.js",
     "./mathml.js",
     "./env.d.ts",
-    "./src",
+    "./src/*.js",
+    "./src/core",
     "./types"
   ],
   "scripts": {

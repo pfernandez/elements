@@ -321,9 +321,9 @@ test('an original observer snapshot can be selected again without nesting itself
 test('replacing a wrapper with its child can select a new root tag safely', () => {
   const child = observe(tag => tag('child'))
   const wrapper = observe(() => child(div))
-  const app = observe((direct = false) =>
+  const app = observe((isDirect = false) =>
     div(button({ onclick: () => app(true) }, 'switch'),
-        direct ? child(span) : wrapper()))
+        isDirect ? child(span) : wrapper()))
   const host = mount(app())
   const other = mount(child(div))
   click(host.firstChild.firstChild)

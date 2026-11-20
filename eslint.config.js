@@ -1,5 +1,8 @@
-export default
-[{ files: ['**/*.js'],
+export default [
+  { ignores: ['.cache/**', '**/dist/**', '**/types/**', '**/vendor/**',
+              'packages/elements/src/{html,svg,mathml}.js',
+              'packages/elements-x3dom/src/3d.js'] },
+  { files: ['**/*.js'],
    languageOptions: { ecmaVersion: 'latest',
                       sourceType: 'module',
                       globals: { console: 'readonly',
@@ -27,10 +30,6 @@ export default
                        FunctionDeclaration: { parameters: 'first' },
                        FunctionExpression: { parameters: 'first' },
                        ignoreComments: false,
-                       ignoredNodes: [
-                         // 'MemberExpression',
-                         // 'ObjectExpression > .punctuation:last-child'
-                       ],
                        ImportDeclaration: 'first',
                        MemberExpression: 1,
                        ObjectExpression: 'first',
@@ -41,16 +40,11 @@ export default
                        VariableDeclarator: 'first' }],
             'key-spacing': ['warn', { mode: 'minimum' }],
             'linebreak-style': ['error', 'unix'],
-            // 'max-len': [
-            //   'warn',
-            //   {
-            //     code: 80,
-            //     ignoreUrls: true,
-            //     ignoreRegExpLiterals: true,
-            //     ignoreStrings: true,
-            //     ignoreTemplateLiterals: true
-            //   }
-            // ],
+            'max-len': ['warn', { code: 80,
+                                  ignoreUrls: true,
+                                  ignoreRegExpLiterals: true,
+                                  ignoreStrings: true,
+                                  ignoreTemplateLiterals: true }],
             'no-extra-parens': ['warn', 'all',
                                 { allowParensAfterCommentPattern: '@type' }],
             'no-multiple-empty-lines': ['warn', { max: 2, maxEOF: 1 }],

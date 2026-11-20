@@ -13,7 +13,7 @@ const makeWindow = extra =>
     ...extra
   })
 
-describe("observers", () => {
+describe('observers', () => {
   test('transition() explicitly selects a newly constructed observer value', () => {
     const prevDocument = globalThis.document
     const prevWindow = globalThis.window

@@ -6,7 +6,7 @@
  * threads optional context, and provides a `dt` in milliseconds.
  *
  * The engine is generic and can be used with any element; callers may provide
- * a `ready(el)` predicate to gate ticking on external readiness (e.g. X3DOM
+ * a `isReady(el)` predicate to gate ticking on external readiness (e.g. X3DOM
  * runtime availability).
  */
 
@@ -15,21 +15,16 @@ const tickStateMap = new WeakMap()
 export const isConnected = el =>
   typeof el?.isConnected === 'boolean' ? el.isConnected : !!el?.parentNode
 
-const isThenable = x =>
-  !!x
-  && (typeof x === 'object' || typeof x === 'function')
-  && typeof x.then === 'function'
+const isThenable = x => x != null && typeof x.then === 'function'
 
-export const stopTickLoop = el =>
-  (state =>
-    !state ? undefined
-      : (state.running = false,
-      state.rafId != null
-          && typeof window?.cancelAnimationFrame === 'function'
-          && window.cancelAnimationFrame(state.rafId),
-      tickStateMap.delete(el),
-      undefined)
-  )(tickStateMap.get(el))
+export const stopTickLoop = el => {
+  const state = tickStateMap.get(el)
+  if (state) {
+    state.isRunning = false
+    if (state.rafId != null) window.cancelAnimationFrame?.(state.rafId)
+    tickStateMap.delete(el)
+  }
+}
 
 // The scheduled callback must not retain an element, its handler, or context.
 // Those belong to the weakly keyed state and may themselves reference DOM.
@@ -37,10 +32,11 @@ const frame = reference => {
   const step = t => {
     const el = reference.deref()
     const state = el && tickStateMap.get(el)
-    if (!state) return
-    if (!state.running) return stopTickLoop(el)
 
-    if (!isConnected(el) || !state.ready(el)) {
+    if (!state) return
+    if (!state.isRunning) return stopTickLoop(el)
+
+    if (!isConnected(el) || !state.isReady(el)) {
       state.lastTime = null
       state.rafId = window.requestAnimationFrame(step)
       return
@@ -59,11 +55,13 @@ const frame = reference => {
     }
 
     next !== undefined && (state.ctx = next)
-    state.running && (state.rafId = window.requestAnimationFrame(step))
+    state.isRunning && (state.rafId = window.requestAnimationFrame(step))
   }
 
   return step
 }
+
+const isAlwaysReady = () => true
 
 /**
  * Start (or restart) a tick loop for an element.
@@ -84,9 +82,9 @@ const frame = reference => {
  * @template Ctx
  * @param {Element} el
  * @param {(el: Element, ctx: any, dtMs: number) => (any | void)} handler
- * @param {{ ready?: (el: Element) => boolean }} [options]
+ * @param {{ isReady?: (el: Element) => boolean }} [options]
  */
-export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
+export const startTickLoop = (el, handler, { isReady = isAlwaysReady } = {}) => {
   const canTick =
     typeof window !== 'undefined'
     && typeof window.requestAnimationFrame === 'function'
@@ -96,18 +94,18 @@ export const startTickLoop = (el, handler, { ready = () => true } = {}) => {
   const existing = tickStateMap.get(el)
 
   if (existing?.handler === handler
-    && existing?.ready === ready
-    && existing?.running) return
+    && existing?.isReady === isReady
+    && existing?.isRunning) return
 
   existing && stopTickLoop(el)
 
   const state = {
     handler,
-    ready,
+    isReady,
     ctx: undefined,
     lastTime: null,
     rafId: null,
-    running: true
+    isRunning: true
   }
 
   tickStateMap.set(el, state)

@@ -38,14 +38,14 @@ describe("events", () => {
     const handler = () => undefined
     const f = form({ onsubmit: handler })
 
-    let prevented = false
+    let wasPrevented = false
     const event = {
-      preventDefault: () => { prevented = true },
+      preventDefault: () => { wasPrevented = true },
       target: { elements: {} }
     }
 
     f[1].onsubmit(event.target.elements, event)
-    assert.equal(prevented, false)
+    assert.equal(wasPrevented, false)
   })
 
   test('onsubmit handler that returns nothing does not trigger update', () => {
@@ -206,7 +206,7 @@ describe("events", () => {
     const container = document.createElement('div')
 
     let gotTarget, gotEvent
-    let prevented = 0
+    let wasPrevented = 0
 
     const App = observe((value = '') =>
       div({},
@@ -225,14 +225,14 @@ describe("events", () => {
     inputEl.value = '0.2'
     const event = {
       target: inputEl,
-      preventDefault: () => { prevented++ }
+      preventDefault: () => { wasPrevented++ }
     }
     inputEl.oninput(event)
 
     assert.equal(gotTarget, inputEl)
     assert.equal(gotEvent, event)
     assert.equal(inputEl.value, '0.2')
-    assert.equal(prevented, 0)
+    assert.equal(wasPrevented, 0)
 
     globalThis.document = prevDocument
     globalThis.window = prevWindow
@@ -246,17 +246,17 @@ describe("events", () => {
     globalThis.document = document
     globalThis.window = undefined
 
-    let prevented = 0
+    let wasPrevented = 0
 
     const container = document.createElement('div')
     transition(a({ href: '/x', onclick: () => div('ok') }, 'go'), container)
 
     await container.childNodes[0].onclick({
       button: 0,
-      preventDefault: () => { prevented++ }
+      preventDefault: () => { wasPrevented++ }
     })
 
-    assert.equal(prevented, 1)
+    assert.equal(wasPrevented, 1)
     assert.equal(container.childNodes[0].tagName.toLowerCase(), 'div')
 
     globalThis.document = prevDocument

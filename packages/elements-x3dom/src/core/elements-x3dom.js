@@ -16,11 +16,11 @@
  *   the smallest initial payload.
  */
 
-let canvas2dPatched = false
+let isCanvas2DPatched = false
 
 const patchCanvas2DWillReadFrequentlyOnce = window => {
-  if (canvas2dPatched) return
-  canvas2dPatched = true
+  if (isCanvas2DPatched) return
+  isCanvas2DPatched = true
 
   // TODO(upstream): Submit a PR to X3DOM so its Text texture/mipmap pipeline
   // requests `getContext('2d', { willReadFrequently: true })` when it relies on
@@ -119,9 +119,9 @@ const watchDocument = document => {
   let stylesheet = null, script = null, revision = 0
   const sync = (mutations = []) => {
     const scenes = Array.from(document.querySelectorAll('x3d'))
-    const moved = mutations.some(mutation => Array.from(mutation.removedNodes).some(node =>
+    const hasRemovedScene = mutations.some(mutation => Array.from(mutation.removedNodes).some(node =>
       node.localName === 'x3d' || node.querySelector?.('x3d')))
-    const added = moved || scenes.some(scene => !connected.has(scene))
+    const haveScenesChanged = hasRemovedScene || scenes.some(scene => !connected.has(scene))
     connected = new WeakSet(scenes)
     if (!scenes.length) {
       stylesheet = script = null
@@ -135,7 +135,7 @@ const watchDocument = document => {
     // request so head replacement cannot execute the vendor bundle twice.
     const js = window.x3dom?.reload ? null
       : engineLoad || (engineLoad = asset(document, 'script', 'src', fullUrl))
-    if (!added && stylesheet === css.node && script === js?.node) return
+    if (!haveScenesChanged && stylesheet === css.node && script === js?.node) return
     if (stylesheet !== css.node)
       css.ready.catch(error => console.warn('x3dom stylesheet failed to load', error))
     stylesheet = css.node
