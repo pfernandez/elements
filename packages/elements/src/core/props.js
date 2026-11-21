@@ -42,10 +42,12 @@ const clearProp = (el, key) => {
     el.ontick = null
     stopTickLoop(el)
   } else if (key === 'style') clearStyle(el)
-  else if (key === 'innerHTML') el.innerHTML = ''
+  else if (key === 'innerHTML')
+    el.innerHTML = ''
   else if (Object.hasOwn(propertyExceptionDefaults, key) && key in el)
     el[key] = propertyExceptionDefaults[key]
-  else if (key.startsWith('on')) el[key] = null
+  else if (key.startsWith('on'))
+    el[key] = null
   else el.removeAttribute(key)
 }
 
@@ -76,31 +78,33 @@ const applying = (applied, key, value, assign) => {
  * @param {Record<string, any>} nextProps
  * @param {(key: string, value: any) => (() => void) | void} [applied]
  */
-export const removeMissingProps = (el, prevProps, nextProps,
-                                   applied = () => {}) => {
-  const prevStyle = prevProps?.style
-  const nextStyle = nextProps?.style
-  if (typeof prevStyle === 'string' && isObject(nextStyle)) {
-    applying(applied, 'style', {}, () => clearStyle(el))
-  }
-  if (isObject(prevStyle) && isObject(nextStyle) && el?.style) {
-    const style = { ...prevStyle }
-    for (const key of Object.keys(prevStyle)) {
-      if (key in nextStyle) continue
+export const removeMissingProps =
+  (el, prevProps, nextProps, applied = () => {}) => {
+    const prevStyle = prevProps?.style
+    const nextStyle = nextProps?.style
 
-      delete style[key]
-      applying(applied, 'style', { ...style }, () =>
-        setStyle(el.style, key, null))
+    if (typeof prevStyle === 'string' && isObject(nextStyle)) {
+      applying(applied, 'style', {}, () => clearStyle(el))
     }
-  }
 
-  for (const key of Object.keys(prevProps)) {
-    if (key === 'key' || key in nextProps) continue
+    if (isObject(prevStyle) && isObject(nextStyle) && el?.style) {
+      const style = { ...prevStyle }
+      for (const key of Object.keys(prevStyle)) {
+        if (key in nextStyle) continue
 
-    applying(applied, key, undefined, () => clearProp(el, key))
+        delete style[key]
+        applying(applied, 'style', { ...style }, () =>
+          setStyle(el.style, key, null))
+      }
+    }
+
+    for (const key of Object.keys(prevProps)) {
+      if (key === 'key' || key in nextProps) continue
+
+      applying(applied, key, undefined, () => clearProp(el, key))
+    }
+    checkpoint()
   }
-  checkpoint()
-}
 
 /**
  * Assign props to a DOM element.
@@ -117,20 +121,25 @@ export const removeMissingProps = (el, prevProps, nextProps,
 export const assignProperties = (el, props, env) => {
   validateProps(props)
   const isSvg = el.namespaceURI === env.svgNS
+
   for (const key of Object.keys(props)) {
     checkpoint()
     if (key === 'key') continue
     const value = props[key]
+
     if (key === 'style' && isObject(value) && el?.style) {
       const style = isObject(env.style) ? { ...env.style } : {}
+
       for (const styleKey of Object.keys(value)) {
         const styleValue = value[styleKey]
         style[styleKey] = styleValue
+
         applying(env.applied, 'style', { ...style }, () =>
           setStyle(el.style, styleKey, styleValue))
       }
     } else applying(env.applied, key, value, () => {
-      if (value == null) clearProp(el, key)
+      if (value == null)
+        clearProp(el, key)
       else if (key === 'ontick' && typeof value === 'function') {
         el.ontick = value
         startTickLoop(el, value, { isReady: isX3DOMReadyFor })
@@ -140,7 +149,8 @@ export const assignProperties = (el, props, env) => {
         el[key] = createDeclarativeEventHandler({
           el, key, handler: value, resume: env.resume
         })
-      else if (key === 'innerHTML') el.innerHTML = value
+      else if (key === 'innerHTML')
+        el.innerHTML = value
       else {
         const text = attributeValue(key, value)
         text == null ? el.removeAttribute(key)

@@ -24,7 +24,10 @@ export const mutateRange = (nodes, apply) => {
 
 export const updating = (boundary, apply) => {
   const previous = active
-  if (boundary.update) boundary.update.isCancelled = true
+
+  if (boundary.update)
+    boundary.update.isCancelled = true
+
   const frame = { isCancelled: false }
   boundary.update = active = frame
   try {

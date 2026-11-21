@@ -111,9 +111,9 @@ export const restore = observations => {
  *
  * Calls to the returned observer construct vnodes without updating the DOM.
  * Returning one from an event selects that observer's next observation,
- * even from a sibling or child.
- * Plain vnode returns update the event's closest boundary. Promises may resolve
- * to either kind of continuation; errors propagate to the caller.
+ * even from a sibling or child. Plain vnode returns update the event's closest
+ * boundary. Promises may resolve to either kind of continuation; errors
+ * propagate to the caller.
  *
  * All projections of this definition share its current observation. Create
  * separate observer definitions for independent state (a factory can help).

@@ -36,6 +36,7 @@ export const matchChildren = (previous, next) => {
     Array.isArray(value) ? value : null)
   const keys = uniqueIndex(previous, keyOf)
   const identities = uniqueIndex(previous, identityOf)
+
   // Plain unkeyed children stay positional unless a retained reference moves.
   // Check the entire list before reserving positions for fresh descriptions.
   if (!keys && !identities && next.every((value, index) => {
@@ -54,8 +55,10 @@ export const matchChildren = (previous, next) => {
 
   const referencesMatched = next.map(value =>
     Array.isArray(value) ? claim(references?.get(value)) : -1)
+
   const keysMatched = referencesMatched.map((index, position) =>
     index !== -1 ? index : claim(keys?.get(keyOf(next[position]))))
+
   const identitiesMatched = keysMatched.map((index, position) =>
     index !== -1 ? index
       : uniqueIdentities?.get(nextIdentities[position]) === position
@@ -78,16 +81,21 @@ export const stablePositions = matches => {
   const tails = [], preceding = new Array(matches.length).fill(-1)
   matches.forEach((value, index) => {
     if (value < 0) return
+
     let low = 0, high = tails.length
     while (low < high) {
       const middle = low + high >>> 1
       matches[tails[middle]] < value ? low = middle + 1 : high = middle
     }
+
     if (low) preceding[index] = tails[low - 1]
+
     tails[low] = index
   })
+
   const stable = new Set()
   for (let index = tails.at(-1); index !== -1; index = preceding[index])
     stable.add(index)
+
   return stable
 }
