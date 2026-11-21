@@ -37,9 +37,6 @@ jobs:
       - name: Test packed consumers
         run: npm run -s test:packages
 
-      - name: Typecheck (3d)
-        run: npm run -s 3d:typecheck
-
       - name: Test (coverage) (3d)
         run: npm run -s 3d:test:coverage
 

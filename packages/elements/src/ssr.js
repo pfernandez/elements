@@ -111,12 +111,14 @@ const toHtmlStringInner = (vnode, parentNamespace = htmlNS) => {
 }
 
 /**
- * Serialize a vnode tree to an HTML string (SSR/SSG).
+ * Serialize the supplied vnode tree to HTML. A retained observer vnode keeps
+ * its original contents even after its live DOM projections have changed.
  *
  * @param {import('./core/types.js').ElementsVNode | string | number
  *   | null | undefined | false} vnode
  * @param {{ doctype?: boolean }} [options]
  * @returns {string}
  */
-export const toHtmlString = (vnode, { doctype: hasDoctype = false } = {}) =>
-  `${hasDoctype ? '<!doctype html>' : ''}${toHtmlStringInner(vnode)}`
+export function toHtmlString(vnode, { doctype: hasDoctype = false } = {}) {
+  return `${hasDoctype ? '<!doctype html>' : ''}${toHtmlStringInner(vnode)}`
+}

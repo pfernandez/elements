@@ -1,5 +1,5 @@
 import { appearance, box, material, scene, shape, transform, viewpoint, x3d }
-  from '@pfern/elements-x3dom'
+  from '@pfern/elements/3d'
 
 /**
  * Minimal X3D/X3DOM demo.

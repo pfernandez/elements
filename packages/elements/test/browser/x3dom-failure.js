@@ -1,4 +1,4 @@
-import { box, scene, shape, x3d } from '@pfern/elements-x3dom'
+import { box, scene, shape, x3d } from '@pfern/elements/3d'
 import { project } from '@pfern/elements'
 
 const assert = (isTrue, message) => {

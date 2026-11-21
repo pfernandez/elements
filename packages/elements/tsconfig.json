@@ -17,6 +17,7 @@
     "./elements.js",
     "./html.js",
     "./svg.js",
-    "./mathml.js"
+    "./mathml.js",
+    "./3d.js"
   ]
 }

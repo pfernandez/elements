@@ -361,22 +361,32 @@ const patchValue = (record, source, owner, kind) => {
 }
 
 /**
- * Create a live DOM projection, optionally appending it to a target.
- * An observer event return updates every projection of that identity. A plain
- * vnode updates the captured boundary. Fresh observations select immediately.
- * Each call creates independent DOM and preserves existing target children.
- * Without a target, HTML html, head, and body roots replace their document
- * counterparts; other roots remain detached.
- * Vocabulary helpers determine namespaces independently of the target.
- * Returns the root element, or a DocumentFragment for an explicit fragment.
- * Inserting a fragment empties it. After root replacement, a previously
- * returned reference still points at the original node.
+ * Create a live DOM root. Call once per intended placement. Calling
+ * `project(graph, host)` twice appends two roots alongside existing children.
+ * To update a placement, return a vnode from an event handler. A plain vnode
+ * updates the handler's boundary. An observer vnode updates every placement of
+ * that observer. If another app replaces the host, its replacement does
+ * not inherit the mounted roots.
+ *
+ * Separate roots can share state. Projecting a fresh `counter(0)` resets every
+ * placement of that observer to zero, even when the new root is detached. Reuse
+ * a previously projected observer vnode to show its current state in another
+ * root. Create separate observers for independent state.
+ *
+ * Without a target, HTML `html`, `head`, and `body` replace the corresponding
+ * document element, detaching its contents, including any app roots inside it.
+ * Pass a DocumentFragment as the target to build one of these roots offscreen.
+ * Other roots stay detached by default. The graph supplies its own namespaces.
+ *
+ * The result is a native DOM reference. If an update replaces the root, the
+ * reference still points to the original node. An explicit fragment returns
+ * a DocumentFragment that empties on insertion.
  *
  * @param {import('./types.js').ElementsVNode} graph
  * @param {Element | Document | DocumentFragment} [target] Optional DOM parent.
  * @returns {Element | DocumentFragment} The initially projected DOM.
  */
-export const project = (graph, target) => {
+export function project(graph, target) {
   if (target !== undefined && (!target || typeof target.insertBefore !== 'function'))
     throw new TypeError('project() target must be a DOM parent.')
   const doc = target ? documentOf(target) : document

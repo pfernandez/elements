@@ -2,8 +2,8 @@ import { element, fragment, html, mathml, svg as drawing } from '@pfern/elements
 import { button, div, input, observe, project } from '@pfern/elements/html'
 import { circle, svg } from '@pfern/elements/svg'
 import { math, mi } from '@pfern/elements/mathml'
-import { box, scene, x3d, type BoxProps, type X3DNode } from '@pfern/elements-x3dom'
-import * as x3dom from '@pfern/elements-x3dom'
+import { box, scene, x3d, type BoxProps, type X3DNode } from '@pfern/elements/3d'
+import * as x3dom from '@pfern/elements/3d'
 
 type Helpers = Pick<typeof import('@pfern/elements'),
   'element' | 'fragment' | 'observe' | 'project' | 'toHtmlString'>
@@ -24,7 +24,11 @@ label(1)
 // @ts-expect-error Non-recursive views infer their parameters without annotations.
 label('not a number')
 
-const props: BoxProps = { size: '1 1 1' }
+const props: BoxProps = { size: [1, 1, 1], solid: true }
+// @ts-expect-error A declared Box field has a vector type even in an offline build.
+const invalidSize: BoxProps['size'] = false
+// @ts-expect-error The inherited geometry field accepts a boolean or attribute string.
+const invalidSolid: BoxProps['solid'] = 42
 const node: X3DNode = box(props)
 const custom = element('custom-element')('custom')
 const picture = svg(circle({ r: 5 }))

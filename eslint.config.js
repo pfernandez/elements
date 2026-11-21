@@ -2,7 +2,7 @@ import globals from 'globals'
 
 export default [
   { ignores: ['.cache/**', '**/dist/**', '**/types/**', '**/vendor/**',
-              'packages/elements-x3dom/src/3d.js']},
+              'packages/elements/src/3d.js']},
   { files: ['scripts/**/*.{js,mjs}', 'packages/*/scripts/*.js',
             'packages/*/test/**/*.{js,mjs}'],
     languageOptions: { globals: globals.node }},

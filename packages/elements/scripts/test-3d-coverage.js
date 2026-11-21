@@ -8,10 +8,11 @@ const args = [
   '--test-coverage-lines=90',
   '--test-coverage-branches=75',
   '--test-coverage-functions=85',
-  '--test-coverage-include=x3dom.js',
-  '--test-coverage-include=src/**',
+  '--test-coverage-include=3d.js',
+  '--test-coverage-include=src/3d.js',
+  '--test-coverage-include=src/x3dom.js',
   '--test-coverage-exclude=vendor/**',
-  'test/*.test.*'
+  'test/3d/*.test.js'
 ]
 
 const result = spawnSync('node', args, { stdio: 'inherit' })

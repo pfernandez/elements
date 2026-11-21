@@ -1,4 +1,4 @@
-import { appearance, box, material, scene, shape, x3d } from '@pfern/elements-x3dom'
+import { appearance, box, material, scene, shape, x3d } from '@pfern/elements/3d'
 import { html, observe, project } from '@pfern/elements'
 
 const assert = (isTrue, message) => {

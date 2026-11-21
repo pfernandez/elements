@@ -1,7 +1,7 @@
-import { box, scene, x3d } from '../x3dom.js'
+import { box, scene, x3d } from '../../3d.js'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { watchDocument } from '../src/core/elements-x3dom.js'
+import { watchDocument } from '../../src/x3dom.js'
 
 const flush = () => new Promise(resolve => setTimeout(resolve, 0))
 

@@ -1,8 +1,8 @@
 // X3DOM replaces its global engine when the full bundle loads. Load it once
 // when a scene connects, and keep the request if the page replaces its head.
 const assets = new WeakMap()
-const cssUrl = new URL('../../vendor/x3dom.css', import.meta.url).href
-const fullUrl = new URL('../../vendor/x3dom-full.js', import.meta.url).href
+const cssUrl = new URL('../vendor/x3dom.css', import.meta.url).href
+const fullUrl = new URL('../vendor/x3dom-full.js', import.meta.url).href
 
 // X3DOM 1.8.3 destroys a removed scene's backend, but leaves its flag, DOM
 // controls and method wrappers behind. Reset only those vendor-owned pieces.

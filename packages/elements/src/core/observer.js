@@ -134,7 +134,7 @@ export const restore = observations => {
  * @param {View} view A pure function describing a state and its interactions.
  * @returns {StateObserver<View>}
  */
-export const observe = view => {
+export function observe(view) {
   const identity = createIdentity(undefined)
 
   return /** @type {StateObserver<View>} */ ((...args) => {

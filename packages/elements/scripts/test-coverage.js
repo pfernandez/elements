@@ -11,6 +11,8 @@ const args = [
   '--test-coverage-include=elements.js',
   '--test-coverage-include=src/**',
   '--test-coverage-exclude=src/core/types.js',
+  '--test-coverage-exclude=src/3d.js',
+  '--test-coverage-exclude=src/x3dom.js',
   'test/*.test.*'
 ]
 

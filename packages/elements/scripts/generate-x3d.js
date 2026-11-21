@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const pkgRoot = path.resolve(import.meta.dirname, '..')
-const repoRoot = path.resolve(pkgRoot, '..', '..')
 
 const x3domVendorFullPath = path.join(pkgRoot, 'vendor', 'x3dom-full.js')
 const typesDir = path.join(pkgRoot, 'types')
@@ -16,13 +15,6 @@ const parseRegistry = source => {
   let match
   while (match = re.exec(source)) byName.set(match[1], match[2])
   return byName
-}
-
-const loadVendoredX3domVersion = () => {
-  if (!fs.existsSync(x3domVendorFullPath)) return null
-  const src = fs.readFileSync(x3domVendorFullPath, 'utf8')
-  const m = src.match(/X3DOM\s+([0-9]+\.[0-9]+\.[0-9]+)/)
-  return m?.[1] || null
 }
 
 const toTagName = pascal => {
@@ -62,115 +54,11 @@ const wrapDoc = (text, { indent = ' * ' } = {}) => {
   return lines.map(line => `${indent}${line}`.trimEnd())
 }
 
-const extractClassDescFromFile = fileText => {
-  const blockRe = /\/\*\*([\s\S]*?)\*\//g
-  let match
-  while (match = blockRe.exec(fileText)) {
-    const block = match[1]
-    const classdescIdx = block.indexOf('@classdesc')
-    if (classdescIdx === -1) continue
-
-    const after = block.slice(classdescIdx + '@classdesc'.length)
-    const lines = after
-      .split('\n')
-      .map(l => l.replace(/^\s*\*\s?/, ''))
-
-    const out = []
-    for (const line of lines) {
-      const trimmed = line.trimEnd()
-      if (/^\s*@\w+/.test(trimmed)) break
-      out.push(trimmed)
-    }
-
-    const text = out.join('\n').trim()
-    if (text) return text
-  }
-
-  return null
-}
-
-const extractFieldsFromFile = fileText => {
-  const re = /this\.addField_([A-Za-z0-9]+)\(\s*ctx\s*,\s*\"([^\"]+)\"/g
-  const fields = []
-  let match
-  while (match = re.exec(fileText)) {
-    const fieldType = match[1]
-    const name = match[2]
-    fields.push({ name, fieldType })
-  }
-  return fields
-}
-
-const loadX3domSourceDocs = version => {
-  if (!version) return new Map()
-  const srcRoot = path.join(
-    repoRoot,
-    '.cache',
-    `x3dom-src-${version}`,
-    'src',
-    'nodes'
-  )
-  if (!fs.existsSync(srcRoot)) return new Map()
-
-  const docsByPascal = new Map()
-  const stack = [srcRoot]
-
-  while (stack.length) {
-    const dir = stack.pop()
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const fullPath = path.join(dir, entry.name)
-      if (entry.isDirectory()) stack.push(fullPath)
-      else if (entry.isFile() && entry.name.endsWith('.js')) {
-        const txt = fs.readFileSync(fullPath, 'utf8')
-        const m = txt.match(/registerNodeType\(\s*\"([^\"]+)\"/)
-        if (!m) continue
-        const pascal = m[1]
-        const desc = extractClassDescFromFile(txt)
-        if (desc) docsByPascal.set(pascal, desc)
-      }
-    }
-  }
-
-  return docsByPascal
-}
-
-const loadX3domSourceFields = version => {
-  if (!version) return new Map()
-  const srcRoot = path.join(
-    repoRoot,
-    '.cache',
-    `x3dom-src-${version}`,
-    'src',
-    'nodes'
-  )
-  if (!fs.existsSync(srcRoot)) return new Map()
-
-  const fieldsByPascal = new Map()
-  const stack = [srcRoot]
-
-  while (stack.length) {
-    const dir = stack.pop()
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const fullPath = path.join(dir, entry.name)
-      if (entry.isDirectory()) stack.push(fullPath)
-      else if (entry.isFile() && entry.name.endsWith('.js')) {
-        const txt = fs.readFileSync(fullPath, 'utf8')
-        const m = txt.match(/registerNodeType\(\s*\"([^\"]+)\"/)
-        if (!m) continue
-        const pascal = m[1]
-        const fields = extractFieldsFromFile(txt)
-        if (fields.length) fieldsByPascal.set(pascal, fields)
-      }
-    }
-  }
-
-  return fieldsByPascal
-}
-
 const fieldTypeToTs = fieldType => {
   // Keep values permissive: X3DOM accepts HTML attribute strings; users may
   // also pass numbers/arrays.
   switch (fieldType) {
+    case 'MFBoolean': return 'string | boolean[]'
     case 'SFBool': return 'X3DBool'
     case 'SFInt32':
     case 'SFFloat':
@@ -182,9 +70,11 @@ const fieldTypeToTs = fieldType => {
     case 'MFFloat':
     case 'MFDouble': return 'string | X3DNumber[]'
     case 'SFVec2f': return 'X3DVec2'
+    case 'SFVec3d':
     case 'SFVec3f': return 'X3DVec3'
     case 'SFVec4f': return 'X3DVec4'
     case 'MFVec2f': return 'string | X3DVec2[]'
+    case 'MFVec3d':
     case 'MFVec3f': return 'string | X3DVec3[]'
     case 'MFVec4f': return 'string | X3DVec4[]'
     case 'SFColor': return 'X3DColor'
@@ -204,20 +94,6 @@ const fieldTypeToTs = fieldType => {
 
 const safePropKey = name =>
   /^[A-Za-z_\$][A-Za-z0-9_\$]*$/.test(name) ? name : JSON.stringify(name)
-
-const writeX3DEntrypointTypes = () => {
-  ensureDir(typesDir)
-  const outPath = path.join(typesDir, 'x3dom.d.ts')
-  fs.writeFileSync(
-    outPath,
-    [
-      'export * from \'./src/x3d-base.js\';',
-      'export * from \'./src/x3d.js\';',
-      'export { element, fragment, observe, project, toHtmlString } from \'@pfern/elements\';',
-      ''
-    ].join('\n')
-  )
-}
 
 const writeX3DHelpersRuntime = byName => {
   const concrete = [...byName.entries()]
@@ -250,8 +126,8 @@ const writeX3DHelpersRuntime = byName => {
   lines.push('// This file is generated. Do not edit by hand.')
   lines.push('// Generated by scripts/generate-x3d.js')
   lines.push('')
-  lines.push('import { element } from \'@pfern/elements\'')
-  lines.push('import \'./core/elements-x3dom.js\'')
+  lines.push('import { element } from \'./core/element.js\'')
+  lines.push('import \'./x3dom.js\'')
   lines.push('')
   for (const e of exportsList) {
     if (e.exportName === 'route') {
@@ -280,12 +156,8 @@ const writeX3DHelpersRuntime = byName => {
   fs.writeFileSync(outPath, lines.join('\n'))
 }
 
-const writeX3DTypes = byName => {
+const writeX3DTypes = (byName, nodes) => {
   ensureDir(typesSrcDir)
-  const version = loadVendoredX3domVersion()
-  const docsByPascal = loadX3domSourceDocs(version)
-  const fieldsByPascal = loadX3domSourceFields(version)
-
   const concrete = [...byName.entries()]
     .filter(([name]) => !name.startsWith('X3D'))
     .map(([pascal, component]) => ({
@@ -314,6 +186,8 @@ const writeX3DTypes = byName => {
   )
   lines.push(' * augmented with @see links to the official X3DOM docs pages.')
   lines.push(' */')
+  lines.push('')
+  lines.push('export * from \'./x3d-base.js\';')
   lines.push('')
   lines.push('export type X3DNumber = number | string;')
   lines.push('export type X3DBool = boolean | string;')
@@ -355,31 +229,33 @@ const writeX3DTypes = byName => {
   lines.push('')
   lines.push('/**')
   const x3dDesc =
-    docsByPascal.get('X3D')
-    || 'The <x3d> element is the top-level container for an X3D scene.'
+    'The <x3d> element is the top-level container for an X3D scene.'
   lines.push(...wrapDoc(x3dDesc))
   lines.push(' * @see https://doc.x3dom.org/author/Core/X3D.html')
   lines.push(' */')
   lines.push('export const x3d: ElementHelper;')
   lines.push('')
 
+  for (const name of byName.keys()) {
+    const { parent, fields } = nodes[name]
+    const base = parent ? `${parent}Props` : 'X3DProps'
+    const prefix = name.startsWith('X3D') ? '' : 'export '
+    lines.push(`${prefix}interface ${name}Props extends ${base} {`)
+    for (const [key, { type, description }] of Object.entries(fields)) {
+      if (description)
+        lines.push('  /**', ...wrapDoc(description, { indent: '   * ' }), '   */')
+      lines.push(`  ${safePropKey(key)}?: ${fieldTypeToTs(type)};`)
+    }
+    lines.push('}', '')
+  }
+
   for (const { pascal, component, tag, helper } of concrete) {
     const exp = toExportName(helper)
     const url = makeDocUrl(component, pascal)
     const tagLabel = tag === 'lod' ? '<lod> (LOD)' : `<${tag}>`
     const desc =
-      docsByPascal.get(pascal)
+      nodes[pascal].description
       || `${tagLabel} node (X3DOM ${component} component).`
-    const fields = fieldsByPascal.get(pascal) || []
-    const propsName = `${pascal}Props`
-
-    lines.push(`export interface ${propsName} extends X3DProps {`)
-    for (const f of fields) {
-      lines.push(`  ${safePropKey(f.name)}?: ${fieldTypeToTs(f.fieldType)};`)
-    }
-    lines.push('}')
-    lines.push('')
-
     lines.push('/**')
     lines.push(...wrapDoc(desc))
     if (exp !== tag) {
@@ -391,7 +267,7 @@ const writeX3DTypes = byName => {
     }
     lines.push(` * @see ${url}`)
     lines.push(' */')
-    lines.push(`export const ${exp}: ElementHelper<${propsName}>;`)
+    lines.push(`export const ${exp}: ElementHelper<${pascal}Props>;`)
     lines.push('')
   }
 
@@ -411,15 +287,12 @@ const writeX3DTypes = byName => {
   lines.push('export const route: ElementHelper<RouteProps>;')
   lines.push('')
 
-  const outPath = path.join(typesSrcDir, 'x3d.d.ts')
+  const outPath = path.join(typesSrcDir, '3d.d.ts')
   fs.writeFileSync(outPath, lines.join('\n'))
 }
 
-const writeX3DBaseTypes = byName => {
+const writeX3DBaseTypes = (byName, nodes) => {
   ensureDir(typesSrcDir)
-  const version = loadVendoredX3domVersion()
-  const docsByPascal = loadX3domSourceDocs(version)
-
   const base = [...byName.entries()]
     .filter(([name]) => name.startsWith('X3D'))
     .map(([name, component]) => ({ name, component }))
@@ -449,7 +322,7 @@ const writeX3DBaseTypes = byName => {
   lines.push('')
   lines.push('/**')
   const x3dNodeDesc =
-    docsByPascal.get('X3DNode')
+    nodes.X3DNode.description
     || 'Abstract base type that all concrete X3D nodes derive from.'
   lines.push(...wrapDoc(x3dNodeDesc))
   lines.push(' * @see https://doc.x3dom.org/author/Core/X3DNode.html')
@@ -460,7 +333,7 @@ const writeX3DBaseTypes = byName => {
   for (const { name, component } of base) {
     if (name === 'X3DNode') continue
     const url = makeDocUrl(component, name)
-    const desc = docsByPascal.get(name) || 'Abstract base node type.'
+    const desc = nodes[name].description || 'Abstract base node type.'
     lines.push('/**')
     lines.push(...wrapDoc(desc))
     lines.push(` * @see ${url}`)
@@ -485,12 +358,18 @@ const main = () => {
     process.exit(1)
   }
 
-  const byName = parseRegistry(fs.readFileSync(x3domVendorFullPath, 'utf8'))
+  const engine = fs.readFileSync(x3domVendorFullPath, 'utf8')
+  const byName = parseRegistry(engine)
 
   shouldGenerateRuntime && writeX3DHelpersRuntime(byName)
-  shouldGenerateTypes && writeX3DEntrypointTypes()
-  shouldGenerateTypes && writeX3DTypes(byName)
-  shouldGenerateTypes && writeX3DBaseTypes(byName)
+  if (shouldGenerateTypes) {
+    const file = new URL('./x3dom-nodes.json', import.meta.url)
+    const { revision, nodes } = JSON.parse(fs.readFileSync(file, 'utf8'))
+    if (revision !== engine.match(/Revision: ([0-9a-f]+)/)?.[1])
+      throw new Error('Refresh the node definitions with npm run fetch:x3dom-src.')
+    writeX3DTypes(byName, nodes)
+    writeX3DBaseTypes(byName, nodes)
+  }
 }
 
 main()

@@ -244,6 +244,7 @@ npm install @pfern/elements
 ```
 
 The runtime requires `WeakRef` and `FinalizationRegistry` support.
+For existing apps, see [Migrating from 0.2.1 to 0.3.0](https://github.com/pfernandez/elements/blob/main/packages/elements/MIGRATION.md).
 
 Explore the [live demo](https://pfernandez.github.io/elements), its
 [examples](https://github.com/pfernandez/elements/tree/main/examples), and the longer article on
@@ -356,7 +357,7 @@ import { math, mfrac } from '@pfern/elements/mathml'
 project(circle({ r: 10 }), existingSvg)
 ```
 
-HTML, SVG, MathML, and X3DOM entry points also export `observe`, `project`,
+The HTML, SVG, and MathML entry points also export `observe`, `project`,
 `element`, `fragment`, and `toHtmlString` from the shared core.
 
 Each helper carries its namespace, independently of where it is projected.
@@ -419,42 +420,36 @@ and an initial `dtMs` of zero, excluding time spent paused.
 
 ### `toHtmlString(vnode[, options])`
 
-Serialize a description as HTML for server rendering or static generation:
+Serialize a description as HTML for server rendering or static generation.
+An observer vnode retains the value it was created with:
 
 ```js
-import { div, toHtmlString } from '@pfern/elements/html'
+import { button, observe, project, toHtmlString } from '@pfern/elements/html'
 
-toHtmlString(div('Hello')) // '<div>Hello</div>'
+const counter = observe(n => button({ onclick: () => counter(n + 1) }, n))
+const initial = counter(0)
+project(initial, document.body).click()
+
+project(initial).textContent // '1' — a new root showing the current observation
+toHtmlString(initial)        // '<button>0</button>'
 ```
 
 Use `{ doctype: true }` for a document. Event handlers are omitted from the
 HTML. `innerHTML` inserts its value verbatim.
 
-## Optional X3DOM helpers
+## X3DOM
 
-```sh
-npm install @pfern/elements-x3dom
-```
-
-Import 3D helpers from the separate package:
+Import the optional 3D helpers from `@pfern/elements/3d`:
 
 ```js
-import { appearance, box, material, scene, shape, x3d }
-  from '@pfern/elements-x3dom'
+import { box, project, scene, shape, x3d } from '@pfern/elements/3d'
 
-const cube = () =>
-  x3d(
-    scene(
-      shape(
-        appearance(material({ diffuseColor: '0.2 0.6 1' })),
-        box())))
+project(x3d(scene(shape(box()))), document.body)
 ```
 
-The first connected X3DOM scene loads the vendored runtime and stylesheet.
-Constructing descriptions or projecting detached scenes loads neither. The
-package handles later scenes, reconnection, and stylesheet restoration after
-head replacement. See the [X3DOM package](https://github.com/pfernandez/elements/blob/main/packages/elements-x3dom/README.md) and
-[animation example](https://github.com/pfernandez/elements/blob/main/examples/views/tick.js).
+The first connected scene loads the bundled X3DOM engine and stylesheet.
+Core-only browser builds omit both assets. See the [3D guide](https://github.com/pfernandez/elements/blob/main/packages/elements/3d.md)
+and the [cube example](https://github.com/pfernandez/elements/blob/main/examples/views/cube.js).
 
 ## Types and testing
 

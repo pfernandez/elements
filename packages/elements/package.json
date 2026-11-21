@@ -26,6 +26,11 @@
       "types": "./types/svg.d.ts",
       "import": "./svg.js",
       "default": "./svg.js"
+    },
+    "./3d": {
+      "types": "./types/3d.d.ts",
+      "import": "./3d.js",
+      "default": "./3d.js"
     }
   },
   "files": [
@@ -33,18 +38,24 @@
     "./html.js",
     "./svg.js",
     "./mathml.js",
+    "./3d.js",
+    "./3d.md",
+    "./MIGRATION.md",
     "./env.d.ts",
-    "./src/*.js",
-    "./src/core",
-    "./types"
+    "./src",
+    "./types",
+    "./vendor"
   ],
   "scripts": {
     "clean:types": "node scripts/clean-types.js",
-    "build:types": "npm run -s clean:types && tsc -p tsconfig.json",
+    "build:types": "npm run -s clean:types && node scripts/generate-x3d.js --runtime && tsc -p tsconfig.json && node scripts/generate-x3d.js --types",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepack": "npm run -s build:types",
-    "test": "node --test --test-reporter=spec test/*.test.js",
-    "test:coverage": "node scripts/test-coverage.js"
+    "test": "node --test --test-reporter=spec test/*.test.js test/3d/*.test.js",
+    "test:coverage": "node scripts/test-coverage.js",
+    "3d:test": "node --test --test-reporter=spec test/3d/*.test.js",
+    "3d:test:coverage": "node scripts/test-3d-coverage.js",
+    "fetch:x3dom-src": "node scripts/fetch-x3dom-src.js"
   },
   "keywords": [
     "ui",
@@ -57,7 +68,9 @@
     "dom",
     "html",
     "svg",
-    "ssr"
+    "ssr",
+    "x3d",
+    "x3dom"
   ],
   "repository": {
     "type": "git",

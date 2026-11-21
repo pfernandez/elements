@@ -244,6 +244,7 @@ npm install @pfern/elements
 ```
 
 The runtime requires `WeakRef` and `FinalizationRegistry` support.
+For existing apps, see [Migrating from 0.2.1 to 0.3.0](./packages/elements/MIGRATION.md).
 
 Explore the [live demo](https://pfernandez.github.io/elements), its
 [examples](./examples), and the longer article on
@@ -356,7 +357,7 @@ import { math, mfrac } from '@pfern/elements/mathml'
 project(circle({ r: 10 }), existingSvg)
 ```
 
-HTML, SVG, MathML, and X3DOM entry points also export `observe`, `project`,
+The HTML, SVG, and MathML entry points also export `observe`, `project`,
 `element`, `fragment`, and `toHtmlString` from the shared core.
 
 Each helper carries its namespace, independently of where it is projected.
@@ -419,42 +420,36 @@ and an initial `dtMs` of zero, excluding time spent paused.
 
 ### `toHtmlString(vnode[, options])`
 
-Serialize a description as HTML for server rendering or static generation:
+Serialize a description as HTML for server rendering or static generation.
+An observer vnode retains the value it was created with:
 
 ```js
-import { div, toHtmlString } from '@pfern/elements/html'
+import { button, observe, project, toHtmlString } from '@pfern/elements/html'
 
-toHtmlString(div('Hello')) // '<div>Hello</div>'
+const counter = observe(n => button({ onclick: () => counter(n + 1) }, n))
+const initial = counter(0)
+project(initial, document.body).click()
+
+project(initial).textContent // '1' — a new root showing the current observation
+toHtmlString(initial)        // '<button>0</button>'
 ```
 
 Use `{ doctype: true }` for a document. Event handlers are omitted from the
 HTML. `innerHTML` inserts its value verbatim.
 
-## Optional X3DOM helpers
+## X3DOM
 
-```sh
-npm install @pfern/elements-x3dom
-```
-
-Import 3D helpers from the separate package:
+Import the optional 3D helpers from `@pfern/elements/3d`:
 
 ```js
-import { appearance, box, material, scene, shape, x3d }
-  from '@pfern/elements-x3dom'
+import { box, project, scene, shape, x3d } from '@pfern/elements/3d'
 
-const cube = () =>
-  x3d(
-    scene(
-      shape(
-        appearance(material({ diffuseColor: '0.2 0.6 1' })),
-        box())))
+project(x3d(scene(shape(box()))), document.body)
 ```
 
-The first connected X3DOM scene loads the vendored runtime and stylesheet.
-Constructing descriptions or projecting detached scenes loads neither. The
-package handles later scenes, reconnection, and stylesheet restoration after
-head replacement. See the [X3DOM package](./packages/elements-x3dom/README.md) and
-[animation example](./examples/views/tick.js).
+The first connected scene loads the bundled X3DOM engine and stylesheet.
+Core-only browser builds omit both assets. See the [3D guide](./packages/elements/3d.md)
+and the [cube example](./examples/views/cube.js).
 
 ## Types and testing
 
@@ -475,22 +470,15 @@ MIT License. Copyright (c) 2026 Paul Fernandez.
 
 ## Development
 
-This repository is a monorepo:
-
-- `@pfern/elements` lives in `packages/elements`
-- `@pfern/elements-x3dom` lives in `packages/elements-x3dom`
-
-The root `package.json` provides convenience scripts that proxy into each
-package workspace.
+The library lives in `packages/elements`. Run its checks from the repository root:
 
 ```sh
 npm test
 npm run -s test:coverage
 npm run -s typecheck
 npm run -s build:types
-npm run -s x3dom:test
-npm run -s x3dom:test:coverage
-npm run -s x3dom:typecheck
+npm run -s 3d:test:coverage
+npm run -s test:packages
 ```
 
 ### Publishing the demo
@@ -523,8 +511,9 @@ npm audit --omit=dev --audit-level=high
 CI also prints the full `npm audit` report (including dev dependencies) as a
 non-blocking log to aid triage.
 
-To refresh upstream X3DOM docs for type generation after updating vendor
-bundles (manual step; requires network access):
+After updating the X3DOM engine, refresh its checked-in field and description
+data from the matching upstream revision. Only this manual step needs network
+access on a fresh checkout.
 
 ```sh
 npm run -s fetch:x3dom-src

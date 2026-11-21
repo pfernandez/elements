@@ -18,14 +18,16 @@ const isPropsObject = value =>
  * @param {string | null} [namespace] DOM namespace; defaults to HTML.
  * @returns {import('./types.js').ElementsElementForTag<Tag>}
  */
-export const element = (tag, namespace = htmlNS) =>
-  /** @type {import('./types.js').ElementsElementForTag<Tag>} */ ((...args) => {
-    const props = isPropsObject(args[0]) ? args.shift() : {}
+export function element(tag, namespace = htmlNS) {
+  return /** @type {import('./types.js').ElementsElementForTag<Tag>} */ (
+    (...args) => {
+      const props = isPropsObject(args[0]) ? args.shift() : {}
 
-    return withNamespace(/** @type {import('./types.js').ElementsVNode} */ (
-      normalizeChildren(args, [tag, props])
-    ), namespace)
-  })
+      return withNamespace(/** @type {import('./types.js').ElementsVNode} */ (
+        normalizeChildren(args, [tag, props])
+      ), namespace)
+    })
+}
 
 /** Group children in a live DOM range without a wrapper element. */
 export const fragment = element('fragment')

@@ -1,11 +1,11 @@
 import * as core from '@pfern/elements'
-import * as x3d from '../src/3d.js'
-import * as x3dom from '../x3dom.js'
+import * as x3d from '../../src/3d.js'
+import * as x3dom from '../../3d.js'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { test } from 'node:test'
 
-const x3domVendorFullPath = new URL('../vendor/x3dom-full.js', import.meta.url)
+const x3domVendorFullPath = new URL('../../vendor/x3dom-full.js', import.meta.url)
 
 test('the X3DOM entry point shares the core operations without adding other vocabularies', () => {
   for (const [name, helper] of Object.entries(core))

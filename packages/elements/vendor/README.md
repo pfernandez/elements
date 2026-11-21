@@ -1,7 +1,7 @@
 # Vendored X3DOM artifacts
 
 This folder contains vendored build artifacts from the upstream X3DOM project.
-They are included so that `@pfern/elements-x3dom` can:
+They are included so that `@pfern/elements/3d` can:
 
 - Provide comprehensive X3D tag helpers (core + full node sets).
 - Lazy-load X3DOM at runtime without requiring consumers to import `x3dom`
@@ -27,15 +27,24 @@ version, using the upstream build script:
 3. Run build:
    - `node build/src-builder.js`
 4. Copy outputs from `dist/`:
-   - `dist/x3dom-full.js` → `elements/vendor/x3dom-full.js`
-   - `dist/x3dom.css` → `elements/vendor/x3dom.css`
+   - `dist/x3dom-full.js` → `packages/elements/vendor/x3dom-full.js`
+   - `dist/x3dom.css` → `packages/elements/vendor/x3dom.css`
+   - `LICENSE.md` → `packages/elements/vendor/LICENSE.md`
 
-The generated `src/3d.js` loader expects these files to remain present and in
+The `src/x3dom.js` loader expects the engine and stylesheet to remain present and in
 sync with one another.
 
 ## Regenerating helpers/types
 
-After updating the vendored artifacts (or changing X3DOM versions), regenerate
-the runtime helpers and type definitions:
+After replacing the engine, run these commands from the repository root.
 
-- `npm run -s gen:x3d`
+```sh
+npm run -s fetch:x3dom-src
+npm run -s build:types
+```
+
+The refresh reads the matching upstream revision and writes node descriptions,
+field types, and inheritance to `scripts/x3dom-nodes.json` in the Elements
+package. Commit that file with the engine update. Ordinary builds and npm
+packing read the checked-in data offline. The tarball includes the resulting
+declarations and the [upstream license](./LICENSE.md).
