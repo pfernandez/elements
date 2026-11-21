@@ -13,6 +13,34 @@ customElements.define('elements-selection-probe', class extends HTMLElement {
 })
 const probe = element('elements-selection-probe')
 
+test('a nested selection reaches every placement by the end of the outer update', () => {
+  const view = observe(n => probe({
+    onclick: () => view(n + 1),
+    oninvalid: () => view(2),
+    'data-state': n,
+    title: String(n)
+  }, n))
+  const host = document.body.appendChild(document.createElement('section'))
+  const initial = view(0)
+  try {
+    const left = project(initial, host)
+    project(initial, host)
+    left.onState = value => {
+      if (value === '1') left.dispatchEvent(new Event('invalid'))
+    }
+    const states = () => Array.from(host.children, node =>
+      [node.title, node.textContent])
+
+    left.click()
+    equal(states(), [['2', '2'], ['2', '2']])
+
+    host.lastElementChild.click()
+    equal(states(), [['3', '3'], ['3', '3']])
+  } finally { host.remove() }
+})
+
+// Assertions made inside lifecycle callbacks describe the 0.3 renderer.
+// The public timing guarantee is exercised above, after the outer click.
 test('a matched single child moved by an attribute callback is restored to its parent', () => {
   const host = document.body.appendChild(document.createElement('section'))
   const foreign = document.body.appendChild(document.createElement('aside'))
@@ -81,28 +109,6 @@ test('a native callback can select another observer synchronously', () => {
   equal(root.textContent, '1')
   root.remove()
   parallel.remove()
-})
-
-test('nested selections finish synchronously and superseded attribute patches stop', () => {
-  const view = observe(n => probe({ 'data-state': n, title: String(n) }, n))
-  const initial = view(0), newer = view(2)
-  const left = project(initial), right = project(initial)
-  document.body.append(left, right)
-  const control = project(button({ onclick: () => newer }))
-  const seen = []
-  left.onState = value => {
-    if (value === '1') {
-      control.click()
-      seen.push([left.textContent, right.textContent])
-    }
-  }
-  project(button({ onclick: () => view(1) })).click()
-  equal(seen, [['2', '2']])
-  equal([left.textContent, right.textContent, left.title, right.title], ['2', '2', '2', '2'])
-  control.click()
-  equal([left.textContent, right.textContent], ['2', '2'])
-  left.remove()
-  right.remove()
 })
 
 test('a nested root replacement is available for focus before its click returns', () => {

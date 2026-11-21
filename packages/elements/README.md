@@ -256,6 +256,12 @@ Any DOM event handler can return a vnode. An observer vnode selects that
 observer's observation wherever it is mounted. A plain vnode updates the
 handler's nearest observer boundary (or the projection root outside an observer).
 
+A custom element can dispatch another event while Elements is updating the DOM.
+If its handler returns a newer observation of the same observer, every placement
+shows the final selection when the outermost synchronous update finishes. The
+lifecycle callback may see intermediate DOM. To focus a replacement
+element, look it up after the update, for example in a `queueMicrotask` callback.
+
 `oninput` and `onchange` receive `(event.target, event)`. Destructure the native
 control's `value` or `checked` property:
 

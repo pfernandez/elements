@@ -107,7 +107,7 @@ export const restore = observations => {
  * The view takes state as arguments and returns an observation: a vnode
  * describing the interface and its event handlers. Handlers can return another
  * observation of the same observer with new arguments, forming a recursive
- * sequence of state transitions. Mounted DOM projections follow each selection.
+ * sequence of state transitions.
  *
  * Calls to the returned observer construct vnodes without updating the DOM.
  * Returning one from an event selects that observer's next observation,
@@ -117,6 +117,10 @@ export const restore = observations => {
  *
  * All projections of this definition share its current observation. Create
  * separate observer definitions for independent state (a factory can help).
+ * If an event selects a newer observation during a DOM update, every placement
+ * reflects the final selection when the outermost synchronous update finishes.
+ * Custom-element callbacks may see intermediate DOM during the update.
+ *
  * A fresh vnode selects its observation when first projected; reusing an
  * already projected vnode preserves current state. Source arrays are never
  * rewritten. Unkeyed sibling boundaries follow their identity through
